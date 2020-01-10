@@ -1,3 +1,4 @@
+const property = require('../../propertiesReader.js')
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 
@@ -11,13 +12,18 @@ module.exports.javaInstall = () => {
     // console.log(stdout);
     console.log(stderr);
 
+
+    // console.log(property.getJavaVersion());
+console.log(property.getNodeInfo());
+
+
     if(stderr == null){
       console.log('JAVA를 설치합니다.');
 
       exec("rpm -ivh jre-8u231-linux-x64.rpm");
 
 
-    }else if(stderr.includes("1.8.0_191")==true){
+    }else if(stderr.includes('1.8.0_191')==true){
       console.log('이미 JAVA가 설치되어있습니다.');
 
 

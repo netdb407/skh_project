@@ -34,17 +34,20 @@ const sshpassAction = require('./Installation/lib/sshpass.js')
     //   install
     //   console.log('2');
     // })
-console.log(property.getNodeInfo());
+
+
+
+// console.log(property.getNodeInfo());
 
 program
   .command('install <package> <java|sshpass>')
   .action(function install(opt1, opt2){
     if(opt2 == 'java'){
-      console.log('java');
+      // console.log('java');
       javaAction.javaInstall()
 
     }else{
-      console.log('ssh');
+      // console.log('ssh');
       sshpassAction.sshpassInstall();
     }
   })
