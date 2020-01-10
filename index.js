@@ -2,8 +2,10 @@
 
 const program = require('commander');
 const installation = require('./Installation/bin/install.js')
-// const bencmhark = require('./Benchmark/bin/BMrun.js')
 
+console.log('1');
+const bencmharking = require('./Benchmarking/bin/benchmark.js')
+console.log('2');
 
 program
   .command('install')
@@ -15,17 +17,16 @@ program
   })
 
 
+program
+    .command('benchmark')
+    .action(function benchmarking(){
+        benchmarking.test();
+    }
+
+      // console.log(opt);
+      //console.log(runtype);
+
+      // bencmhark.chooseDbtype(dbtype);
+    )
+
 program.parse(process.argv);
-
-
-
-
-
-// program
-//     .command('benchmark')
-//     .action(function benchmark(){
-          //const bencmhark = require('./Benchmark/bin/BMrun.js')
-//       bencmhark
-//     })
-//
-// program.parse(process.argv);
