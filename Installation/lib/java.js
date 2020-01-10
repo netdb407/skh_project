@@ -1,4 +1,3 @@
-
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')

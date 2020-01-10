@@ -45,5 +45,8 @@ module.exports = {
   get_sshpass(){
     return properties.get("sshpass");
   },
+  get_python(){
+    return properties.get("python");
+  },
 
 }
