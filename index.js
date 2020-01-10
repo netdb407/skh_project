@@ -2,10 +2,8 @@
 
 const program = require('commander');
 const installation = require('./Installation/bin/install.js')
+const benchmarking = require('./Benchmarking/bin/benchmark.js')
 
-console.log('1');
-const bencmharking = require('./Benchmarking/bin/benchmark.js')
-console.log('2');
 
 program
   .command('install')
@@ -19,8 +17,12 @@ program
 
 program
     .command('benchmark')
-    .action(function benchmarking(){
-        benchmarking.test();
+    .arguments('<ycsb|graphbench>')
+    .action(function benchmarkTool(arg){
+      console.log(arg);
+        // benchmarking.test();
+        //
+      benchmarking.benchmarkTool(arg);
     }
 
       // console.log(opt);
