@@ -16,6 +16,7 @@
     "child_process": "^1.0.2",
     "commander": "^4.1.0",
     "esm": "^3.2.25",
-    "progress": "^2.0.3"
+    "progress": "^2.0.3",
+    "properties-reader": "^0.3.1"
   }
 }

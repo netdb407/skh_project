@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const program = require('commander');
-
+const property = require('./propertiesReader.js')
 const javaAction = require('./Installation/lib/java.js')
 const sshpassAction = require('./Installation/lib/sshpass.js')
 // const bencmhark = require('./Benchmark/bin/BMrun.js')
@@ -34,7 +34,7 @@ const sshpassAction = require('./Installation/lib/sshpass.js')
     //   install
     //   console.log('2');
     // })
-
+console.log(property.getNodeInfo());
 
 program
   .command('install <package> <java|sshpass>')
