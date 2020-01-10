@@ -1,7 +1,8 @@
-const property = require('../../propertiesReader.js')
+
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
-const javaVersion = property.getJavaVersion();
+const property = require('../../propertiesReader.js')
+const javaVersion = property.get_java();
 
 module.exports.javaInstall = () => {
 

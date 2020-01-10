@@ -1,5 +1,8 @@
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
+const property = require('../../propertiesReader.js')
+const sshpassVersion = property.get_sshpass();
+
 
 module.exports.sshpassInstall = () => {
   const child = execFile('sshpass', ['-V'], (err, stdout, stderr) => {
@@ -15,7 +18,7 @@ module.exports.sshpassInstall = () => {
 
 
     try{
-      if(stdout.includes("1.06")==true){
+      if(stdout.includes(sshpassVersion)==true){
         console.log('이미 sshpass가 설치되어있습니다.');
       }
 

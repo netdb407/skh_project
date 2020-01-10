@@ -37,10 +37,13 @@ module.exports = {
   get_IO_driverManager_dir(){
     return properties.get("IO_driverManager_dir");
   },
-  
+
   //version
-  getJavaVersion(){
-    return properties.get("java")
+  get_java(){
+    return properties.get("java");
+  },
+  get_sshpass(){
+    return properties.get("sshpass");
   },
 
 }
