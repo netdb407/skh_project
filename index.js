@@ -18,8 +18,8 @@ program
 program
     .command('benchmark')
     .arguments('<ycsb|graphbench>')
+    .option('-d, --dbtype <dbtype>')
     .action(function benchmarkTool(arg){
-      console.log(arg);
         // benchmarking.test();
         //
       benchmarking.benchmarkTool(arg);
