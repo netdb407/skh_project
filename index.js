@@ -17,8 +17,20 @@ program
     else{
       installation.installDatabase(opt, arg);
     }
+    // else if(opt == 'db'){
+    //   installation.installDatabase(opt, arg);
+    // }
+    // else{
+    //   installation.installAll(opt, arg);
+    // }
   })
 
+
+// program
+//   .command('install <all>')
+//   .action(function installAll(){
+//     console.log('all');
+//   })
 
 program.parse(process.argv);
 

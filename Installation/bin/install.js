@@ -1,12 +1,12 @@
-
-
 const program = require('commander');
+const versionChecking = require('../lib/versionCheck.js')
 const javaAction = require('../lib/java.js')
 const sshpassAction = require('../lib/sshpass.js')
 
 module.exports.installPackage = (package, arg) => {
   switch(arg){
      case 'java' :
+       versionChecking.versionCheck(arg);
        javaAction.javaInstall();
        break;
 
@@ -25,8 +25,7 @@ module.exports.installPackage = (package, arg) => {
      case 'python' :
       console.log('python');
       break;
-
-       }
+    }
 }
 
 
@@ -45,3 +44,8 @@ module.exports.installDatabase = (db, arg) => {
       break;
   }
 }
+
+
+// module.exports.installAll = (opt, arg) => {
+//   console.log('all');
+// }
