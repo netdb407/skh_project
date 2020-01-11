@@ -1,6 +1,100 @@
 const program = require('commander')
 
-console.log('4');
+module.exports.ycsbRun;
+module.exports.ycsbload;
+
+
+module.exports.ycsb = (opt) => {
+  // console.log(opt);
+
+  function ycsbRun(){
+  console.log('ycsbRun');
+  console.log(opt.runtype);
+  }
+
+  function ycsbload(){
+  console.log('ycsbload');
+  }
+
+
+
+
+ycsbRun()
+
+        const dbtypeLine = `dbtype : ${ opt.dbtype}`
+        console.log(dbtypeLine);
+        const loadtypeLine = `runtype : ${
+          (() => {
+            switch (opt.runtype) {
+              case 'load':
+                return 'load'
+              case 'run':
+                return 'run'
+              case 'loadrun':
+                return 'load / run'
+              default:
+                return '다시 입력해주세요'
+            }
+          })()
+
+        }`
+        console.log(loadtypeLine);
+
+        if(!opt.loadsize){
+          var sizeoption = "";
+          var size = "";
+          var loadSize = "";
+        }else{
+          var sizeoption = '-p insertcount='
+          var size = opt.loadsize
+          if (size.match(/M/)){
+            afterSize = size.split('M');
+            loadSize = afterSize[0]*1000000;
+          }
+          if (size.match(/G/)){
+            afterSize = size.split('T');
+            loadSize = afterSize[0]*100000000;
+          }
+          if (size.match(/T/)){
+            afterSize = size.split('T');
+            loadSize = afterSize[0]*1000000000000;
+          }
+          console.log(`load size : ${size}`);
+        }
+
+
+
+        //
+        // try {
+        //   const execSync = require('child_process').execSync;
+        //   // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
+        //   const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} `);
+        //   console.log(`stdout: ${stdout}`);
+        // } catch (err) {
+        //     err.stdout;
+        //     err.stderr;
+        //     err.pid;
+        //     err.signal;
+        //     err.status;
+        //     // etc
+        // }
+
+        console.log(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} ${sizeoption}${loadSize}`);
+
+
+  //
+// console.log(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} ${sizeoption}${loadSize}`);
+//
+
+}
+
+
+
+
+
+
+
+
 // module.exports.ycsbRun = () => {
 //   // console.log(options);
 // console.log('ycsb 함수');
@@ -136,7 +230,7 @@ console.log('4');
 //       //
 //       // const dbtypeLine = `dbtype : ${
 //       //   (() => {
-//       //     switch (cmd.dbtype) {
+//       //     switch (opt.dbtype) {
 //       //       case 'cassandra':
 //       //         return 'cassandra'
 //       //       case 'arangodb':
@@ -151,7 +245,7 @@ console.log('4');
 //       //
 //       // const loadtypeLine = `runtype : ${
 //       //   (() => {
-//       //     switch (cmd.runtype) {
+//       //     switch (opt.runtype) {
 //       //       case 'load':
 //       //         return 'load'
 //       //       case 'run':
@@ -166,13 +260,13 @@ console.log('4');
 //       // }`
 //       // console.log(loadtypeLine);
 //       //
-//       // if(!cmd.loadsize){
+//       // if(!opt.loadsize){
 //       //   var sizeoption = "";
 //       //   var size = "";
 //       //   var loadSize = "";
 //       // }else{
 //       //   var sizeoption = '-p insertcount='
-//       //   var size = cmd.loadsize
+//       //   var size = opt.loadsize
 //       //   if (size.match(/M/)){
 //       //     afterSize = size.split('M');
 //       //     loadSize = afterSize[0]*1000000;
@@ -194,7 +288,7 @@ console.log('4');
 //       // // try {
 //       // //   const execSync = require('child_process').execSync;
 //       // //   // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-//       // //   const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.sh ${cmd.runtype} ${cmd.dbtype} `);
+//       // //   const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} `);
 //       // //   console.log(`stdout: ${stdout}`);
 //       // // } catch (err) {
 //       // //     err.stdout;
@@ -205,6 +299,6 @@ console.log('4');
 //       // //     // etc
 //       // // }
 //       //
-//       // console.log(`./ycsb-0.17.0/bin/ycsb.sh ${cmd.runtype} ${cmd.dbtype} ${sizeoption}${loadSize}`);
+//       // console.log(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} ${sizeoption}${loadSize}`);
 //       //
 //       //

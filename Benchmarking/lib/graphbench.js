@@ -1,5 +1,5 @@
 
-module.exports.graphbenchRun = () => {
+module.exports.graphbench = () => {
   console.log('graph~~');
 
 

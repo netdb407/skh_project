@@ -17,6 +17,18 @@ program
     //console.log(opt);
     installation.installPackage(opt);
   })
+  
+program
+  .command('benchmark')
+  .action(function benchmarkTool() {
+    // console.log(arg.dbtype);
+    benchmarking
+  })
+
+
+program.parse(process.argv)
+
+
 
 
 
@@ -50,18 +62,6 @@ program
 //
 // program.parse(process.argv)
 
-
-
-
-program
-    .command('benchmark')
-    .action(function benchmarkTool() {
-      // console.log(arg.dbtype);
-      benchmarking
-    })
-
-
-program.parse(process.argv)
 
 
 
