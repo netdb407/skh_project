@@ -1,44 +1,24 @@
 const program = require('commander')
 
-module.exports.ycsbRun;
-module.exports.ycsbload;
 
 
 module.exports.ycsb = (opt) => {
   // console.log(opt);
 
-  function ycsbRun(){
-  console.log('ycsbRun');
-  console.log(opt.runtype);
+
+  const dbtypeLine = `dbtype : ${ opt.dbtype}`
+  console.log(dbtypeLine);
+
+  if(opt.runtype == 'load' || opt.runtype == 'run' || opt.runtype == 'loadrun'){
+    const runtypeLine = `runtype : ${opt.runtype}`
+    console.log(runtypeLine);
+  }else {
+    console.log('runtype : (load, run, load/run) 를 입력해주세요.');
   }
 
-  function ycsbload(){
-  console.log('ycsbload');
-  }
 
 
 
-
-ycsbRun()
-
-        const dbtypeLine = `dbtype : ${ opt.dbtype}`
-        console.log(dbtypeLine);
-        const loadtypeLine = `runtype : ${
-          (() => {
-            switch (opt.runtype) {
-              case 'load':
-                return 'load'
-              case 'run':
-                return 'run'
-              case 'loadrun':
-                return 'load / run'
-              default:
-                return '다시 입력해주세요'
-            }
-          })()
-
-        }`
-        console.log(loadtypeLine);
 
         if(!opt.loadsize){
           var sizeoption = "";
