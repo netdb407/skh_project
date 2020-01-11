@@ -1,10 +1,11 @@
-// const program = require('commander')
+const program = require('commander')
 
-module.exports.ycsbRun = () => {
-  // console.log(options);
-console.log('ycsb 함수');
-// console.log(arg.dbtype);
-}
+console.log('4');
+// module.exports.ycsbRun = () => {
+//   // console.log(options);
+// console.log('ycsb 함수');
+// // console.log(arg.dbtype);
+// }
 
 // const program2 = require('./subcommander.js')
 
@@ -30,7 +31,22 @@ console.log('ycsb 함수');
 //
 // program2.parse(process.argv);
 
-
+// console.log('2');
+// program
+//   // .command('db')
+//   // .arguments('<dbtype>')
+//   .option('-d, --dbtype <dbtype>')
+//   .option('-r, --runtype <runtype>')
+//   .option('-l, --loadsize [loadsize]', `load size를 입력 (###M, ###G, ###T)`)
+//   .option('-w --wlfile <wlfile>', `workload file을 입력`)
+//   .option('-c --config <config>', `config 파일 입력`)
+//   .option('-n, --name <name>', `name을 입력`)
+//   .option('-o, --output <output>', `output directory 지정`)
+//   .action(function(options){
+//     console.log(options.dbtype);
+//     console.log(options.runtype);
+// })
+//    program.parse(process.argv);
 //
 // module.exports.ycsbRun = () => {
 //
