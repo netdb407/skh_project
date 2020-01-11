@@ -6,12 +6,17 @@ const installation = require('./Installation/bin/install.js')
 
 
 program
-  .command('install')
-  .arguments('<opt>')
-  .option('-p, --package')
-  .action(function installPackage(opt){
-    //console.log(opt);
-    installation.installPackage(opt);
+  .command('install <package|db> <arg>')
+  // .arguments('<opt>')
+  // .option('-p, --package')
+  // .option('-d, --database')
+  .action(function installPackage(opt, arg){
+    if(opt == 'package'){
+      installation.installPackage(opt, arg);
+    }
+    else{
+      installation.installDatabase(opt, arg);
+    }
   })
 
 
