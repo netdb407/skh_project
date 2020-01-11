@@ -36,5 +36,6 @@ function patchCommander( commander ){
 	return commander;
 }
 
-const subcommander = patchCommander( oldCommander );
-module.exports = subcommander ;
+const commander = patchCommander( oldCommander );
+
+module.exports = commander;

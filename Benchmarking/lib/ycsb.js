@@ -1,8 +1,14 @@
 // const program = require('commander')
 
+module.exports.ycsbRun = () => {
+  // console.log(options);
+console.log('ycsb 함수');
+// console.log(arg.dbtype);
+}
+
 // const program2 = require('./subcommander.js')
 
-console.log('1...');
+// console.log('1...');
 //
 // const projectCommand = program2
 //         .command('project')
