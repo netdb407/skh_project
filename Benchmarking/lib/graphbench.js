@@ -1,5 +1,5 @@
 
-module.exports.ycsbRun = (cmd) => {
+module.exports.graphbenchbRun = (cmd) => {
   console.log(cmd);
 
       //
@@ -76,5 +76,5 @@ module.exports.ycsbRun = (cmd) => {
       //
       // console.log(`./ycsb-0.17.0/bin/ycsb.sh ${cmd.runtype} ${cmd.dbtype} ${sizeoption}${loadSize}`);
       //
-      // 
+      //
 }

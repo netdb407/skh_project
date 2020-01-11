@@ -1,34 +1,33 @@
 const program = require('commander')
 
-module.exports.ycsbRun = () => {
+module.exports.ycsbRun = (options) => {
+console.log(options.dbtype);
+// console.log('1');
+  program
+      .command('db')
+      // .arguments('<dbtype>')
+      .option('-d, --dbtype <dbtype>')
+      .option('-r, --runtype <runtype>')
+      .option('-l, --loadsize [loadsize]', `load size를 입력 (###M, ###G, ###T)`)
+      .option('-w --wlfile <wlfile>', `workload file을 입력`)
+      .option('-c --config <config>', `config 파일 입력`)
+      .option('-n, --name <name>', `name을 입력`)
+      .option('-o, --output <output>', `output directory 지정`)
+      .action(function(options){
+        console.log(options.dbtype);
+        console.log(options.runtype);
 
-console.log('ddd');
-  //
-  // program
-  //     // .command('db')
-  //     // // .arguments('<dbtype>')
-  //     // .option('-d, --dbtype <dbtype>')
-  //     // .option('-r, --runtype <runtype>')
-  //     // .option('-l, --loadsize [loadsize]', `load size를 입력 (###M, ###G, ###T)`)
-  //     // .option('-w --wlfile <wlfile>', `workload file을 입력`)
-  //     // .option('-c --config <config>', `config 파일 입력`)
-  //     // .option('-n, --name <name>', `name을 입력`)
-  //     // .option('-o, --output <output>', `output directory 지정`)
-  //     .action(function(options){
-  //       console.log(options.dbtype);
-  //       console.log(options.runtype);
-  //
-  //       switch(options.dbtype){
-  //         case 'cassandra' :
-  //         console.log('cassandra');
-  //
-  //       }
-  //       // console.log(opt);
-  //       //console.log(runtype);
-  //
-  //       // bencmhark.chooseDbtype(dbtype);
-  //     })
-  //
+        switch(options.dbtype){
+          case 'cassandra' :
+          console.log('cassandra');
+
+        }
+        // console.log(opt);
+        //console.log(runtype);
+
+        // bencmhark.chooseDbtype(dbtype);
+      })
+
   // program.parse(process.argv);
 
 }

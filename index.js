@@ -17,18 +17,24 @@ program
 
 program
     .command('benchmark')
-    .arguments('<ycsb|graphbench>')
+    // .command('run')
+    // .arguments('<ycsb|graphbench>')
     .option('-d, --dbtype <dbtype>')
-    .action(function benchmarkTool(arg){
-        // benchmarking.test();
-        //
-      benchmarking.benchmarkTool(arg);
-    }
+    .action(function benchmarkTool(options){
 
-      // console.log(opt);
-      //console.log(runtype);
-
-      // bencmhark.chooseDbtype(dbtype);
-    )
+      benchmarking.benchmarkTool(options);
+    })
+    // .action(function benchmarkTool(arg){
+    //     // benchmarking.test();
+    //     //
+    //     console.log(arg);
+    //   benchmarking.benchmarkTool(arg);
+    // }
+    //
+    //   // console.log(opt);
+    //   //console.log(runtype);
+    //
+    //   // bencmhark.chooseDbtype(dbtype);
+    // )
 
 program.parse(process.argv);
