@@ -30,9 +30,7 @@ program
           // console.log('함수 실행 전');
           graphbenchAction.graphbench(opt)
           break;
-        default :
-          console.log('dbtype : (cassandra, arangodb, orientdb) 를 입력해주세요.');
-        }
+        
 
     // console.log(options.runtype);
 })
