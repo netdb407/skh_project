@@ -1,12 +1,16 @@
 const program = require('commander')
+const property = require('../../propertiesReader.js')
+const wlfileDir = property.get_server_wlfile_dir()
+const nodeIP = property.get_nodes()
 
-
+module.exports.ycsbRun
+module.exports.ycsbLoad
 
 module.exports.ycsb = (opt) => {
   // console.log(opt);
+console.log('asdf');
 
-
-  const dbtypeLine = `dbtype : ${ opt.dbtype}`
+  const dbtypeLine = `dbtype : ${opt.dbtype}`
   console.log(dbtypeLine);
 
   if(opt.runtype == 'load' || opt.runtype == 'run' || opt.runtype == 'loadrun'){
@@ -17,30 +21,57 @@ module.exports.ycsb = (opt) => {
   }
 
 
+  if(opt.runtype == 'load'){
+    ycsbLoad()
+  }else if(opt.runtype == 'loadrun'){
+    ycsbLoad()
+    ycsbRun()
+  }else{
+    ycsbRun()
+  }
+
+  function ycsbLoad(){
+// insertstart, insertcount : record 갯수 계산하기
+//
+    if(!opt.loadsize){
+      var size = "";
+      var loadSize = "";
+      var loadLine = "";
+    }else{
+      var size = opt.loadsize
+      if (size.match(/M/)){
+        afterSize = size.split('M');
+        loadSize = afterSize[0]*Math.pow(10, 6);
+      }
+      if (size.match(/G/)){
+        afterSize = size.split('T');
+        loadSize = afterSize[0]*Math.pow(10, 9);
+      }
+      if (size.match(/T/)){
+        afterSize = size.split('T');
+        loadSize = afterSize[0]*Math.pow(10,12);
+      }
+      LoadLine = `-p ${loadSize}`
+
+      console.log(`load size : ${size}`);
+    }
+
+
+    console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP}`);
+  }
+
+  function ycsbRun(){
+    console.log(`bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP}`);
+  }
 
 
 
-        if(!opt.loadsize){
-          var sizeoption = "";
-          var size = "";
-          var loadSize = "";
-        }else{
-          var sizeoption = '-p insertcount='
-          var size = opt.loadsize
-          if (size.match(/M/)){
-            afterSize = size.split('M');
-            loadSize = afterSize[0]*1000000;
-          }
-          if (size.match(/G/)){
-            afterSize = size.split('T');
-            loadSize = afterSize[0]*100000000;
-          }
-          if (size.match(/T/)){
-            afterSize = size.split('T');
-            loadSize = afterSize[0]*1000000000000;
-          }
-          console.log(`load size : ${size}`);
-        }
+
+
+
+
+
+
 
 
 
@@ -59,7 +90,7 @@ module.exports.ycsb = (opt) => {
         //     // etc
         // }
 
-        console.log(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} ${sizeoption}${loadSize}`);
+        // console.log(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} ${sizeoption}${loadSize}`);
 
 
   //
@@ -67,6 +98,7 @@ module.exports.ycsb = (opt) => {
 //
 
 }
+
 
 
 
