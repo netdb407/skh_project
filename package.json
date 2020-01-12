@@ -5,7 +5,7 @@
   "main": "index.js",
   "bin": {
     "install": "./Installation/bin/install.js",
-    "benchmark": "./Benchmark/bin/BMrun.js"
+    "benchmark": "./Benchmarking/bin/benchmark.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
