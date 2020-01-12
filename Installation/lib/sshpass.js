@@ -16,7 +16,10 @@ module.exports.sshpassInstall = () => {
     //   까는 함수 호출
     // }
 
-
+    if (err) {
+      throw err;
+    }
+    
     try{
       if(stdout.includes(sshpassVersion)==true){
         console.log('이미 sshpass가 설치되어있습니다.');
