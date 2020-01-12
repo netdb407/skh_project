@@ -8,16 +8,16 @@ const benchmarking = require('./Benchmarking/bin/benchmark.js')
 
 
 program
-  .command('install <package|db> <arg>')
+  .command('install <package|db> <arg> <node|server>')
   // .arguments('<opt>')
   // .option('-p, --package')
   // .option('-d, --database')
-  .action(function installPackage(opt, arg){
+  .action(function installPackage(opt, arg, dir){
     if(opt == 'package'){
-      installation.installPackage(opt, arg);
+      installation.installPackage(opt, arg, dir);
     }
     else{
-      installation.installDatabase(opt, arg);
+      installation.installDatabase(opt, arg, dir);
     }
     // else if(opt == 'db'){
     //   installation.installDatabase(opt, arg);

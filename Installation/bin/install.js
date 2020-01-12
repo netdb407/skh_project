@@ -1,11 +1,23 @@
 const program = require('commander');
+const property = require('../../propertiesReader.js')
 const versionChecking = require('../lib/versionCheck.js')
 const javaAction = require('../lib/java.js')
 const sshpassAction = require('../lib/sshpass.js')
 
-module.exports.installPackage = (package, arg) => {
-  switch(arg){
+module.exports.installPackage = (package, arg, dir) => {
+   
+   if(dir == 'server'){
+     const dir = property.get_server()
+     console.log(dir)
+   }
+   else{
+     const dir = property.get_nodes()
+     console.log(dir)
+   }
+
+  switch(arg, dir){
      case 'java' :
+
        versionChecking.versionCheck(arg);
        javaAction.javaInstall();
        break;
