@@ -5,10 +5,10 @@ const nodeIP = property.get_nodes()
 
 module.exports.ycsbRun
 module.exports.ycsbLoad
+module.
 
 module.exports.ycsb = (opt) => {
   // console.log(opt);
-console.log('asdf');
 
   const dbtypeLine = `dbtype : ${opt.dbtype}`
   console.log(dbtypeLine);
@@ -52,12 +52,11 @@ console.log('asdf');
         loadSize = afterSize[0]*Math.pow(10,12);
       }
       LoadLine = `-p ${loadSize}`
-
       console.log(`load size : ${size}`);
     }
 
 
-    console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP}`);
+    console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadLine}`);
   }
 
   function ycsbRun(){
