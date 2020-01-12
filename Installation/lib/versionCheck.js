@@ -15,7 +15,7 @@ module.exports.versionCheck = (arg) => {
 
 
     let temp = `arg`
-    // echo $temp
+    echo $temp
     console.log(temp);
 
     if(temp.includes('command not found')){
