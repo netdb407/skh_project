@@ -11,7 +11,9 @@ module.exports.installPackage = (package, arg) => {
        break;
 
      case 'sshpass' :
-       sshpassAction.sshpassInstall();
+       versionChecking.versionCheck(arg);
+       console.log('1');
+       // sshpassAction.sshpassInstall();
        break;
 
      case 'git' :
@@ -24,6 +26,11 @@ module.exports.installPackage = (package, arg) => {
 
      case 'python' :
       console.log('python');
+      break;
+
+     default :
+      versionChecking.versionCheck(arg);
+      // console.log('default');
       break;
     }
 }

@@ -12,11 +12,19 @@ module.exports.versionCheck = (arg) => {
     // console.log(err);
     // console.log(stdout);
     // console.log(stderr);
-    const temp = stdout
+
+
+    let temp = `arg`
+    // echo $temp
     console.log(temp);
-    if(temp.includes('인식되지 않습니다')){
+
+    if(temp.includes('command not found')){
       console.log('wow');
     }
+    //결과 담기
+    //command not found : 없으니 설치
+    //version : 숫자 저장해서 비교
+    //같으면 종료, 다르면 삭제 후 재설치
   })
   // let isOk = versionCheck("1.06", "1.05");
   // if(isOk)

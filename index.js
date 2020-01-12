@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
 const program = require('commander')
-const subprogram = require('./Benchmarking/lib/subcommander.js')
-
-
+// const subprogram = require('./Benchmarking/lib/subcommander.js')
 const installation = require('./Installation/bin/install.js')
 const benchmarking = require('./Benchmarking/bin/benchmark.js')
 
