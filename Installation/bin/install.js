@@ -30,8 +30,9 @@ program
   .action(function(opt){
 
     //package가 들어오면(null이 아닐때)
-    if(!!opt.package){
-      installPackage(opt.package, opt.args[1]);
+    if(!!opt.package && !!opt.server){
+      // console.log(opt.server);
+      installPackage(opt.package, opt.server);
     }
     else if(!!opt.database){
       installDatabase(opt.dbname);
@@ -44,8 +45,13 @@ program.parse(process.argv)
 
 
 function installPackage(package, dir){
+  // console.log(package);
   // console.log(dir);
-  if(dir == 'server'){
+  // console.log(dir);
+  if(dir == true){
+    // console.log('true');
+    // console.log(dir);
+    // console.log('wow');
     const directory = property.get_server_install_dir()
     // console.log(directory);
   }
