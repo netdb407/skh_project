@@ -9,14 +9,16 @@ module.exports.versionCheck = (arg) => {
   // console.log(arg);
 
   const child = execFile(arg, (err, stdout, stderr) => {
-    // console.log(err);
-    // console.log(stdout);
-    // console.log(stderr);
+    console.log(err);
+    console.log('stdout');
+    console.log(stdout);
+    console.log('stderr');
+    console.log(stderr);
 
 
-    let temp = `arg`
+    // let temp = `arg`
     // echo $temp
-    console.log(temp);
+    // console.log(temp);
 
     if(temp.includes('command not found')){
       console.log('wow');

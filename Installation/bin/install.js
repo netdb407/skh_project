@@ -12,11 +12,8 @@ program
 
     //package가 들어오면(null이 아닐때)
     if(!!opt.package){
-      // console.log(opt.package);
-      // console.log(opt.args[1]);
       installPackage(opt.package, opt.args[1]);
     }
-
     else if(!!opt.database){
       installDatabase(opt.dbname);
     }
@@ -32,11 +29,11 @@ function installPackage(package, dir){
   // console.log(dir);
   if(dir == 'server'){
     const directory = property.get_server_install_dir()
-    console.log(directory);
+    // console.log(directory);
   }
   else{
     const directory = property.get_node_install_dir()
-    console.log(directory);
+    // console.log(directory);
   }
 
 
