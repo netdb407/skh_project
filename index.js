@@ -1,33 +1,42 @@
 #!/usr/bin/env node
 
 const program = require('commander')
-const subprogram = require('./Benchmarking/lib/subcommander.js')
-
-
+// const subprogram = require('./Benchmarking/lib/subcommander.js')
 const installation = require('./Installation/bin/install.js')
 const benchmarking = require('./Benchmarking/bin/benchmark.js')
 
 
 
+// program
+//   .command('install <package|db> <arg> <node|server>')
+//   // .arguments('<opt>')
+//   // .option('-p, --package')
+//   // .option('-d, --database')
+//   .action(function installPackage(opt, arg, dir){
+//     if(opt == 'package'){
+//       installation.installPackage(opt, arg, dir);
+//     }
+//     else{
+//       if(dir == 'server'){
+//         console.log('error : database는 node에만 설치 가능, 옵션을 node로 변경');
+//       }
+//       installation.installDatabase(opt, arg, dir);
+//     }
+//     // else if(opt == 'db'){
+//     //   installation.installDatabase(opt, arg);
+//     // }
+//     // else{
+//     //   installation.installAll(opt, arg);
+//     // }
+//   })
+
 program
-  .command('install <package|db> <arg>')
-  // .arguments('<opt>')
-  // .option('-p, --package')
-  // .option('-d, --database')
-  .action(function installPackage(opt, arg){
-    if(opt == 'package'){
-      installation.installPackage(opt, arg);
-    }
-    else{
-      installation.installDatabase(opt, arg);
-    }
-    // else if(opt == 'db'){
-    //   installation.installDatabase(opt, arg);
-    // }
-    // else{
-    //   installation.installAll(opt, arg);
-    // }
+  .command('install')
+  .action(function install(){
+    installation
   })
+
+
 
 program
   .command('benchmark')

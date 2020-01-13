@@ -33,7 +33,7 @@ module.exports.ycsb = (opt) => {
     ycsbRun()
   }else{
     ycsbRun()
-  }``
+  }
 
 
 

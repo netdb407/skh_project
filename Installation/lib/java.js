@@ -2,6 +2,9 @@ const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')
 const javaVersion = property.get_java();
+const javaInstallCmd = 'rpm -ivh java-1.8.0-openjdk-devel-1.8.0.232.b09-0.el8_0.x86_64.rpm'
+const javaDeleteCmd = 'yum remove java'
+
 
 module.exports.javaInstall = () => {
 
@@ -16,7 +19,7 @@ module.exports.javaInstall = () => {
     if(stderr == null){
       console.log('JAVA를 설치합니다.');
 
-      exec("rpm -ivh jre-8u231-linux-x64.rpm");
+      exec(javaInstallCommand);
 
 
     }else if(stderr.includes(javaVersion)==true){
@@ -28,9 +31,9 @@ module.exports.javaInstall = () => {
 
       //기존 JAVA 삭제
       //exec("rpm -e jre-8u231-linux-x64.rpm")
-      exec("yum remove java")
+      exec(javaDeleteCommand)
       //JAVA 설치
-      exec("rpm -ivh jre-8u231-linux-x64.rpm");
+      exec(javaInstallCommand);
     }
   });
 }

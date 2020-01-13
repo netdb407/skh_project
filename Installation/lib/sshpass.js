@@ -2,7 +2,8 @@ const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')
 const sshpassVersion = property.get_sshpass();
-
+const sshpassInstallCmd = 'rpm -ivh sshpass-1.06-2.el7.x86_64.rpm'
+const sshpassDeleteCmd = 'rpm -e sshpass'
 
 module.exports.sshpassInstall = () => {
   const child = execFile('sshpass', ['-V'], (err, stdout, stderr) => {
@@ -16,6 +17,9 @@ module.exports.sshpassInstall = () => {
     //   까는 함수 호출
     // }
 
+    if (err) {
+      throw err;
+    }
 
     try{
       if(stdout.includes(sshpassVersion)==true){
@@ -26,15 +30,15 @@ module.exports.sshpassInstall = () => {
         console.log('설치된 sshpass와 버전이 달라 삭제 후 새로 설치합니다.');
         var exec = require('child_process').execSync;
         //기존 JAVA 삭제
-        exec("rpm -e sshpass")
+        exec(sshpassDeleteCmd)
         //JAVA 설치
-        exec("rpm -ivh sshpass-1.06-2.el7.x86_64.rpm");
+        exec(sshpassInstallCmd);
       }
     }
     catch(exception){
       console.log('sshpass를 설치합니다.');
 
-      exec("rpm -ivh sshpass-1.06-2.el7.x86_64.rpm");
+      exec(sshpassInstallCmd);
     }
 
   });

@@ -12,7 +12,7 @@ program
   .option('-n, --name <name>', `name을 입력`)
   .option('-o, --output <output>', `output directory 지정`)
   .action(function(opt){
-
+    console.log(opt);
     // if(opt.dbtype == 'cassandra' || opt.runtype == 'arangodb' || opt.runtype == 'orientdb'){
       switch(opt.dbtype){
         case 'cassandra' :
@@ -31,10 +31,8 @@ program
           // console.log('함수 실행 전');
           graphbenchAction.graphbench(opt)
           break;
+
         }
-    // }
-
-
     // console.log(options.runtype);
 })
 
