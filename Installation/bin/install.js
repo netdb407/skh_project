@@ -25,18 +25,37 @@ const sshpassAction = require('../lib/sshpass.js')
 program
   .option('-p, --package <pkg>')
   .option('-d, --database <dbname>')
-  .option('-s, --server')
-  .option('-n, --node')
+  .option('-s, --server', `server에 설치, -p 옵션에만 적용`)
+  .option('-n, --node', `node에 설치, -p 옵션에만 적용`)
   .action(function(opt){
 
     //package가 들어오면(null이 아닐때)
+
+    //-p, -s 옵션
     if(!!opt.package && !!opt.server){
       // console.log(opt.server);
       installPackage(opt.package, opt.server);
     }
-    else if(!!opt.database){
+    //-p, -n 옵션
+    else if(!!opt.package && !!opt.node){
+      installPackage(opt.package, opt.node);
+    }
+    //-p 옵션
+    else{
+      console.log('error : -s 또는 -n 옵션을 입력하세요.');
+    }
+
+
+    //-d 옵션
+    if(!!opt.database){
       installDatabase(opt.dbname);
     }
+    //-d, -s옵션
+    else if(!!opt.database && !!opt.server || !!opt.database && !!opt.node){
+      console.log('warning : -s 옵션은 -p옵션과 사용 가능.');
+    }
+
+
   })
 
 program.parse(process.argv)

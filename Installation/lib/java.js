@@ -14,13 +14,19 @@ module.exports.javaInstall = () => {
   // console.log("${cmds.javaInstallCmd}"");
   // console.log(cmds.javaInstallCmd);
 
-  const child = execFile('java', ['-version'], (err, stdout, stderr) => {
-    if (err) {
-      throw err;
-    }
+  // const child = execFile('java', ['-version'], (err, stdout, stderr) => {
+  //   if (err) {
+  //     throw err;
+  //   }
+
+    const child = execFile('ja', (err, stdout, stderr) => {
+      console.log(stderr);
+      // if (err) {
+      //   throw err;
+      // }
     // console.log(err);
     // console.log(stdout);
-    console.log(stderr);
+    // console.log(stderr);
 
     if(stderr == null){
       console.log('JAVA를 설치합니다.');
