@@ -5,7 +5,6 @@ const nodeIP = property.get_nodes()
 
 module.exports.ycsbRun
 module.exports.ycsbLoad
-module.
 
 module.exports.ycsb = (opt) => {
   // console.log(opt);
@@ -21,6 +20,12 @@ module.exports.ycsb = (opt) => {
   }
 
 
+  if(opt.wlfile == null) {
+    const wlfileLine = `workload file : ${opt.wlfile}`
+    console.log('Workload 파일 이름을 입력하세요');
+  }
+
+
   if(opt.runtype == 'load'){
     ycsbLoad()
   }else if(opt.runtype == 'loadrun'){
@@ -28,11 +33,15 @@ module.exports.ycsb = (opt) => {
     ycsbRun()
   }else{
     ycsbRun()
-  }
+  }``
+
+
+
+
+
 
   function ycsbLoad(){
 // insertstart, insertcount : record 갯수 계산하기
-//
     if(!opt.loadsize){
       var size = "";
       var loadSize = "";
@@ -41,20 +50,19 @@ module.exports.ycsb = (opt) => {
       var size = opt.loadsize
       if (size.match(/M/)){
         afterSize = size.split('M');
-        loadSize = afterSize[0]*Math.pow(10, 6);
+        // loadSize = afterSize[0]*Math.pow(10, 6);
       }
       if (size.match(/G/)){
         afterSize = size.split('T');
-        loadSize = afterSize[0]*Math.pow(10, 9);
+        // loadSize = afterSize[0]*Math.pow(10, 9);
       }
       if (size.match(/T/)){
         afterSize = size.split('T');
-        loadSize = afterSize[0]*Math.pow(10,12);
+        // loadSize = afterSize[0]*Math.pow(10,12);
       }
-      LoadLine = `-p ${loadSize}`
+      loadLine = `-p ${size}`
       console.log(`load size : ${size}`);
     }
-
 
     console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadLine}`);
   }
@@ -63,6 +71,22 @@ module.exports.ycsb = (opt) => {
     console.log(`bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP}`);
   }
 
+  function resultLine(){
+    try {
+      const execSync = require('child_process').execSync;
+      // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
+      const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} `);
+      console.log(`stdout: ${stdout}`);
+    } catch (err) {
+        err.stdout;
+        err.stderr;
+        err.pid;
+        err.signal;
+        err.status;
+        // etc
+    }
+
+  }
 
 
 
@@ -74,22 +98,7 @@ module.exports.ycsb = (opt) => {
 
 
 
-        //
-        // try {
-        //   const execSync = require('child_process').execSync;
-        //   // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-        //   const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} `);
-        //   console.log(`stdout: ${stdout}`);
-        // } catch (err) {
-        //     err.stdout;
-        //     err.stderr;
-        //     err.pid;
-        //     err.signal;
-        //     err.status;
-        //     // etc
-        // }
 
-        // console.log(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} ${sizeoption}${loadSize}`);
 
 
   //
