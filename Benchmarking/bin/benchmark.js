@@ -13,6 +13,7 @@ program
   .option('-o, --output <output>', `output directory 지정`)
   .action(function(opt){
 
+    // if(opt.dbtype == 'cassandra' || opt.runtype == 'arangodb' || opt.runtype == 'orientdb'){
       switch(opt.dbtype){
         case 'cassandra' :
           // require('../lib/ycsb.js');
@@ -33,7 +34,7 @@ program
 
         }
     // console.log(options.runtype);
-})
+}
 
 program.parse(process.argv);
 

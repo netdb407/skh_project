@@ -29,6 +29,9 @@ module.exports = {
   get_node_data_dir(){
     return properties.get("node_data_dir");
   },
+  get_server_wlfile_dir(){
+    return properties.get("server_wlfile_dir")
+  },
 
   //IO Tracer
   get_IO_output_dir(){
