@@ -3,9 +3,9 @@ const property = require('../../propertiesReader.js')
 const wlfileDir = property.get_server_wlfile_dir()
 const nodeIP = property.get_nodes()
 
-module.exports.ycsbRun
-module.exports.ycsbLoad
-module.
+// module.exports.ycsbRun
+// module.exports.ycsbLoad
+// module.
 
 module.exports.ycsb = (opt) => {
   // console.log(opt);
