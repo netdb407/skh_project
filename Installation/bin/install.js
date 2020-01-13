@@ -4,86 +4,17 @@ const versionChecking = require('../lib/versionCheck.js')
 const javaAction = require('../lib/java.js')
 const sshpassAction = require('../lib/sshpass.js')
 
-// module.exports.installPackage = (package, arg, dir) => {
-//
-//    if(dir == 'server'){
-//      const dir = property.get_server()
-//      console.log(dir)
-//    }
-//    else{
-//      const dir = property.get_nodes()
-//      console.log(dir)
-//    }
-//
-//   switch(arg, dir){
-//      case 'java' :
-//
-//        versionChecking.versionCheck(arg);
-//        javaAction.javaInstall();
-//        break;
-//
-//      case 'sshpass' :
-//        versionChecking.versionCheck(arg);
-//        console.log('1');
-//        // sshpassAction.sshpassInstall();
-//        break;
-//
-//      case 'git' :
-//       console.log('git');
-//       break;
-//
-//      case 'maven' :
-//       console.log('maven');
-//       break;
-//
-//      case 'python' :
-//       console.log('python');
-//       break;
-//
-//      default :
-//       versionChecking.versionCheck(arg);
-//       // console.log('default');
-//       break;
-//     }
-// }
-
-
-// module.exports.installDatabase = (db, arg) => {
-//   switch(arg){
-//     case 'cassandra' :
-//       console.log('cassandra');
-//       break;
-//
-//     case 'arangodb' :
-//       console.log('arango');
-//       break;
-//
-//     case 'orientdb' :
-//       console.log('orient');
-//       break;
-//   }
-// }
-
-
-// module.exports.installAll = (opt, arg) => {
-//   console.log('all');
-// }
-
-
 
 program
   .option('-p, --package <pkg> <dir>')
   .option('-d, --database <dbname>')
-  .action(function(opt, dir){
-    // console.log(opt);
-    // console.log(opt.package);
-    // console.log(opt.db);
+  .action(function(opt){
 
     //package가 들어오면(null이 아닐때)
     if(!!opt.package){
-      // console.log('wow');
-      installPackage(opt.package);
-      // console.log(opt.args[2]);
+      // console.log(opt.package);
+      // console.log(opt.args[1]);
+      installPackage(opt.package, opt.args[1]);
     }
 
     else if(!!opt.database){
@@ -91,20 +22,33 @@ program
     }
   })
 
+program.parse(process.argv)
 
-function installPackage(package){
-  // console.log('java');
-  // console.log(package);
-  // console.log(package);
+
+
+
+
+function installPackage(package, dir){
+  // console.log(dir);
+  if(dir == 'server'){
+    const directory = property.get_server_install_dir()
+    console.log(directory);
+  }
+  else{
+    const directory = property.get_node_install_dir()
+    console.log(directory);
+  }
+
+
   switch(package){
       case 'java' :
-        versionChecking.versionCheck(package);
+        // versionChecking.versionCheck(package);
         javaAction.javaInstall();
         break;
 
       case 'sshpass' :
-        versionChecking.versionCheck(package);
-        console.log('1');
+        // versionChecking.versionCheck(package);
+        console.log('sshpass');
         // sshpassAction.sshpassInstall();
         break;
 
@@ -120,10 +64,10 @@ function installPackage(package){
        console.log('python');
        break;
 
-      default :
-       versionChecking.versionCheck(package);
-       // console.log('default');
-       break;
+      // default :
+      //  versionChecking.versionCheck(package);
+      //  // console.log('default');
+      //  break;
      }
  }
 
