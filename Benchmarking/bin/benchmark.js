@@ -30,8 +30,8 @@ program
           // console.log('함수 실행 전');
           graphbenchAction.graphbench(opt)
           break;
-        
 
+        }
     // console.log(options.runtype);
 })
 

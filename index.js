@@ -17,6 +17,9 @@ program
       installation.installPackage(opt, arg, dir);
     }
     else{
+      if(dir == 'server'){
+        console.log('error : database는 node에만 설치 가능, 옵션을 node로 변경');
+      }
       installation.installDatabase(opt, arg, dir);
     }
     // else if(opt == 'db'){
