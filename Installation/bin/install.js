@@ -5,9 +5,28 @@ const javaAction = require('../lib/java.js')
 const sshpassAction = require('../lib/sshpass.js')
 
 
+// program
+//   .option('-p, --package <pkg> <dir>')
+//   .option('-d, --database <dbname>')
+//   .action(function(opt){
+//
+//     //package가 들어오면(null이 아닐때)
+//     if(!!opt.package){
+//       installPackage(opt.package, opt.args[1]);
+//     }
+//     else if(!!opt.database){
+//       installDatabase(opt.dbname);
+//     }
+//   })
+//
+// program.parse(process.argv)
+
+
 program
-  .option('-p, --package <pkg> <dir>')
+  .option('-p, --package <pkg>')
   .option('-d, --database <dbname>')
+  .option('-s, --server')
+  .option('-n, --node')
   .action(function(opt){
 
     //package가 들어오면(null이 아닐때)
@@ -20,7 +39,6 @@ program
   })
 
 program.parse(process.argv)
-
 
 
 
