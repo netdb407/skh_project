@@ -9,20 +9,19 @@ module.exports.versionCheck = (arg) => {
   // console.log(arg);
 
   const child = execFile(arg, (err, stdout, stderr) => {
-    console.log(err);
-    console.log('stdout');
-    console.log(stdout);
-    console.log('stderr');
-    console.log(stderr);
+    // console.log(err);
+    // console.log('stdout');
+    // console.log(stdout);
+    // console.log('stderr');
+    // console.log(stderr);
 
-
-    // let temp = `arg`
-    // echo $temp
-    // console.log(temp);
-
-    if(temp.includes('command not found')){
-      console.log('wow');
+    
+    //에러일때! 없는 옵션
+    if(Object.keys(err).includes('errno')==true){
+      console.log('error!');
     }
+
+
     //결과 담기
     //command not found : 없으니 설치
     //version : 숫자 저장해서 비교
