@@ -3,7 +3,6 @@ const ycsbAction = require('../lib/ycsb.js')
 const graphbenchAction = require('../lib/graphbench.js')
 
 program
-  // .command('db')
   .option('-d, --dbtype <dbtype>', `dbtype을 입력 (cassandra, arangodb, orientdb)`)
   .option('-r, --runtype <runtype>', `runtype을 입력 (load, run, loadrun)`)
   .option('-l, --loadsize [loadsize]', `load size를 입력 (###M, ###G, ###T)`)
@@ -12,7 +11,7 @@ program
   .option('-n, --name <name>', `name을 입력`)
   .option('-o, --output <output>', `output directory 지정`)
   .action(function(opt){
-    console.log(opt);
+    // console.log(opt);
     // if(opt.dbtype == 'cassandra' || opt.runtype == 'arangodb' || opt.runtype == 'orientdb'){
       switch(opt.dbtype){
         case 'cassandra' :
