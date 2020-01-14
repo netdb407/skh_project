@@ -7,15 +7,7 @@ const cmds = require('../../cmds.js')
 
 module.exports.sshpassInstall = () => {
   const child = execFile('sshpass', ['-V'], (err, stdout, stderr) => {
-    // let isOk = versionCheck("1.06", "1.05");
-    // if(isOk)
-    // {
-    //   return;
-    // }
-    // else{
-    //   지우고
-    //   까는 함수 호출
-    // }
+
 
     if (err) {
       throw err;

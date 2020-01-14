@@ -2,130 +2,61 @@ const program = require('commander');
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')
-const versionChecking = require('../lib/versionCheck.js')
 const javaAction = require('../lib/java.js')
 const sshpassAction = require('../lib/sshpass.js')
-const haveArg = 0
-
-// program
-//   .option('-p, --package <pkg> <dir>')
-//   .option('-d, --database <dbname>')
-//   .action(function(opt){
-//
-//     //package가 들어오면(null이 아닐때)
-//     if(!!opt.package){
-//       installPackage(opt.package, opt.args[1]);
-//     }
-//     else if(!!opt.database){
-//       installDatabase(opt.dbname);
-//     }
-//   })
-//
-// program.parse(process.argv)
+const versionChecking = require('./versionCheck.js')
 
 
 program
+  .command('install')
   .option('-p, --package <pkg>')
   .option('-d, --database <dbname>')
   .option('-s, --server', `server에 설치, -p 옵션에만 적용`)
   .option('-n, --node', `node에 설치, -p 옵션에만 적용`)
-  .action(function(opt){
+  .action(function Action(opt){
 
-    //package가 들어오면(null이 아닐때)
+    versionChecking.versionCheck(opt.package);
+    console.log('server :', opt.server);
+    console.log('node : ', opt.node);
 
-    versionCheck(opt.package);
+    console.log('있으면 true, 없으면 false : ', versionChecking.haveArg);
+    //dir는 들어오면 true, 안들어오면 false
+    //dir중 not null인 것 을 인자로 넣어야 함..
 
-    if(haveArg == 'true'){
-      console.log('true~');
-    }else{
-      console.log('false!');
+    if(typeof opt.server != "undefined"){
+      const serverInfo = property.get_server_install_dir()
+      installPackage(opt.package, serverInfo)
+    }else if(typeof opt.node != "undefined"){
+      const nodeInfo = property.get_node_install_dir()
+      installPackage(opt.package, nodeInfo)
     }
-    //
-    // //-p 옵션
-    // if(!!opt.package && !opt.server && !opt.node){
-    //   console.log('error : -s 또는 -n 옵션을 입력하세요.');
-    // }
-    // //-p, -s 옵션
-    // else if(!!opt.package && !!opt.server){
-    //   // console.log(opt.server);
-    //   console.log('?');
-    //   // versionChecking.versionCheck(opt.package);
-    //   // installPackage(opt.package, opt.server);
-    // }
-    // //-p, -n 옵션
-    // else if(!!opt.package && !!opt.node){
-    //   installPackage(opt.package, opt.node);
-    // }
-    //
-    // //-d 옵션
-    // if(!!opt.database){
-    //   installDatabase(opt.dbname);
-    // }
-    // //-d, -s옵션
-    // else if(!!opt.database && !!opt.server || !!opt.database && !!opt.node){
-    //   console.log('warning : -s 옵션은 -p옵션과 사용 가능.');
-    // }
-
-
   })
 
 program.parse(process.argv)
 
 
-function versionCheck(arg){
-  const child = execFile(arg, (err, stdout, stderr) => {
-
-    //에러일때! 없는 옵션
-    if(Object.keys(err).includes('errno')==true){
-      const haveArg = 'false';
-      console.log(haveArg);
-      console.log('error!');
-    }
-    else{
-      const haveArg = 'true';
-      console.log(haveArg);
-      console.log('IsOkay');
-    }
-  })
-}
 
 function installPackage(package, dir){
-  if(dir == true){
-    const directory = property.get_server_install_dir()
-  }
-  else{
-    const directory = property.get_node_install_dir()
-  }
-
+  console.log('dir정보 뜨기');
+  console.log(dir);
 
   switch(package){
       case 'java' :
-        // versionChecking.versionCheck(package);
         javaAction.javaInstall(package);
         break;
-
       case 'sshpass' :
-        // versionChecking.versionCheck(package);
-        console.log('sshpass');
+        console.log('sshpass.js 마저 개발하시요');
         // sshpassAction.sshpassInstall();
         break;
-
       case 'git' :
-       console.log('git');
+       console.log('git.js 마저 개발하시요');
        break;
-
       case 'maven' :
-       console.log('maven');
+       console.log('maven.js 마저 개발하시요');
        break;
-
       case 'python' :
-       console.log('python');
+       console.log('python.js 마저 개발하시요');
        break;
-
-      // default :
-      //  versionChecking.versionCheck(package);
-      //  // console.log('default');
-      //  break;
      }
  }
 
