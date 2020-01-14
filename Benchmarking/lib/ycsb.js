@@ -1,10 +1,14 @@
 const program = require('commander')
 const property = require('../../propertiesReader.js')
 const wlfileDir = property.get_server_wlfile_dir()
+const ycsbDir = property.get_server_ycsb_dir()
 const nodeIP = property.get_nodes()
+const fs = require('fs')
 
-module.exports.ycsbRun
-module.exports.ycsbLoad
+// module.exports.ycsbRun
+// module.exports.ycsbLoad
+//
+
 
 module.exports.ycsb = (opt) => {
   // console.log(opt);
@@ -20,18 +24,68 @@ module.exports.ycsb = (opt) => {
   }
 
 
-  if(opt.runtype == 'load'){
-    ycsbLoad()
-  }else if(opt.runtype == 'loadrun'){
-    ycsbLoad()
-    ycsbRun()
+  if(opt.wlfile == null) {
+    const wlfileLine = `workload file : Workload 파일 이름을 입력해주세요.`
+    console.log(wlfileLine);
   }else{
-    ycsbRun()
+    var file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
+    try {
+      fs.statSync(file);
+      const wlfileLine = `workload file : ${opt.wlfile}`
+      console.log(wlfileLine);
+    }catch (err) {
+      if (err.code === 'ENOENT') {
+      const wlfileLine = `workload file : '${opt.wlfile}' 파일이 존재하지 않습니다.`
+      console.log(wlfileLine);
+    }
   }
+}
+
+  if(!opt.loadsize){
+    var size = "";
+    var loadSize = "";
+    var loadLine = "";
+  }else{
+    if(opt.runtype == 'run'){
+      const loadsizeLine = `load size : load size는 load 옵션 입니다.`
+      console.log(loadsizeLine);
+    }else{
+      var size = opt.loadsize
+      if (size.match(/M/)){
+        afterSize = size.split('M');
+        loadSize = afterSize[0]*Math.pow(10, 6);
+        var fildcount =
+        console.log(loadSize);
+      }
+      if (size.match(/G/)){
+        afterSize = size.split('T');
+        // loadSize = afterSize[0]*Math.pow(10, 9);
+      }
+      if (size.match(/T/)){
+        afterSize = size.split('T');
+        // loadSize = afterSize[0]*Math.pow(10,12);
+      }
+      loadLine = `-p ${size}`
+      console.log(`load size : ${size}`);
+
+
+    }
+
+  }
+
+  //
+  // if(opt.runtype == 'load'){
+  //   ycsbLoad()
+  // }else if(opt.runtype == 'loadrun'){
+  //   ycsbLoad()
+  //   ycsbRun()
+  // }else{
+  //   ycsbRun()
+  // }
+
 
   function ycsbLoad(){
 // insertstart, insertcount : record 갯수 계산하기
-//
     if(!opt.loadsize){
       var size = "";
       var loadSize = "";
@@ -40,20 +94,19 @@ module.exports.ycsb = (opt) => {
       var size = opt.loadsize
       if (size.match(/M/)){
         afterSize = size.split('M');
-        loadSize = afterSize[0]*Math.pow(10, 6);
+        // loadSize = afterSize[0]*Math.pow(10, 6);
       }
       if (size.match(/G/)){
         afterSize = size.split('T');
-        loadSize = afterSize[0]*Math.pow(10, 9);
+        // loadSize = afterSize[0]*Math.pow(10, 9);
       }
       if (size.match(/T/)){
         afterSize = size.split('T');
-        loadSize = afterSize[0]*Math.pow(10,12);
+        // loadSize = afterSize[0]*Math.pow(10,12);
       }
-      LoadLine = `-p ${loadSize}`
+      loadLine = `-p ${size}`
       console.log(`load size : ${size}`);
     }
-
 
     console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadLine}`);
   }
@@ -62,39 +115,41 @@ module.exports.ycsb = (opt) => {
     console.log(`bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP}`);
   }
 
+  function resultLine(){
+    try {
+      const execSync = require('child_process').execSync;
+      // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
+      const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} `);
+      console.log(`stdout: ${stdout}`);
+    } catch (err) {
+        err.stdout;
+        err.stderr;
+        err.pid;
+        err.signal;
+        err.status;
+        // etc
+    }
 
+  }
 
-
-
-
-
-
-
-
-
-
-        //
-        // try {
-        //   const execSync = require('child_process').execSync;
-        //   // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-        //   const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} `);
-        //   console.log(`stdout: ${stdout}`);
-        // } catch (err) {
-        //     err.stdout;
-        //     err.stderr;
-        //     err.pid;
-        //     err.signal;
-        //     err.status;
-        //     // etc
-        // }
-
-        // console.log(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} ${sizeoption}${loadSize}`);
-
-
-  //
-// console.log(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} ${sizeoption}${loadSize}`);
-//
-
+  function checkFile(){
+      if(opt.wlfile == null) {
+        const wlfileLine = `workload file : Workload 파일 이름을 입력해주세요.`
+        console.log(wlfileLine);
+      }else{
+        var file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
+        try {
+          fs.statSync(file);
+          const wlfileLine = `workload file : ${opt.wlfile}`
+          console.log(wlfileLine);
+        }catch (err) {
+          if (err.code === 'ENOENT') {
+          const wlfileLine = `workload file : '${opt.wlfile}' 파일이 존재하지 않습니다.`
+          console.log(wlfileLine);
+        }
+      }
+    }
+  }
 }
 
 

@@ -32,6 +32,9 @@ module.exports = {
   get_server_wlfile_dir(){
     return properties.get("server_wlfile_dir")
   },
+  get_server_ycsb_dir(){
+    return properties.get("server_ycsb_dir")
+  },
 
   //IO Tracer
   get_IO_output_dir(){
