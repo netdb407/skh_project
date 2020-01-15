@@ -61,3 +61,10 @@ module.exports.javaInstall = (package, dir) => {
   //
   // });
 }
+
+
+module.exports.javaDelete = () => {
+  console.log('버전이 달라 기존 java를 삭제합니다.');
+  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.java}`)
+  console.log('java 삭제완료');
+}
