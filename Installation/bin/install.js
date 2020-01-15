@@ -14,6 +14,12 @@ var pckInfo = null
 let haveArg
 
 
+module.exports.installPackage = (package, arg) => {
+  switch(arg){
+     case 'java' :
+       versionChecking.versionCheck(arg);
+       javaAction.javaInstall();
+       break;
 
 program
   .command('install')
@@ -201,11 +207,12 @@ function installPackage(package){
         pythonAction.pythonInstall();
        break;
      }
- }
+ })
+}
 
 
 
 function installDatabase(dbname){
-  console.log('2');
+  // console.log('2');
   // console.log(dbname);
 }
