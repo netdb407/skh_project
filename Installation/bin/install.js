@@ -5,9 +5,15 @@ const property = require('../../propertiesReader.js')
 // const versionChecking = require('./versionCheck.js')
 const javaAction = require('../lib/java.js')
 const sshpassAction = require('../lib/sshpass.js')
+const gitAction = require('../lib/git.js')
+const mavenAction = require('../lib/maven.js')
+const pythonAction = require('../lib/python.js')
 const serverInfo = property.get_server_install_dir()
 const nodeInfo = property.get_node_install_dir()
 var pckInfo = null
+let haveArg
+
+
 
 program
   .command('install')
@@ -17,9 +23,33 @@ program
   .option('-n, --node', `node에 설치, -p 옵션에만 적용`)
   .action(function Action(opt){
     pckInfo = opt.package
+    // versionCheck(pckInfo);
+    installPackage(pckInfo)
 
     // var start = 1;
-    versionChecking.versionCheck(pckInfo)
+    // versionChecking.versionCheck(pckInfo)
+    // versionCheck(pckInfo, haveArg);
+    // console.log('have : ', haveArg);
+
+    // versionCheck(pckInfo).then((x)=>{
+    //   return x;
+    // }).then(installPackage(pckInfo))
+
+
+    // versionCheck(opt.package).then((info)=>{
+    //     installPackage(info)
+    //   })
+
+    //
+    // console.log('이거야');
+    // console.log(haveArg);
+
+    // if(typeof opt.server != "undefined"){
+    //   installPackage(opt.package, serverInfo)
+    // }else if(typeof opt.node != "undefined"){
+    //   installPackage(opt.package, nodeInfo)
+    // }
+
     //   .then(result => {
     //     console.log(result);
     //   });
@@ -33,11 +63,7 @@ program
     //dir는 들어오면 true, 안들어오면 false
     //dir중 not null인 것 을 인자로 넣어야 함..
 
-    if(typeof opt.server != "undefined"){
-      installPackage(opt.package, serverInfo)
-    }else if(typeof opt.node != "undefined"){
-      installPackage(opt.package, nodeInfo)
-    }
+
 
     // var _promise = function (param) {
     //   return new Promise(function (resolve, reject){
@@ -57,9 +83,94 @@ program
     //   .catch(function(){
     //     alert("에러")
     //   })
+
   })
 
 program.parse(process.argv)
+
+
+
+
+
+// function versionCheck(pckInfo){
+//  const child = execFile(pckInfo, (err, stdout, stderr) => {
+//    if(Object.keys(err).includes('errno')==true){
+//      console.log('존재 유무 : 설치되지 않았습니다.');
+//      console.log('설치 시작');
+//      return pckInfo;
+//      // installPackage();
+//      // haveArg = false;
+//      // console.log(haveArg);
+//      // return haveArg
+//
+//    }
+//    else if(typeof stderr == 'string'){
+//      console.log('존재 유무 : 이미 존재하는 패키지입니다.');
+//      console.log('실행 종료');
+//      // haveArg = true;
+//      // console.log(haveArg);
+//      return 0;
+//    }
+//  })
+// }
+
+
+
+
+
+// function versionCheck(pckInfo, haveArg){
+//  const child = execFile(pckInfo, (err, stdout, stderr) => {
+//    if(Object.keys(err).includes('errno')==true){
+//      console.log('존재 유무 : 설치되지 않았습니다.');
+//      console.log('설치 시작');
+//      // return pckInfo;
+//      // installPackage();
+//      haveArg = false;
+//      // console.log(haveArg);
+//      // return haveArg
+//
+//    }
+//    else if(typeof stderr == 'string'){
+//      console.log('존재 유무 : 이미 존재하는 패키지입니다.');
+//      console.log('실행 종료');
+//      haveArg = true;
+//      // console.log(haveArg);
+//      // return 0;
+//    }
+//  })
+//  // return new Promise((resolve, reject)=>{
+//  //   if(haveArg == true){
+//  //     resolve(console.log('있음'))
+//  //   }else{
+//  //     reject(console.log('없음'))
+//  //   }
+//  // })
+//
+//
+// }
+
+
+
+
+
+function versionCheck(pckInfo, haveArg){
+
+  new Promise((resolve, reject)=>{
+    versionCheck.function((err, arg)=>{
+      err ? reject(err) : resolve(arg)
+    })
+  }).then(arg => {
+    haveArg = arg;
+    console.log(haveArg);
+  })
+
+
+}
+
+
+
+
+
 
 
 
@@ -71,24 +182,23 @@ program.parse(process.argv)
 //   )
 // }
 
-function installPackage(package, dir){
+function installPackage(package){
   // console.log('dir정보 : ', dir);
   switch(package){
       case 'java' :
-        javaAction.javaInstall(package, dir);
+        javaAction.javaInstall();
         break;
       case 'sshpass' :
-        console.log('sshpass.js 마저 개발하시요');
-        // sshpassAction.sshpassInstall();
+        sshpassAction.sshpassInstall();
         break;
       case 'git' :
-       console.log('git.js 마저 개발하시요');
+        gitAction.gitInstall();
        break;
       case 'maven' :
-       console.log('maven.js 마저 개발하시요');
+        mavenAction.mavenInstall();
        break;
       case 'python' :
-       console.log('python.js 마저 개발하시요');
+        pythonAction.pythonInstall();
        break;
      }
  }
