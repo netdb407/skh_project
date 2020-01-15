@@ -2,16 +2,16 @@
 
 const program = require('commander')
 // const subprogram = require('./Benchmarking/lib/subcommander.js')
-const installation = require('./Installation/bin/install.js')
+// const installation = require('./Installation/bin/install.js')
 const benchmarking = require('./Benchmarking/bin/benchmark.js')
 
 
-program
-  .command('install')
-  .action(function install(){
-    installation
-  })
-
+// program
+//   .command('install')
+//   .action(function install(){
+//     installation
+//   })
+//
 
 
 program

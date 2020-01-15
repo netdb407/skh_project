@@ -6,40 +6,58 @@ const cmds = require('../../cmds.js')
 
 
 module.exports.sshpassInstall = () => {
-  const child = execFile('sshpass', ['-V'], (err, stdout, stderr) => {
-    // let isOk = versionCheck("1.06", "1.05");
-    // if(isOk)
-    // {
-    //   return;
-    // }
-    // else{
-    //   지우고
-    //   까는 함수 호출
-    // }
 
-    if (err) {
-      throw err;
-    }
+  //프로젝트폴더 로컬에서 먼저 rpm파일 설치!!
+  console.log('sshpass를 로컬에 설치합니다.');
+  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpassFile} `)
+  console.log('설치완료');
+  // //파일 보내기
+  // sshpass -p 'P@ssw0rd' scp -o StrictHostKeyChecking=no hello.txt root@135.79.246.99:/root/hello.tx
+  //
 
-    try{
-      if(stdout.includes(sshpassVersion)==true){
-        console.log('이미 sshpass가 설치되어있습니다.');
-      }
+  // //접속
+  // sshpass -p 'P@ssw0rd' ssh -o StrictHostKeyChecking=no root@135.79.246.99
+  //
+  // //명령어
+  //
+  // //나가기?원래꺼로 접속
+  //   sshpass -p 'P@ssw0rd' ssh -o StrictHostKeyChecking=no root@135.79.246.99
 
-      else{
-        console.log('설치된 sshpass와 버전이 달라 삭제 후 새로 설치합니다.');
-        var exec = require('child_process').execSync;
-        //기존 JAVA 삭제
-        exec(cmds.sshpassDeleteCmd)
-        //JAVA 설치
-        exec(cmds.sshpassInstallCmd);
-      }
-    }
-    catch(exception){
-      console.log('sshpass를 설치합니다.');
 
-      exec(cmds.sshpassInstallCmd);
-    }
 
-  });
+  // const child = execFile('sshpass', ['-V'], (err, stdout, stderr) => {
+  //
+  //
+  //   if (err) {
+  //     throw err;
+  //   }
+  //
+  //   try{
+  //     if(stdout.includes(sshpassVersion)==true){
+  //       console.log('이미 sshpass가 설치되어있습니다.');
+  //     }
+  //
+  //     else{
+  //       console.log('설치된 sshpass와 버전이 달라 삭제 후 새로 설치합니다.');
+  //       var exec = require('child_process').execSync;
+  //       //기존 JAVA 삭제
+  //       exec(cmds.sshpassDeleteCmd)
+  //       //JAVA 설치
+  //       exec(cmds.sshpassInstallCmd);
+  //     }
+  //   }
+  //   catch(exception){
+  //     console.log('sshpass를 설치합니다.');
+  //
+  //     exec(cmds.sshpassInstallCmd);
+  //   }
+  //
+  // });
+}
+
+
+module.exports.sshpassDelete = () => {
+  console.log('버전이 달라 기존 sshpass을 삭제합니다.');
+  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpass}`)
+  console.log('sshpass 삭제완료');
 }
