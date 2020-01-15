@@ -16,16 +16,23 @@ module.exports.ycsb = (opt) => {
   const dbtypeLine = `dbtype : ${opt.dbtype}`
   console.log(dbtypeLine);
 
+
+
   if(opt.runtype == 'load' || opt.runtype == 'run' || opt.runtype == 'loadrun'){
     const runtypeLine = `runtype : ${opt.runtype}`
     console.log(runtypeLine);
   }else {
-    console.log('runtype : (load, run, load/run) 를 입력해주세요.');
+    console.log('[ERROR] runtype : (load, run, load/run) 를 입력해주세요.');
+    return 0
   }
 
 
+/*
+ * workload file 존재 여부 확인 => function checkFile()
+ */
+
   if(opt.wlfile == null) {
-    const wlfileLine = `workload file : Workload 파일 이름을 입력해주세요.`
+    const wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
     console.log(wlfileLine);
   }else{
     var file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
@@ -35,43 +42,72 @@ module.exports.ycsb = (opt) => {
       console.log(wlfileLine);
     }catch (err) {
       if (err.code === 'ENOENT') {
-      const wlfileLine = `workload file : '${opt.wlfile}' 파일이 존재하지 않습니다.`
+      const wlfileLine = `[ERROR] workload file : '${opt.wlfile}' 파일이 존재하지 않습니다.`
       console.log(wlfileLine);
+      return 0
     }
   }
 }
+
+
+/*
+ * loadSize에 대한 옵션 => function checkLoadSize()
+ */
 
   if(!opt.loadsize){
     var size = "";
     var loadSize = "";
     var loadLine = "";
-  }else{
+  }
+  else{
     if(opt.runtype == 'run'){
-      const loadsizeLine = `load size : load size는 load 옵션 입니다.`
+      loadsizeLine = `[ERROR] load size : load size는 load 옵션 입니다.`
       console.log(loadsizeLine);
     }else{
-      var size = opt.loadsize
+      size = opt.loadsize
+      const loadsizeLine = `load size : ${size}`
+      console.log(loadsizeLine);
+
+      var fildcount = 10
+      var fildlength = Math.pow(10,6)/fildcount
+      const fildcountLine = `-p fildcount=${fildcount}`
+      const fildlengthLine = `-p fildlength=${fildlength}`
+
       if (size.match(/M/)){
-        afterSize = size.split('M');
-        loadSize = afterSize[0]*Math.pow(10, 6);
-        var fildcount =
-        console.log(loadSize);
+        splitSize = size.split('M');
+        // fieldcount = 10 (10이 default)
+        // fieldcount*fieldlength = 1M (1M가 default)
+        var recordcount = splitSize[0]
       }
-      if (size.match(/G/)){
-        afterSize = size.split('T');
+      else if (size.match(/G/)){
+        splitSize = size.split('G');
         // loadSize = afterSize[0]*Math.pow(10, 9);
+        var recordcount = splitSize[0]*Math.pow(10,3)
       }
-      if (size.match(/T/)){
-        afterSize = size.split('T');
+      else if (size.match(/T/)){
+        splitSize = size.split('T');
         // loadSize = afterSize[0]*Math.pow(10,12);
+        var recordcount = splitSize[0]*Math.pow(10,6)
       }
-      loadLine = `-p ${size}`
-      console.log(`load size : ${size}`);
+      else{
+        const loadsizeLine = `load size : load size를 (###M, ###G, ###T) 형식으로 입력해주세요.`
+        console.log(loadsizeLine);
+        return 0
+      }
+      const recordcountLine = `-p recordcount=${recordcount}`
 
+      const loadsizecmd = `${fildcountLine} ${fildlengthLine} ${recordcountLine}`
+      console.log(loadsizecmd);
 
+          console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
     }
-
   }
+
+  /*
+   * loadSize에 대한 옵션 => function checkLoadSize()
+   */
+
+
 
   //
   // if(opt.runtype == 'load'){
@@ -108,7 +144,7 @@ module.exports.ycsb = (opt) => {
       console.log(`load size : ${size}`);
     }
 
-    console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadLine}`);
+    console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadLine} ${loadsizecmd}`);
   }
 
   function ycsbRun(){
@@ -119,7 +155,7 @@ module.exports.ycsb = (opt) => {
     try {
       const execSync = require('child_process').execSync;
       // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-      const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype} `);
+      const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.sh ${opt.runtype} ${opt.dbtype}  `);
       console.log(`stdout: ${stdout}`);
     } catch (err) {
         err.stdout;
@@ -132,6 +168,7 @@ module.exports.ycsb = (opt) => {
 
   }
 
+// workload file 존재 여부 확인
   function checkFile(){
       if(opt.wlfile == null) {
         const wlfileLine = `workload file : Workload 파일 이름을 입력해주세요.`
@@ -150,7 +187,57 @@ module.exports.ycsb = (opt) => {
       }
     }
   }
+
+  function checkLoadSize(){
+    if(!opt.loadsize){
+      var size = "";
+      var loadSize = "";
+      var loadLine = "";
+    }
+    else{
+      if(opt.runtype == 'run'){
+        const loadsizeLine = `load size : load size는 load 옵션 입니다.`
+        console.log(loadsizeLine);
+      }else{
+        var size = opt.loadsize
+        const loadsizeLine = `load size : ${size}`
+        console.log(loadsizeLine);
+
+        var fildcount = 10
+        var fildlength = Math.pow(10,6)/fildcount
+        const fildcountLine = `-p fildcount=${fildcount}`
+        const fildlengthLine = `-p fildlength=${fildlength}`
+
+        if (size.contains('M')){
+          splitSize = size.split('M');
+          // fieldcount = 10 (10이 default)
+          // fieldcount*fieldlength = 1M (1M가 default)
+          var recordcount = splitSize[0]
+        }
+        else if (size.contains('M')){
+          splitSize = size.split('G');
+          // loadSize = afterSize[0]*Math.pow(10, 9);
+          var recordcount = splitSize[0]*Math.pow(10,3)
+        }
+        else if (size.contains('M')){
+          splitSize = size.split('T');
+          // loadSize = afterSize[0]*Math.pow(10,12);
+          var recordcount = splitSize[0]*Math.pow(10,6)
+        }
+        else{
+          const loadsizeLine = `load size : load size를 (###M, ###G, ###T) 형식으로 입력해주세요.`
+          console.log(loadsizeLine);
+          return 0
+        }
+        const recordcountLine = `-p recordcount=${recordcount}`
+
+        const loadsizecmd = `${fildcountLine} ${fildlengthLine} ${recordcountLine}`
+        console.log(loadsizecmd);
+      }
+    }
+  }
 }
+
 
 
 

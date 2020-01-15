@@ -3,6 +3,7 @@ const ycsbAction = require('../lib/ycsb.js')
 const graphbenchAction = require('../lib/graphbench.js')
 
 program
+  .command('benchmark')
   .option('-d, --dbtype <dbtype>', `dbtype을 입력 (cassandra, arangodb, orientdb)`)
   .option('-r, --runtype <runtype>', `runtype을 입력 (load, run, loadrun)`)
   .option('-l, --loadsize [loadsize]', `load size를 입력 (###M, ###G, ###T)`)

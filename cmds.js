@@ -7,9 +7,9 @@ const sshpassDeleteCmd = 'rpm -e sshpass'
 
 
 module.exports = {
-  javaInstallCmd : javaInstallCmd,
-  javaDeleteCmd : javaDeleteCmd,
+  javaInstallCmd,
+  javaDeleteCmd,
 
-  sshpassInstallCmd : sshpassInstallCmd,
-  sshpassDeleteCmd : sshpassDeleteCmd
+  sshpassInstallCmd,
+  sshpassDeleteCmd
 }
