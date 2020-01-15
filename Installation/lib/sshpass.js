@@ -6,6 +6,20 @@ const cmds = require('../../cmds.js')
 
 
 module.exports.sshpassInstall = () => {
+
+  // //파일 보내기
+  // sshpass -p 'P@ssw0rd' scp -o StrictHostKeyChecking=no hello.txt root@135.79.246.99:/root/hello.tx
+  //
+  // //접속
+  // sshpass -p 'P@ssw0rd' ssh -o StrictHostKeyChecking=no root@135.79.246.99
+  //
+  // //명령어
+  //
+  // //나가기?원래꺼로 접속
+  //   sshpass -p 'P@ssw0rd' ssh -o StrictHostKeyChecking=no root@135.79.246.99
+
+
+
   const child = execFile('sshpass', ['-V'], (err, stdout, stderr) => {
 
 

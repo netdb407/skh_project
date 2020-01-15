@@ -9,7 +9,8 @@ const cmds = require('../../cmds.js')
 
 
 
-module.exports.javaInstall = (package) => {
+module.exports.javaInstall = (package, dir) => {
+
   // console.log('www');
   // console.log("${cmds.javaInstallCmd}"");
   // console.log(cmds.javaInstallCmd);
@@ -20,15 +21,19 @@ module.exports.javaInstall = (package) => {
   //   }
   // console.log('www');
     const child = execFile(package, (err, stdout, stderr) => {
+      // installCmd + dir + javaFile
+      // `${installCmd} ${dir} ${javaFile}`
+
+
       // console.log(stderr);
       // if (err) {
       //   throw err;
       // }
-    console.log(err);
-    console.log('stdout');
-    console.log(stdout);
-    console.log('stderr');
-    console.log(stderr);
+    // console.log(err);
+    // console.log('stdout');
+    // console.log(stdout);
+    // console.log('stderr');
+    // console.log(stderr);
 
     if(stderr == null){
       console.log('JAVA를 설치합니다.');

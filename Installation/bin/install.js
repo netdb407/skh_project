@@ -2,7 +2,7 @@ const program = require('commander');
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')
-const versionChecking = require('./versionCheck.js')
+// const versionChecking = require('./versionCheck.js')
 const javaAction = require('../lib/java.js')
 const sshpassAction = require('../lib/sshpass.js')
 const serverInfo = property.get_server_install_dir()
@@ -38,6 +38,25 @@ program
     }else if(typeof opt.node != "undefined"){
       installPackage(opt.package, nodeInfo)
     }
+
+    // var _promise = function (param) {
+    //   return new Promise(function (resolve, reject){
+    //     setTimeout(function (){
+    //       if(param){
+    //         resolve(console.log('해결'));
+    //       }
+    //       else{
+    //         reject(console.log('실패'));
+    //       }
+    //     }, 2000);
+    //   });
+    // };
+    //
+    // _promise(typeof opt.server != "undefined")
+    //   .then(installPackage(opt.package, serverInfo))
+    //   .catch(function(){
+    //     alert("에러")
+    //   })
   })
 
 program.parse(process.argv)
@@ -53,10 +72,10 @@ program.parse(process.argv)
 // }
 
 function installPackage(package, dir){
-  console.log('dir정보 : ', dir);
-  switch(package, dir){
+  // console.log('dir정보 : ', dir);
+  switch(package){
       case 'java' :
-        javaAction.javaInstall(package);
+        javaAction.javaInstall(package, dir);
         break;
       case 'sshpass' :
         console.log('sshpass.js 마저 개발하시요');
