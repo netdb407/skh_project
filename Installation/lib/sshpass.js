@@ -10,7 +10,6 @@ module.exports.sshpassInstall = () => {
   //프로젝트폴더 로컬에서 먼저 rpm파일 설치!!
   console.log('sshpass를 로컬에 설치합니다.');
   exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpassFile} `)
-  // exec(cmds.sshpassInstallCmd);
   console.log('설치완료');
   // //파일 보내기
   // sshpass -p 'P@ssw0rd' scp -o StrictHostKeyChecking=no hello.txt root@135.79.246.99:/root/hello.tx
@@ -54,4 +53,11 @@ module.exports.sshpassInstall = () => {
   //   }
   //
   // });
+}
+
+
+module.exports.sshpassDelete = () => {
+  console.log('버전이 달라 기존 sshpass을 삭제합니다.');
+  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpass}`)
+  console.log('sshpass 삭제완료');
 }

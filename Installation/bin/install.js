@@ -10,16 +10,16 @@ const mavenAction = require('../lib/maven.js')
 const pythonAction = require('../lib/python.js')
 const serverInfo = property.get_server_install_dir()
 const nodeInfo = property.get_node_install_dir()
-var pckInfo = null
-let haveArg
+// var pckInfo = null
+// let haveArg
 
 
-module.exports.installPackage = (package, arg) => {
-  switch(arg){
-     case 'java' :
-       versionChecking.versionCheck(arg);
-       javaAction.javaInstall();
-       break;
+// module.exports.installPackage = (package, arg) => {
+//   switch(arg){
+//      case 'java' :
+//        versionChecking.versionCheck(arg);
+//        javaAction.javaInstall();
+//        break;
 
 program
   .command('install')
@@ -28,9 +28,9 @@ program
   .option('-s, --server', `server에 설치, -p 옵션에만 적용`)
   .option('-n, --node', `node에 설치, -p 옵션에만 적용`)
   .action(function Action(opt){
-    pckInfo = opt.package
+    // pckInfo = opt.package
     // versionCheck(pckInfo);
-    installPackage(pckInfo)
+    installPackage(opt.package)
 
     // var start = 1;
     // versionChecking.versionCheck(pckInfo)
@@ -159,22 +159,22 @@ program.parse(process.argv)
 
 
 
-function versionCheck(pckInfo, haveArg){
-
-  new Promise((resolve, reject)=>{
-    versionCheck.function((err, arg)=>{
-      err ? reject(err) : resolve(arg)
-    })
-  }).then(arg => {
-    haveArg = arg;
-    console.log(haveArg);
-  })
-
-
-}
-
-
-
+// function versionCheck(pckInfo, haveArg){
+//
+//   new Promise((resolve, reject)=>{
+//     versionCheck.function((err, arg)=>{
+//       err ? reject(err) : resolve(arg)
+//     })
+//   }).then(arg => {
+//     haveArg = arg;
+//     console.log(haveArg);
+//   })
+//
+//
+// }
+//
+//
+//
 
 
 
@@ -202,17 +202,18 @@ function installPackage(package){
        break;
       case 'maven' :
         mavenAction.mavenInstall();
+        // mavenAction.mavenDelete();
        break;
       case 'python' :
         pythonAction.pythonInstall();
        break;
      }
- })
-}
+ }
 
 
 
-function installDatabase(dbname){
-  // console.log('2');
-  // console.log(dbname);
-}
+
+// function installDatabase(dbname){
+//   // console.log('2');
+//   // console.log(dbname);
+// }
