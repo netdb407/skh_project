@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const program = require('commander');
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
@@ -23,21 +25,84 @@ program.parse(process.argv)
 
 
 function CheckHaveArg(arg){
-  const child = execFile(arg, (err, stdout, stderr) => {
-    // console.log('err : ', err);
-    // console.log('stdout :', stdout);
-    // console.log('stderr :', stderr);
-    if(Object.keys(err).includes('errno')==true){
-      console.log(arg, '는 설치되지 않았습니다.');
-      installPackage(arg);
-      // versionCheck(arg);
-    }
-    else if(typeof stderr == 'string'){
+  try {
+    const stdout = exec(`rpm -qa|grep ${arg}`);
+    if(stdout != null){
       console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
       versionCheck(arg);
     }
-  })
+  } catch (err) {
+    err.stdout;
+    err.stderr;
+    err.pid;
+    err.signal;
+    err.status;
+    console.log(arg, '는 설치되지 않았습니다.','\n',arg,'를 설치합니다.');
+    installPackage(arg);
+    console.log(arg, ' 설치완료');
+  }
 }
+
+
+
+// function CheckHaveArg(arg){
+//   const stdout = exec(`rpm -qa|grep ${arg}`);
+//   if(stdout != null){
+//     console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
+//     versionCheck(arg);
+//   }
+//   else if(stdout == null){
+//     console.log(arg, '는 설치되지 않았습니다.', '\n', arg, '를 설치합니다.');
+//     installPackage(arg);
+//     console.log(arg, ' 설치완료');
+//   }
+//
+//
+//   try {
+//     const stdout = exec(`rpm -qa|grep ${arg}`);
+//     if(stdout != null){
+//       console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
+//       versionCheck(arg);
+//     }
+//   } catch (err) {
+//     err.stdout;
+//     err.stderr;
+//     err.pid;
+//     err.signal;
+//     err.status;
+//     console.log(arg, '는 설치되지 않았습니다.', '\n', arg, '를 설치합니다.');
+//     installPackage(arg);
+//     console.log(arg, ' 설치완료');
+//
+//       // etc
+//   }
+//
+//
+// }
+
+
+
+//
+// function CheckHaveArg(arg){
+//   const child = execFile(arg, (err, stdout, stderr) => {
+//     console.log('err : ', err);
+//     console.log('stdout :', stdout);
+//     console.log('stderr :', stderr);
+//     console.log('설치되어있으면 err은 null', err == null);
+//
+//     if(err != null){
+//       console.log(arg, '는 설치되지 않았습니다.', '\n', arg, '를 설치합니다.');
+//       installPackage(arg);
+//       console.log(arg, ' 설치완료');
+//       // versionCheck(arg);
+//     }
+//     else if(err == null){
+//       console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
+//       versionCheck(arg);
+//     }
+//   })
+
+
 
 
   //maven : -v, --version
