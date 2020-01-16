@@ -7,8 +7,6 @@ const sshpassAction = require('../lib/sshpass.js')
 const gitAction = require('../lib/git.js')
 const mavenAction = require('../lib/maven.js')
 const pythonAction = require('../lib/python.js')
-const serverInfo = property.get_server_install_dir()
-const nodeInfo = property.get_node_install_dir()
 
 program
   .command('install')
@@ -61,6 +59,7 @@ function versionCheck(arg){
       }
       //버전 불일치
       else{
+        console.log('버전이 일치하지 않아 삭제합니다.');
         deletePackage(arg);
         console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
         installPackage(arg);
@@ -81,6 +80,7 @@ function versionCheck(arg){
       }
       //버전 불일치
       else{
+        console.log('버전이 일치하지 않아 삭제합니다.');
         deletePackage(arg);
         console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
         // console.log('새로운 버전의 ', arg, '를 설치합니다.');
@@ -99,6 +99,7 @@ function versionCheck(arg){
       }
       //버전 불일치
       else{
+        console.log('버전이 일치하지 않아 삭제합니다.');
         deletePackage(arg);
         console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
         installPackage(arg);
@@ -133,7 +134,7 @@ function installPackage(package){
         pythonAction.pythonInstall();
        break;
       default :
-        console.log('[ERROR] 존재하지 않는 패키지입니다.');
+        console.log('[ERROR]', package,'는 존재하지 않는 패키지입니다.');
         break;
      }
  }
@@ -156,7 +157,7 @@ function installPackage(package){
       pythonAction.pythonDelete();
       break;
      default :
-      console.log('[ERROR] 존재하지 않는 패키지입니다.');
+      console.log('[ERROR]', package,'는 존재하지 않는 패키지입니다.');
       break;
    }
  }
