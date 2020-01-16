@@ -59,7 +59,7 @@ function versionCheck(arg){
       }
       //버전 불일치
       else{
-        console.log('버전이 일치하지 않아 삭제합니다.');
+        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
         deletePackage(arg);
         console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
         installPackage(arg);
@@ -80,7 +80,7 @@ function versionCheck(arg){
       }
       //버전 불일치
       else{
-        console.log('버전이 일치하지 않아 삭제합니다.');
+        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
         deletePackage(arg);
         console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
         // console.log('새로운 버전의 ', arg, '를 설치합니다.');
@@ -99,7 +99,7 @@ function versionCheck(arg){
       }
       //버전 불일치
       else{
-        console.log('버전이 일치하지 않아 삭제합니다.');
+        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
         deletePackage(arg);
         console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
         installPackage(arg);
