@@ -45,62 +45,82 @@ function CheckHaveArg(arg){
 
 
 
-// function CheckHaveArg(arg){
-//   const stdout = exec(`rpm -qa|grep ${arg}`);
-//   if(stdout != null){
-//     console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
-//     versionCheck(arg);
-//   }
-//   else if(stdout == null){
-//     console.log(arg, '는 설치되지 않았습니다.', '\n', arg, '를 설치합니다.');
-//     installPackage(arg);
-//     console.log(arg, ' 설치완료');
-//   }
-//
-//
-//   try {
-//     const stdout = exec(`rpm -qa|grep ${arg}`);
-//     if(stdout != null){
-//       console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
-//       versionCheck(arg);
-//     }
-//   } catch (err) {
-//     err.stdout;
-//     err.stderr;
-//     err.pid;
-//     err.signal;
-//     err.status;
-//     console.log(arg, '는 설치되지 않았습니다.', '\n', arg, '를 설치합니다.');
-//     installPackage(arg);
-//     console.log(arg, ' 설치완료');
-//
-//       // etc
-//   }
-//
-//
-// }
 
 
 
-//
-// function CheckHaveArg(arg){
-//   const child = execFile(arg, (err, stdout, stderr) => {
-//     console.log('err : ', err);
-//     console.log('stdout :', stdout);
-//     console.log('stderr :', stderr);
-//     console.log('설치되어있으면 err은 null', err == null);
-//
-//     if(err != null){
-//       console.log(arg, '는 설치되지 않았습니다.', '\n', arg, '를 설치합니다.');
-//       installPackage(arg);
-//       console.log(arg, ' 설치완료');
-//       // versionCheck(arg);
-//     }
-//     else if(err == null){
-//       console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
-//       versionCheck(arg);
-//     }
-//   })
+
+function versionCheck(arg){
+  if(arg == 'git'||'maven'){
+    try {
+      const stdout = exec(`rpm -qa|grep ${arg}`);
+      var version = arg == 'git'? property.get_gitVersion() : property.get_mavenVersion()
+      if(stdout.includes(version)){
+        console.log('버전이 일치합니다.');
+      }
+    } catch (err) {
+      // err.stdout;
+      // err.stderr;
+      // err.pid;
+      // err.signal;
+      // err.status;
+      console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+      deletePackage(arg);
+      console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+      installPackage(arg);
+      console.log(arg, ' 설치완료');
+    }
+  }
+
+  else if(arg == 'python'||'sshpass'){
+    try {
+      const stdout = exec(`rpm -qa|grep ${arg}`);
+      var version = arg == 'git'? property.get_pythonVersion() : property.get_sshpassVersion()
+      if(stdout.includes(version)){
+        console.log('버전이 일치합니다.');
+      }
+    } catch (err) {
+      console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+      deletePackage(arg);
+      console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+      installPackage(arg);
+      console.log(arg, ' 설치완료');
+    }
+  }
+
+  else if(arg == 'java'){
+    try {
+      const stdout = exec(`rpm -qa|grep ${arg}`);
+      var version = property.get_javaVersion()
+      if(stdout.includes(version)){
+        console.log('버전이 일치합니다.');
+      }
+    } catch (err) {
+      console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+      deletePackage(arg);
+      console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+      installPackage(arg);
+      console.log(arg, ' 설치완료');
+    }
+  }
+
+  else{
+    console.log(arg, '는 없는 패키지입니다.');
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -110,73 +130,73 @@ function CheckHaveArg(arg){
   //git : --version (설치되어있을 시 버전정보 stdout으로 빠짐)
   //python : -V
   //sshpass : -V
-function versionCheck(arg){
-  if(arg == 'git'||'maven'){
-    const child = execFile(arg, ['--version'], (err, stdout, stderr) => {
-      // console.log('err : ', err);
-      // console.log('stdout :', stdout);
-      // console.log('stderr :', stderr);
-      var version = arg == 'git'? property.get_gitVersion() : property.get_mavenVersion()
-      console.log('버전일치여부 : ', stdout.includes(version));
-      //버전 일치
-      if(stdout.includes(version)){
-        console.log('버전이 일치합니다.');
-      }
-      //버전 불일치
-      else{
-        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
-        deletePackage(arg);
-        console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
-        installPackage(arg);
-        console.log(arg, ' 설치완료');
-      }
-    })
-  }
-
-  else if(arg == 'python'||'sshpass'){
-    // console.log('err : ', err);
-    // console.log('stdout :', stdout);
-    // console.log('stderr :', stderr);
-    const child = execFile(arg, ['-V'], (err, stdout, stderr) => {
-      var version = arg == 'python'? property.get_pythonVersion() : property.get_sshpassVersion()
-      //버전 일치
-      if(stderr.includes(version)){
-        console.log('버전이 일치합니다.');
-      }
-      //버전 불일치
-      else{
-        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
-        deletePackage(arg);
-        console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
-        // console.log('새로운 버전의 ', arg, '를 설치합니다.');
-        installPackage(arg);
-        console.log(arg, ' 설치완료');
-      }
-    })
-  }
-
-  else if(arg == 'java'){
-    const child = execFile(arg, ['-version'], (err, stdout, stderr) => {
-      var version = property.get_javaVersion()
-      //버전 일치
-      if(stderr.includes(version)){
-        console.log('버전이 일치합니다.');
-      }
-      //버전 불일치
-      else{
-        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
-        deletePackage(arg);
-        console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
-        installPackage(arg);
-        console.log(arg, ' 설치완료');
-      }
-     })
-    }
-
-  else{
-    console.log(arg, '는 없는 패키지입니다.');
-  }
-}
+// function versionCheck(arg){
+//   if(arg == 'git'||'maven'){
+//     const child = execFile(arg, ['--version'], (err, stdout, stderr) => {
+//       // console.log('err : ', err);
+//       // console.log('stdout :', stdout);
+//       // console.log('stderr :', stderr);
+//       var version = arg == 'git'? property.get_gitVersion() : property.get_mavenVersion()
+//       // console.log('버전일치여부 : ', stdout.includes(version));
+//       //버전 일치
+//       if(stdout.includes(version)){
+//         console.log('버전이 일치합니다.');
+//       }
+//       //버전 불일치
+//       else if(stdout.includes(version)==false){
+//         console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+//         deletePackage(arg);
+//         console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+//         installPackage(arg);
+//         console.log(arg, ' 설치완료');
+//       }
+//     })
+//   }
+//
+//   else if(arg == 'python'||'sshpass'){
+//     // console.log('err : ', err);
+//     // console.log('stdout :', stdout);
+//     // console.log('stderr :', stderr);
+//     const child = execFile(arg, ['-V'], (err, stdout, stderr) => {
+//       var version = arg == 'python'? property.get_pythonVersion() : property.get_sshpassVersion()
+//       //버전 일치
+//       if(stderr.includes(version)){
+//         console.log('버전이 일치합니다.');
+//       }
+//       //버전 불일치
+//       else{
+//         console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+//         deletePackage(arg);
+//         console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+//         // console.log('새로운 버전의 ', arg, '를 설치합니다.');
+//         installPackage(arg);
+//         console.log(arg, ' 설치완료');
+//       }
+//     })
+//   }
+//
+//   else if(arg == 'java'){
+//     const child = execFile(arg, ['-version'], (err, stdout, stderr) => {
+//       var version = property.get_javaVersion()
+//       //버전 일치
+//       if(stderr.includes(version)){
+//         console.log('버전이 일치합니다.');
+//       }
+//       //버전 불일치
+//       else{
+//         console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+//         deletePackage(arg);
+//         console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+//         installPackage(arg);
+//         console.log(arg, ' 설치완료');
+//       }
+//      })
+//     }
+//
+//   else{
+//     console.log(arg, '는 없는 패키지입니다.');
+//   }
+// }
 
 
 function installPackage(package){
