@@ -39,19 +39,19 @@ module.exports.ycsb = (opt) => {
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
         console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-        // try {
-        //   const execSync = require('child_process').execSync;
-        //   // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-        //   const stdout = execSync(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-        //   console.log(`stdout: ${stdout}`);
-        // } catch (err) {
-        //     err.stdout;
-        //     err.stderr;
-        //     err.pid;
-        //     err.signal;
-        //     err.status;
-        //     // etc
-        // }
+        try {
+          const execSync = require('child_process').execSync;
+          // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
+          const stdout = execSync(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          console.log(`stdout: ${stdout}`);
+        } catch (err) {
+            err.stdout;
+            err.stderr;
+            err.pid;
+            err.signal;
+            err.status;
+            // etc
+        }
       }
     }
 

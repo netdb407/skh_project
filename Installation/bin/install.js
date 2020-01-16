@@ -119,7 +119,7 @@ function versionCheck(arg){
       var version = arg == 'git'? property.get_gitVersion() : property.get_mavenVersion()
       console.log('버전일치여부 : ', stdout.includes(version));
       //버전 일치
-      if(stderr.includes(version)){
+      if(stdout.includes(version)){
         console.log('버전이 일치합니다.');
       }
       //버전 불일치
