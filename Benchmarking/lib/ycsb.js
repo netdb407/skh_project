@@ -4,26 +4,20 @@ const wlfileDir = property.get_server_wlfile_dir()
 const ycsbDir = property.get_server_ycsb_dir()
 const nodeIP = property.get_nodes()
 const fs = require('fs')
-var loadsizeLine = ""
-var loadsizecmd = ""
-var recordcount = ""
+// var loadsizeLine = ""
+// var loadsizecmd = ""
+// var recordcount = ""
+
+
 
 module.exports.ycsb = (opt) => {
 
   const dbtypeLine = `dbtype : ${opt.dbtype}`
   console.log(dbtypeLine);
 
-  checkRuntype(opt.runtype,function(runtypeLine){
-    console.log(runtypeLine);
-  })
-
-  checkFile(opt.wlfile,function(wlfileLine){
-    console.log(wlfileLine);
-  })
-
-  checkLoadsize(opt.runtype,function(loadsizeLine){
-    console.log(loadsizeLine);
-  })
+  checkRuntype(opt)
+  checkFile(opt)
+  checkLoadsize(opt)
 
   switch(opt.runtype){
     case 'load' :
@@ -38,81 +32,6 @@ module.exports.ycsb = (opt) => {
       break;
     default :
     console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
-    }
-
-    function checkRuntype(runtype, callback){
-      if(opt.runtype == 'load' || opt.runtype == 'run' || opt.runtype == 'loadrun'){
-        runtypeLine = `runtype : ${opt.runtype}`
-        callback(runtypeLine)
-      }else {
-        runtypeLine = `[ERROR] runtype : (load, run, load/run) 를 입력해주세요.`
-        callback(runtypeLine)
-      }
-    }
-
-  function checkFile(wlfile, callback){
-    if(opt.wlfile == null) {
-      wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
-      callback(wlfileLine)
-    }else{
-      var file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
-      try {
-        fs.statSync(file);
-        wlfileLine = `workload file : ${opt.wlfile}`
-        callback(wlfileLine)
-      }catch (err) {
-        if (err.code === 'ENOENT') {
-        wlfileLine = `[ERROR] workload file : '${opt.wlfile}' 파일이 존재하지 않습니다.`
-        callback(wlfileLine)
-      }
-    }
-  }
-}
-
-    function transformLoadsize(loadsize, callback){
-      size = opt.loadsize
-      if (size.match(/M/)){
-        splitSize = size.split('M');
-        recordcount = splitSize[0]
-        loadsizeLine = `load size : ${opt.loadsize}`
-      }
-      else if (size.match(/G/)){
-        splitSize = size.split('G');
-        recordcount = splitSize[0]*Math.pow(10,3)
-        loadsizeLine = `load size : ${opt.loadsize}`
-      }
-      else if (size.match(/T/)){
-        splitSize = size.split('T');
-        recordcount = splitSize[0]*Math.pow(10,6)
-        loadsizeLine = `load size : ${opt.loadsize}`
-      }
-      else{
-        loadsizeLine = `[ERROR] load size : load size를 (###M, ###G, ###T) 형식으로 입력해주세요.`
-      }
-      callback(loadsizeLine);
-    }
-
-    function checkLoadsize(loadsize, callback){
-      if((opt.runtype == 'run') && (opt.loadsize)){
-        loadsizeLine = `[ERROR] load size : load size는 load 옵션 입니다.`
-        callback(loadsizeLine)
-      }else if ((opt.runtype == 'load'|| opt.runtype == 'loadrun') && (opt.loadsize)){ // load에 대한 loadsize 옵션
-
-        // 10M -> 10
-        transformLoadsize(opt.loadsize, function(loadsizeLine){
-          console.log(loadsizeLine); // loadsizeLine
-        })
-
-        size = opt.loadsize
-        fieldcount = 10
-        fieldlength = Math.pow(10,6)/fieldcount
-        fieldcountLine = `-p fieldcount=${fieldcount}`
-        fieldlengthLine = `-p fieldlength=${fieldlength}`
-
-        recordcountLine = `-p recordcount=${recordcount}`
-        loadsizecmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
-        // console.log(loadsizecmd);
-      }
     }
 
     function ycsbLoad(){
@@ -158,6 +77,87 @@ module.exports.ycsb = (opt) => {
         // }
       }
     }
+  }
+
+
+
+
+
+  function checkRuntype(opt){
+    if(opt.runtype == 'load' || opt.runtype == 'run' || opt.runtype == 'loadrun'){
+      runtypeLine = `runtype : ${opt.runtype}`
+      console.log(runtypeLine)
+    }else {
+      runtypeLine = `[ERROR] runtype : (load, run, load/run) 를 입력해주세요.`
+      console.log(runtypeLine)
+    }
+  }
+
+  function checkFile(opt){
+      if(opt.wlfile == null) {
+        wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
+        console.log(wlfileLine)
+      }else{
+        var file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
+        try {
+          fs.statSync(file);
+          wlfileLine = `workload file : ${opt.wlfile}`
+          console.log(wlfileLine)
+        }catch (err) {
+          if (err.code === 'ENOENT') {
+          wlfileLine = `[ERROR] workload file : '${opt.wlfile}' 파일이 존재하지 않습니다.`
+          console.log(wlfileLine)
+        }
+      }
+    }
+  }
+
+  function checkLoadsize(opt){
+    if((opt.runtype == 'run') && (opt.loadsize)){
+      loadsizeLine = `[ERROR] load size : load size는 load 옵션 입니다.`
+      console.log(loadsizeLine);
+    }else if ((opt.runtype == 'load'|| opt.runtype == 'loadrun') && (opt.loadsize)){ // load에 대한 loadsize 옵션
+
+      // 10M -> 10
+      transformLoadsize(opt)
+
+      size = opt.loadsize
+      fieldcount = 10
+      fieldlength = Math.pow(10,6)/fieldcount
+      fieldcountLine = `-p fieldcount=${fieldcount}`
+      fieldlengthLine = `-p fieldlength=${fieldlength}`
+
+      recordcountLine = `-p recordcount=${recordcount}`
+      loadsizecmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
+      // console.log(loadsizecmd);
+    }
+  }
+
+  function transformLoadsize(opt){
+    size = opt.loadsize
+    if (size.match(/M/)){
+      splitSize = size.split('M');
+      recordcount = splitSize[0]
+      loadsizeLine = `load size : ${opt.loadsize}`
+    }
+    else if (size.match(/G/)){
+      splitSize = size.split('G');
+      recordcount = splitSize[0]*Math.pow(10,3)
+      loadsizeLine = `load size : ${opt.loadsize}`
+    }
+    else if (size.match(/T/)){
+      splitSize = size.split('T');
+      recordcount = splitSize[0]*Math.pow(10,6)
+      loadsizeLine = `load size : ${opt.loadsize}`
+    }
+    else{
+      loadsizeLine = `[ERROR] load size : load size를 (###M, ###G, ###T) 형식으로 입력해주세요.`
+    }
+    console.log(loadsizeLine);
+  }
+
+
+
 
 
 
@@ -265,7 +265,7 @@ module.exports.ycsb = (opt) => {
 //       }
 //
 //
-}
+
 
 //
 // module.exports.ycsbRun = () => {
