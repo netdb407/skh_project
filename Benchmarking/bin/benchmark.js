@@ -12,15 +12,15 @@ program
   .option('-n, --name <name>', `name을 입력`)
   .option('-o, --output <output>', `output directory 지정`)
   .action(function(opt){
+
     checkDBtype(opt)
-
-
 })
 
 program.parse(process.argv);
 
 
 function checkDBtype(opt){
+  // console.log(opt);
   switch(opt.dbtype){
     case 'cassandra' :
       ycsbAction.ycsb(opt);
