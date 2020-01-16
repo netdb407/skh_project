@@ -10,7 +10,6 @@ module.exports.gitInstall = () => {
 }
 
 module.exports.gitDelete = () => {
-  console.log('버전이 달라 기존 git을 삭제합니다.');
-  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.git}`)
+  exec(`${cmds.deleteCmd} ${cmds.git}`)
   console.log('git 삭제완료');
 }
