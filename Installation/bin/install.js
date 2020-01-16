@@ -17,14 +17,14 @@ program
   .option('-s, --server', `server에 설치, -p 옵션에만 적용`)
   .option('-n, --node', `node에 설치, -p 옵션에만 적용`)
   .action(function Action(opt){
-    CheckHaveArg(opt.package);
+    checkHaveArg(opt.package);
   })
 
 program.parse(process.argv)
 
 
 
-function CheckHaveArg(arg){
+function checkHaveArg(arg){
   try {
     const stdout = exec(`rpm -qa|grep ${arg}`);
     if(stdout != null){
