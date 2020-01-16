@@ -56,7 +56,6 @@ module.exports.sshpassInstall = () => {
 
 
 module.exports.sshpassDelete = () => {
-  console.log('버전이 달라 기존 sshpass을 삭제합니다.');
-  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpass}`)
+  exec(`${cmds.deleteCmd} ${cmds.sshpass}`)
   console.log('sshpass 삭제완료');
 }

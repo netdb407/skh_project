@@ -11,7 +11,6 @@ module.exports.mavenInstall = () => {
 
 
 module.exports.mavenDelete = () => {
-  console.log('버전이 달라 기존 maven을 삭제합니다.');
-  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.maven}`)
+  exec(`${cmds.deleteCmd} ${cmds.maven}`)
   console.log('maven 삭제완료');
 }

@@ -10,7 +10,6 @@ module.exports.pythonInstall = () => {
 }
 
 module.exports.pythonDelete = () => {
-  console.log('버전이 달라 기존 python을 삭제합니다.');
-  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.python}`)
+  exec(`${cmds.deleteCmd} ${cmds.python}`)
   console.log('python 삭제완료');
 }

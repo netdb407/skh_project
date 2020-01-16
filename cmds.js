@@ -1,17 +1,13 @@
 // sshpass install : rpm -ivh 파일명
 // sshpass delete : rpm -e sshpass
-
 // git install : rpm -ivh 파일명
 // git delete : rpm -e git-core-2.18.1-3.el8.x86_64
-
 // java install : rpm -ivh 파일명
 // java delete : yum remove java (rpm -e로 지우면 dependency때문에 못지움)
-
-//python install : rpm -ivh 파일명
-//python delete : rpm -e platform-python 하면 dependencies엄청 걸려서 x
-
-//maven install : rpm -ivh 파일명(dependencies 쩔음)
-//maven delete : rpm -e maven
+// python install : rpm -ivh 파일명
+// python delete : rpm -e platform-python 하면 dependencies엄청 걸려서 x
+// maven install : rpm -ivh 파일명(dependencies 쩔음)
+// maven delete : rpm -e maven
 
 const installCmd = 'rpm -ivh'
 const deleteCmd = 'rpm -e' //git, sshpass
