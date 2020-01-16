@@ -30,8 +30,8 @@ program
   .action(function Action(opt){
     // pckInfo = opt.package
     // versionCheck(pckInfo);
-    installPackage(opt.package)
-
+    // installPackage(opt.package)
+    versionCheck(opt.package);
     // var start = 1;
     // versionChecking.versionCheck(pckInfo)
     // versionCheck(pckInfo, haveArg);
@@ -95,6 +95,38 @@ program
 program.parse(process.argv)
 
 
+function versionCheck(arg){
+  const child = execFile(arg, (err, stdout, stderr) => {
+    console.log(Object.keys(stderr));
+    
+    if(Object.keys(err).includes('errno')==true){
+      console.log('존재 유무 : 설치되지 않았습니다.');
+      console.log('설치 시작');
+      installPackage(arg);
+    }
+    else if(typeof stderr == 'string'){
+
+      console.log('존재 유무 : 이미 존재하는 패키지입니다.');
+      console.log('버전을 확인합니다.');
+
+
+      console.log('버전이 달라 삭제 후 재설치합니다.');
+      deletePackage(arg);
+      console.log('삭제완료');
+
+      console.log('설치 시작');
+      installPackage(arg);
+      console.log('설치완료');
+
+
+      console.log('버전이 일치합니다.');
+      console.log('실행 종료');
+
+
+      return 0;
+    }
+  })
+}
 
 
 
@@ -207,7 +239,33 @@ function installPackage(package){
       case 'python' :
         pythonAction.pythonInstall();
        break;
+      default :
+        console.log('[ERROR] 존재하지 않는 패키지입니다.');
+        break;
      }
+ }
+
+ function deletePackage(package){
+   switch(package){
+     case 'java' :
+      javaAction.javaDelete();
+      break;
+     case 'sshpass' :
+      sshpassAction.sshpassDelete();
+      break;
+     case 'git' :
+      gitAction.gitDelete();
+      break;
+     case 'maven' :
+      mavenAction.mavenDelete();
+      break;
+     case 'python' :
+      pythonAction.pythonDelete();
+      break;
+     default :
+      console.log('[ERROR] 존재하지 않는 패키지입니다.');
+      break;
+   }
  }
 
 

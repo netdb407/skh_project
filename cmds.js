@@ -19,9 +19,9 @@ const javadeleteCmd = 'yum remove'
 
 const java = 'java'
 const sshpass = 'sshpass'
-const git = 'git-core'
 const maven = 'maven-local-5.3.0-1.el8.noarch'
 const python = 'platform-python-3.6.8-2.el8_0.0.1.x86_64'
+const git = 'git-core'
 
 //rpm 설치 파일 정보
 const rpmDir = './Installation/rpm/'
