@@ -12,24 +12,30 @@ program
   .option('-n, --name <name>', `name을 입력`)
   .option('-o, --output <output>', `output directory 지정`)
   .action(function(opt){
-      switch(opt.dbtype){
-        case 'cassandra' :
-          ycsbAction.ycsb(opt);
-          break;
-        case 'arangodb' :
-          ycsbAction.ycsb(opt);
-          break;
-        case 'orientdb' :
-          graphbenchAction.graphbench(opt)
-          break;
-        default :
-          console.log('[ERROR] dbtype : (cassandra, arangodb, orientdb)를 입력해주세요.')
-          break;
-        }
+    checkDBtype(opt)
+
+
 })
 
 program.parse(process.argv);
 
+
+function checkDBtype(opt){
+  switch(opt.dbtype){
+    case 'cassandra' :
+      ycsbAction.ycsb(opt);
+      break;
+    case 'arangodb' :
+      ycsbAction.ycsb(opt);
+      break;
+    case 'orientdb' :
+      graphbenchAction.graphbench(opt)
+      break;
+    default :
+      console.log('[ERROR] dbtype : (cassandra, arangodb, orientdb)를 입력해주세요.')
+      break;
+    }
+}
 
 // module.exports.benchmarkTool = (arg) => {
 // // console.log(arg.dbtype);

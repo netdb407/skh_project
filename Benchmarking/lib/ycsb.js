@@ -40,15 +40,15 @@ module.exports.ycsb = (opt) => {
     console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
     }
 
-  function checkRuntype(runtype, callback){
-    if(opt.runtype == 'load' || opt.runtype == 'run' || opt.runtype == 'loadrun'){
-      runtypeLine = `runtype : ${opt.runtype}`
-      callback(runtypeLine)
-    }else {
-      runtypeLine = `[ERROR] runtype : (load, run, load/run) 를 입력해주세요.`
-      callback(runtypeLine)
+    function checkRuntype(runtype, callback){
+      if(opt.runtype == 'load' || opt.runtype == 'run' || opt.runtype == 'loadrun'){
+        runtypeLine = `runtype : ${opt.runtype}`
+        callback(runtypeLine)
+      }else {
+        runtypeLine = `[ERROR] runtype : (load, run, load/run) 를 입력해주세요.`
+        callback(runtypeLine)
+      }
     }
-  }
 
   function checkFile(wlfile, callback){
     if(opt.wlfile == null) {
