@@ -37,7 +37,7 @@ function checkHaveArg(arg){
     err.pid;
     err.signal;
     err.status;
-    console.log('[info] ',arg, 'is not installed');
+    console.log('[info] ',arg, ' is not installed');
     console.log('[info] Install ', arg);
     installPackage(arg);
     console.log(arg, ' complete!');
@@ -107,7 +107,7 @@ function installPackage(package){
         pythonAction.pythonInstall();
        break;
       default :
-        console.log('[ERROR]', package,'is cannot be installed');
+        console.log('[ERROR]', package,' is cannot be installed');
         break;
      }
  }
