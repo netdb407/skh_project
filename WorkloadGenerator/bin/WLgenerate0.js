@@ -1,5 +1,5 @@
 var inquirer = require('inquirer');
-
+var fs = require('fs');
 const program = require('commander');
 
 program
@@ -50,9 +50,8 @@ var q1 = [
 var q2 = [
   {
     type : 'input',
-    name : 'Graph benchmark properties',
+    name : 'Graph_benchmark',
     message : 'Graph benchmark properties',
-    value : 'Graph benchmark properties'
   }
 ];
 
@@ -63,14 +62,38 @@ inquirer.prompt(question).then(answers => {
       console.log("type is %s",answers.type);
       console.log("File name is %s",answers.name);
       console.log("----properties----");
-      console.log("record count is %s",answers1.record_count);
+      console.log("record count is %s",answers1.Record_count);
       console.log("Thread count is %s",answers1.Thread_count);
       console.log("Request distribution is %s",answers1.Request_distribution);
       console.log("et_cetera is %s",answers1.et_cetera);
       console.log("********************************");
+
+      var aa = [answers.type, answers1.Record_count, answers1.Thread_count,answers1.Request_distribution,answers1.et_cetera];
+      fs.writeFile('D:/' + answers.name,aa,(err) => {
+        if(err){
+          console.log(err);
+        }else {
+          console.log('파일저장 성공');
+        }
+      });
   });
   } else {
     inquirer.prompt(q2).then(answers2 => {
+      console.log("********************************");
+      console.log("type is %s",answers.type);
+      console.log("File name is %s",answers.name);
+      console.log("----properties----");
+      console.log("Graph benchmark is %s",answers2.Graph_benchmark);
+      console.log("********************************");
+
+      var bb = [answers.type, answers2.Graph_benchmark];
+      fs.writeFile('D:/' + answers.name,bb,(err) => {
+        if(err){
+          console.log(err);
+        }else {
+          console.log('파일저장 성공');
+        }
+      });
     });
   }
   }
