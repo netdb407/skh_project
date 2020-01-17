@@ -14,8 +14,8 @@ program
   .command('install')
   .option('-p, --package <pkg>')
   .option('-d, --database <dbname>')
-  .option('-s, --server', `server에 설치, -p 옵션에만 적용`)
-  .option('-n, --node', `node에 설치, -p 옵션에만 적용`)
+  .option('-s, --server', `install into server, only can use to -p option`)
+  .option('-n, --node', `install into node, only can use to -p option`)
   .action(function Action(opt){
     checkHaveArg(opt.package);
   })
@@ -28,7 +28,7 @@ function checkHaveArg(arg){
   try {
     const stdout = exec(`rpm -qa|grep ${arg}`);
     if(stdout != null){
-      console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
+      console.log('[info] ',arg, 'is a installed package.', '\nCheck version matching');
       versionCheck(arg);
     }
   } catch (err) {
@@ -37,10 +37,10 @@ function checkHaveArg(arg){
     err.pid;
     err.signal;
     err.status;
-    console.log(arg, '는 설치되지 않았습니다.');
-    console.log(arg, '를 설치합니다.');
+    console.log('[info] ',arg, 'is not installed');
+    console.log('[info] Install ', arg);
     installPackage(arg);
-    console.log(arg, ' 설치완료');
+    console.log(arg, ' complete!');
   }
 }
 
@@ -69,7 +69,7 @@ function versionCheck(arg){
         break;
     }
     if(stdout.includes(version)){
-      console.log('버전이 일치합니다.');
+      console.log('[info] Version is matched');
     }
   } catch (err) {
     // err.stdout;
@@ -77,11 +77,11 @@ function versionCheck(arg){
     // err.pid;
     // err.signal;
     // err.status;
-    console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+    console.log('[info] Version is not matched. Delete ', arg);
     deletePackage(arg);
-    console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+    console.log(arg, ' Deletion completed', '\nInstall new version of ', arg);
     installPackage(arg);
-    console.log(arg, ' 설치완료');
+    console.log(arg, ' complete!');
   }
 }
 
@@ -107,7 +107,7 @@ function installPackage(package){
         pythonAction.pythonInstall();
        break;
       default :
-        console.log('[ERROR]', package,'는 존재하지 않는 패키지입니다.');
+        console.log('[ERROR]', package,'is cannot be installed');
         break;
      }
  }
@@ -130,7 +130,7 @@ function installPackage(package){
       pythonAction.pythonDelete();
       break;
      default :
-      console.log('[ERROR]', package,'는 존재하지 않는 패키지입니다.');
+      console.log('[ERROR]', package,'is cannot be installed.');
       break;
    }
  }
