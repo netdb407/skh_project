@@ -27,22 +27,22 @@ var q1 = [
 
   {
     type : 'input',
-    name : 'Record count',
+    name : 'Record_count',
     message : 'YCSB properties-Record count',
   },
   {
     type : 'input',
-    name : 'Thread count',
+    name : 'Thread_count',
     message : 'YCSB properties-Thread count',
   },
   {
     type : 'input',
-    name : 'Request distribution',
+    name : 'Request_distribution',
     message : 'YCSB properties-Request distribution',
   },
   {
     type : 'input',
-    name : 'etc',
+    name : 'et_cetera',
     message : 'YCSB properties-Etc',
   }
 ];
@@ -58,13 +58,19 @@ var q2 = [
 
 inquirer.prompt(question).then(answers => {
   if(answers.type === 'YCSB'){
-    inquirer.prompt(q1).then(answers1 => {
-      console.log(answers);
-      console.log(answers1);
-    });
+    inquirer.prompt(q1).then(answers1=> {
+      console.log("********************************");
+      console.log("type is %s",answers.type);
+      console.log("File name is %s",answers.name);
+      console.log("----properties----");
+      console.log("record count is %s",answers1.record_count);
+      console.log("Thread count is %s",answers1.Thread_count);
+      console.log("Request distribution is %s",answers1.Request_distribution);
+      console.log("et_cetera is %s",answers1.et_cetera);
+      console.log("********************************");
+  });
   } else {
     inquirer.prompt(q2).then(answers2 => {
-      console.log(answers,answers2);
     });
   }
   }
