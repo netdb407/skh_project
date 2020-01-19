@@ -11,6 +11,12 @@ module.exports = {
     return properties.get("password");
   },
 
+  get_rpm_dir(){
+    return properties.get("rpm_dir");
+  },
+
+
+
   //cluster 정보
   get_server(){
     return properties.get("server");

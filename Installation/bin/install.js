@@ -17,19 +17,29 @@ program
   .option('-s, --server', `install into server, only can use to -p option`)
   .option('-n, --node', `install into node, only can use to -p option`)
   .action(function Action(opt){
-    checkHaveArg(opt.package);
+    checkHaveArg(opt);
   })
 
 program.parse(process.argv)
 
 
 
-function checkHaveArg(arg){
+function checkHaveArg(opt){
+  // if(opt.server == true){
+  //   console.log('?');
+  //
+  //   console.log(property.get_nodes());
+  //   console.log('??');
+  // }
+  //sshpass로 -s,-n옵션 중 들어온거에 접속해야함
+  //옵션 들어온거에 따라 sshpass에 dir을 달리 주고
+  //sshpass에는 옵션마다 함수를 만들기
+
   try {
-    const stdout = exec(`rpm -qa|grep ${arg}`);
+    const stdout = exec(`rpm -qa|grep ${opt.package}`);
     if(stdout != null){
-      console.log('[info] ',arg, 'is a installed package.', '\nCheck version matching');
-      versionCheck(arg);
+      console.log('[info]',opt.package, 'is a installed package.', '\nCheck version matching');
+      versionCheck(opt);
     }
   } catch (err) {
     err.stdout;
@@ -37,21 +47,21 @@ function checkHaveArg(arg){
     err.pid;
     err.signal;
     err.status;
-    console.log('[info] ',arg, ' is not installed');
-    console.log('[info] Install ', arg);
-    installPackage(arg);
-    console.log(arg, ' complete!');
+    console.log('[info]',opt.package, 'is not installed');
+    console.log('[info] Install', opt.package);
+    installPackage(opt);
+    console.log(opt.package, 'complete!');
   }
 }
 
 
 
 
-function versionCheck(arg){
+function versionCheck(opt){
   try {
-    const stdout = exec(`rpm -qa|grep ${arg}`);
+    const stdout = exec(`rpm -qa|grep ${opt.package}`);
     var version
-    switch(arg){
+    switch(opt.package){
       case git :
         version = property.get_gitVersion()
         break;
@@ -77,24 +87,24 @@ function versionCheck(arg){
     // err.pid;
     // err.signal;
     // err.status;
-    console.log('[info] Version is not matched. Delete ', arg);
-    deletePackage(arg);
-    console.log(arg, ' Deletion completed', '\nInstall new version of ', arg);
-    installPackage(arg);
-    console.log(arg, ' complete!');
+    console.log('[info] Version is not matched. Delete', opt.package);
+    deletePackage(opt);
+    console.log(opt.package, 'Deletion completed', '\nInstall new version of', opt.package);
+    installPackage(opt);
+    console.log(opt.package, 'complete!');
   }
 }
 
 
 
-function installPackage(package){
+function installPackage(opt){
   // console.log('dir정보 : ', dir);
-  switch(package){
+  switch(opt.package){
       case 'java' :
         javaAction.javaInstall();
         break;
       case 'sshpass' :
-        sshpassAction.sshpassInstall();
+        sshpassAction.sshpassInstall(opt.server, opt.node);
         break;
       case 'git' :
         gitAction.gitInstall();
@@ -107,13 +117,13 @@ function installPackage(package){
         pythonAction.pythonInstall();
        break;
       default :
-        console.log('[ERROR]', package,' is cannot be installed');
+        console.log('[ERROR]', opt.package,'is cannot be installed');
         break;
      }
  }
 
- function deletePackage(package){
-   switch(package){
+ function deletePackage(opt){
+   switch(opt.package){
      case 'java' :
       javaAction.javaDelete();
       break;
@@ -130,7 +140,7 @@ function installPackage(package){
       pythonAction.pythonDelete();
       break;
      default :
-      console.log('[ERROR]', package,'is cannot be installed.');
+      console.log('[ERROR]', opt.package,'is cannot be installed.');
       break;
    }
  }

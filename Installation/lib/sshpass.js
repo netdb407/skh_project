@@ -4,23 +4,39 @@ const property = require('../../propertiesReader.js')
 const cmds = require('../../cmds.js')
 
 
-module.exports.sshpassInstall = () => {
-
+module.exports.sshpassInstall = (server, node) => {
+  // console.log('this', server, node);
   //프로젝트폴더 로컬에서 먼저 rpm파일 설치!!
-  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpassFile} `)
-  // //파일 보내기
-  // sshpass -p 'P@ssw0rd' scp -o StrictHostKeyChecking=no hello.txt root@135.79.246.99:/root/hello.tx
+  // exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpassFile} `)
 
-
-  // //접속
-  // sshpass -p 'P@ssw0rd' ssh -o StrictHostKeyChecking=no root@135.79.246.99
-
-  // //명령어
+  //192,193,194,195에 sshpass 먼저 깔기
+  //그담에 다른 rpm 파일 깔기..
   
-  // //나가기?원래꺼로 접속
-  //   sshpass -p 'P@ssw0rd' ssh -o StrictHostKeyChecking=no root@135.79.246.99
+  var installDirectoryIP = server == true? property.get_server() : property.get_nodes();
+  // console.log('this',server, node, installDir);
+  var password = property.get_password();
 
+  // sshpass -p password ssh -o StrictHostKeyChecking=no root@nodes
+  exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${installDirectoryIP} `)
+  exec(`mkdir yh`)
+
+  // mkdir yh
+
+  //프로젝트 폴더 통채로 보내기?
+  // //파일 보내기(*보낼 디렉토리에 폴더명이 존재해야함)
+  var rpmDir = property.get_rpm_dir();
+  // sshpass -p 'netdb3230' scp -o StrictHostKeyChecking=no /home/skh/yh/skh_project/Installation/rpm/*.rpm root@203.255.92.193:/root/yh
+  exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh `)
+
+  // rpm 설치 함수 호출
+  //
+  //
+  //
+  // //나가기?원래꺼로 접속
+  // exit하고 ctrl+shift+R
+  //   sshpass -p 'P@ssw0rd' ssh -o StrictHostKeyChecking=no root@135.79.246.99
 }
+
 
 
 module.exports.sshpassDelete = () => {
