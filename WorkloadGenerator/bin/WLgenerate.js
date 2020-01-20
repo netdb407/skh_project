@@ -73,7 +73,7 @@ inquirer.prompt(question).then(answers => {
       'Thread count = '+answers1.Thread_count+'\n'+
       'Request distribution = '+answers1.Request_distribution+'\n'+
       'ETC = '+answers1.et_cetera];
-      fs.writeFile('D:/' + answers.name,aa,(err) => {
+      fs.writeFile('./Benchmarking/YCSB/workloads/' + answers.name,aa,(err) => {
         if(err){
           console.log(err);
         }else {
@@ -91,7 +91,7 @@ inquirer.prompt(question).then(answers => {
       console.log("********************************");
 
       var bb = ['type = ' + answers.type+'\n'+'Graph benchmark = '+answers2.Graph_benchmark];
-      fs.writeFile('D:/' + answers.name,bb,(err) => {
+      fs.writeFile('./Benchmarking/YCSB/workloads/' + answers.name,bb,(err) => {
         if(err){
           console.log(err);
         }else {
