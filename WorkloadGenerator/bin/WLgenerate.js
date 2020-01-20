@@ -68,7 +68,11 @@ inquirer.prompt(question).then(answers => {
       console.log("et_cetera is %s",answers1.et_cetera);
       console.log("********************************");
 
-      var aa = [answers.type, answers1.Record_count, answers1.Thread_count,answers1.Request_distribution,answers1.et_cetera];
+      var aa = ['type = '+answers.type+'\n'+
+      'Record count = '+answers1.Record_count+'\n'+
+      'Thread count = '+answers1.Thread_count+'\n'+
+      'Request distribution = '+answers1.Request_distribution+'\n'+
+      'ETC = '+answers1.et_cetera];
       fs.writeFile('D:/' + answers.name,aa,(err) => {
         if(err){
           console.log(err);
@@ -86,7 +90,7 @@ inquirer.prompt(question).then(answers => {
       console.log("Graph benchmark is %s",answers2.Graph_benchmark);
       console.log("********************************");
 
-      var bb = [answers.type, answers2.Graph_benchmark];
+      var bb = ['type = ' + answers.type+'\n'+'Graph benchmark = '+answers2.Graph_benchmark];
       fs.writeFile('D:/' + answers.name,bb,(err) => {
         if(err){
           console.log(err);
