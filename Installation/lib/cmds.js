@@ -11,7 +11,7 @@
 
 const installCmd = 'rpm -ivh'
 const deleteCmd = 'rpm -e' //git, sshpass
-const javadeleteCmd = 'yum remove'
+const yumDeleteCmd = 'yum remove'
 
 const java = 'java'
 const sshpass = 'sshpass'

@@ -10,5 +10,5 @@ module.exports.javaInstall = (package, dir) => {
 
 
 module.exports.javaDelete = () => {
-  exec(`${cmds.javadeleteCmd} ${cmds.java}`)
+  exec(`${cmds.yumDeleteCmd} ${cmds.java}`)
 }

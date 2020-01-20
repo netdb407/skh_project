@@ -17,10 +17,13 @@ module.exports.sshpassInstall = (server, node) => {
   var password = property.get_password();
   var rpmDir = property.get_rpm_dir();
   // sshpass -p password ssh -o StrictHostKeyChecking=no root@nodes
-  console.log('원격으로', installDirectoryIP,'에 접속한 뒤 rpm 설치 파일을 전송합니다..');
+  // console.log('원격으로', installDirectoryIP,'에 접속한 뒤 rpm 설치 파일을 전송합니다..');
+  console.log('원격으로', installDirectoryIP, '에 접속합니다.');
   // exec(`sshpass -p ${password} scp -o StrictHostKeyChecking=no root@${installDirectoryIP} `)
   exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${installDirectoryIP}`)
+  console.log('rpm 파일을 설치할 디렉토리를 만듭니다.');
   exec(`mkdir yh`)
+  console.log('rpm 파일을 전송합니다.');
   exec( `scp ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh`)
   // exec(`scp -o StrictHostKeyChecking=no ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh `)
 

@@ -9,5 +9,5 @@ module.exports.mavenInstall = () => {
 
 
 module.exports.mavenDelete = () => {
-  exec(`${cmds.deleteCmd} ${cmds.maven}`)
+  exec(`${cmds.yumDeleteCmd} ${cmds.maven}`)
 }
