@@ -33,7 +33,7 @@ const gitFile = 'git-core-2.18.1-3.el8.x86_64.rpm'
 module.exports = {
   installCmd,
   deleteCmd,
-  javadeleteCmd,
+  yumDeleteCmd,
 
   java,
   sshpass,
