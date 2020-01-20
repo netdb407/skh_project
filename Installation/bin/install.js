@@ -1,119 +1,171 @@
 const program = require('commander');
+const execFile = require('child_process').execFile;
+const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')
-const versionChecking = require('../lib/versionCheck.js')
 const javaAction = require('../lib/java.js')
 const sshpassAction = require('../lib/sshpass.js')
-
-
-// program
-//   .option('-p, --package <pkg> <dir>')
-//   .option('-d, --database <dbname>')
-//   .action(function(opt){
-//
-//     //package가 들어오면(null이 아닐때)
-//     if(!!opt.package){
-//       installPackage(opt.package, opt.args[1]);
-//     }
-//     else if(!!opt.database){
-//       installDatabase(opt.dbname);
-//     }
-//   })
-//
-// program.parse(process.argv)
-
+const gitAction = require('../lib/git.js')
+const mavenAction = require('../lib/maven.js')
+const pythonAction = require('../lib/python.js')
 
 program
+  .command('install')
   .option('-p, --package <pkg>')
   .option('-d, --database <dbname>')
   .option('-s, --server', `server에 설치, -p 옵션에만 적용`)
   .option('-n, --node', `node에 설치, -p 옵션에만 적용`)
-  .action(function(opt){
-
-    //package가 들어오면(null이 아닐때)
-
-    //-p, -s 옵션
-    if(!!opt.package && !!opt.server){
-      // console.log(opt.server);
-      installPackage(opt.package, opt.server);
-    }
-    //-p, -n 옵션
-    else if(!!opt.package && !!opt.node){
-      installPackage(opt.package, opt.node);
-    }
-    //-p 옵션
-    else{
-      console.log('error : -s 또는 -n 옵션을 입력하세요.');
-    }
-
-
-    //-d 옵션
-    if(!!opt.database){
-      installDatabase(opt.dbname);
-    }
-    //-d, -s옵션
-    else if(!!opt.database && !!opt.server || !!opt.database && !!opt.node){
-      console.log('warning : -s 옵션은 -p옵션과 사용 가능.');
-    }
-
-
+  .action(function Action(opt){
+    CheckHaveArg(opt.package);
   })
 
 program.parse(process.argv)
 
 
 
+function CheckHaveArg(arg){
+  const child = execFile(arg, (err, stdout, stderr) => {
+    // console.log('err : ', err);
+    // console.log('stdout :', stdout);
+    // console.log('stderr :', stderr);
+    if(Object.keys(err).includes('errno')==true){
+      console.log(arg, '는 설치되지 않았습니다.');
+      installPackage(arg);
+      // versionCheck(arg);
+    }
+    else if(typeof stderr == 'string'){
+      console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
+      versionCheck(arg);
+    }
+  })
+}
 
-function installPackage(package, dir){
-  // console.log(package);
-  // console.log(dir);
-  // console.log(dir);
-  if(dir == true){
-    // console.log('true');
-    // console.log(dir);
-    // console.log('wow');
-    const directory = property.get_server_install_dir()
-    // console.log(directory);
+
+  //maven : -v, --version
+  //java : -version
+  //git : --version (설치되어있을 시 버전정보 stdout으로 빠짐)
+  //python : -V
+  //sshpass : -V
+function versionCheck(arg){
+  if(arg == 'git'||'maven'){
+    const child = execFile(arg, ['--version'], (err, stdout, stderr) => {
+      // console.log('err : ', err);
+      // console.log('stdout :', stdout);
+      // console.log('stderr :', stderr);
+      var version = arg == 'git'? property.get_gitVersion() : property.get_mavenVersion()
+      console.log('버전일치여부 : ', stdout.includes(version));
+      //버전 일치
+      if(stderr.includes(version)){
+        console.log('버전이 일치합니다.');
+      }
+      //버전 불일치
+      else{
+        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+        deletePackage(arg);
+        console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+        installPackage(arg);
+        console.log(arg, ' 설치완료');
+      }
+    })
   }
+
+  else if(arg == 'python'||'sshpass'){
+    // console.log('err : ', err);
+    // console.log('stdout :', stdout);
+    // console.log('stderr :', stderr);
+    const child = execFile(arg, ['-V'], (err, stdout, stderr) => {
+      var version = arg == 'python'? property.get_pythonVersion() : property.get_sshpassVersion()
+      //버전 일치
+      if(stderr.includes(version)){
+        console.log('버전이 일치합니다.');
+      }
+      //버전 불일치
+      else{
+        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+        deletePackage(arg);
+        console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+        // console.log('새로운 버전의 ', arg, '를 설치합니다.');
+        installPackage(arg);
+        console.log(arg, ' 설치완료');
+      }
+    })
+  }
+
+  else if(arg == 'java'){
+    const child = execFile(arg, ['-version'], (err, stdout, stderr) => {
+      var version = property.get_javaVersion()
+      //버전 일치
+      if(stderr.includes(version)){
+        console.log('버전이 일치합니다.');
+      }
+      //버전 불일치
+      else{
+        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
+        deletePackage(arg);
+        console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
+        installPackage(arg);
+        console.log(arg, ' 설치완료');
+      }
+     })
+    }
+
   else{
-    const directory = property.get_node_install_dir()
-    // console.log(directory);
+    console.log(arg, '는 없는 패키지입니다.');
   }
+}
 
 
+function installPackage(package){
+  // console.log('dir정보 : ', dir);
   switch(package){
       case 'java' :
-        // versionChecking.versionCheck(package);
         javaAction.javaInstall();
         break;
-
       case 'sshpass' :
-        // versionChecking.versionCheck(package);
-        console.log('sshpass');
-        // sshpassAction.sshpassInstall();
+        sshpassAction.sshpassInstall();
         break;
-
       case 'git' :
-       console.log('git');
+        gitAction.gitInstall();
        break;
-
       case 'maven' :
-       console.log('maven');
+        mavenAction.mavenInstall();
+        // mavenAction.mavenDelete();
        break;
-
       case 'python' :
-       console.log('python');
+        pythonAction.pythonInstall();
        break;
-
-      // default :
-      //  versionChecking.versionCheck(package);
-      //  // console.log('default');
-      //  break;
+      default :
+        console.log('[ERROR]', package,'는 존재하지 않는 패키지입니다.');
+        break;
      }
+ }
+
+ function deletePackage(package){
+   switch(package){
+     case 'java' :
+      javaAction.javaDelete();
+      break;
+     case 'sshpass' :
+      sshpassAction.sshpassDelete();
+      break;
+     case 'git' :
+      gitAction.gitDelete();
+      break;
+     case 'maven' :
+      mavenAction.mavenDelete();
+      break;
+     case 'python' :
+      pythonAction.pythonDelete();
+      break;
+     default :
+      console.log('[ERROR]', package,'는 존재하지 않는 패키지입니다.');
+      break;
+   }
  }
 
 
 
-function installDatabase(dbname){
-  console.log('2');
-  // console.log(dbname);
-}
+
+// function installDatabase(dbname){
+//   // console.log('2');
+//   // console.log(dbname);
+// }
