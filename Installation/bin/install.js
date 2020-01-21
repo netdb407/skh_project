@@ -33,7 +33,7 @@ program
 
 
     ip.forEach((i) => {
-      console.log('----------------------------------------');
+      console.log('-----------------------------------');
       console.log('[info] IP address is', i);
       //sshpass가 있다
       try{
@@ -46,6 +46,7 @@ program
       }
       //sshpass가 없다
       catch(err){
+        console.log('We need sshpass to install the package.');
         exec(`${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
         console.log('[info] sshpass installation complete!');
         exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:${installDir}`)
@@ -64,7 +65,7 @@ function isInstalledPkg(opt){
   try {
     const stdout = exec(`rpm -qa|grep ${opt.package}`);
     if(stdout != null){
-      console.log('[info]',opt.package, 'is a installed package.', '\nCheck version matching');
+      console.log('[info]',opt.package, 'is already installed.', '\n[info] Check the version is matching or not');
       versionCheck(opt);
     }
   } catch (err) {
@@ -83,39 +84,49 @@ function isInstalledPkg(opt){
 
 
 function versionCheck(opt){
+  console.log('start version check');
   try {
-    const stdout = exec(`rpm -qa|grep ${opt.package}`);
-    var version
+    console.log(opt.package);
     switch(opt.package){
+      var stdout = exec(`rpm -qa|grep ${opt.package}`);
+      // var version
       case git :
-        version = property.get_gitVersion()
+        var version = property.get_gitVersion()
         break;
       case maven :
-        version = property.get_mavenVersion()
+        var version = property.get_mavenVersion()
         break;
       case python :
-        version = property.get_pythonVersion()
+        var version = property.get_pythonVersion()
         break;
       case sshpass :
-        version = property.get_sshpassVersion()
+        var version = property.get_sshpassVersion()
         break;
       case java :
-        version = property.get_javaVersion()
+        var version = property.get_javaVersion()
         break;
     }
-    if(stdout.includes(version)){
+    console.log(version);
+    console.log('stdout : ', stdout);
+    if(stdout.includes(version)==true){
       console.log('[info] Version is matched');
     }
+    if(stdout.includes(version)==false){
+      console.log('[info] Version is not matched. Delete', opt.package);
+      deletePackage(opt);
+      console.log('[info] Install new version of', opt.package);
+      installPackage(opt);
+    }
   } catch (err) {
-    // err.stdout;
-    // err.stderr;
-    // err.pid;
-    // err.signal;
-    // err.status;
-    console.log('[info] Version is not matched. Delete', opt.package);
-    deletePackage(opt);
-    console.log('[info] Install new version of', opt.package);
-    installPackage(opt);
+    err.stdout;
+    err.stderr;
+    err.pid;
+    err.signal;
+    err.status;
+    // console.log('[info] Version is not matched. Delete', opt.package);
+    // deletePackage(opt);
+    // console.log('[info] Install new version of', opt.package);
+    // installPackage(opt);
   }
 }
 
