@@ -4,21 +4,22 @@ const wlfileDir = property.get_server_wlfile_dir()
 const ycsbDir = property.get_server_ycsb_dir()
 const nodeIP = property.get_nodes()
 const fs = require('fs')
-// var loadsizeLine = ""
-// var loadsizecmd = ""
-// var recordcount = ""
-
-
-
+var dbtypeLine = ''
+var runtypeLine = ''
+var wlfileLine = ''
+var loadsizeLine = ''
+var loadsizecmd = ''
 module.exports.ycsb = (opt) => {
 
   const dbtypeLine = `dbtype : ${opt.dbtype}`
   console.log(dbtypeLine);
 
-  checkRuntype(opt)
-  checkFile(opt)
-  checkLoadsize(opt)
+  checkRuntype(opt.runtype)
+  checkFile(opt.wlfile)
+  checkLoadsize(opt.runtype, opt.loadsize)
 
+
+  // saveWLfile(opt)
   switch(opt.runtype){
     case 'load' :
       ycsbLoad()
@@ -79,13 +80,91 @@ module.exports.ycsb = (opt) => {
     }
   }
 
+  function saveWLfile(opt){
+
+    if(opt.wlfile == `${opt.wlfile}`){
+      console.log('파일잇음~!');
+
+
+    //   fs.readFile(`${ycsbDir}/${wlfileDir}/${opt.wlfile}`,'utf-8',function(err,data){
+    //   // readFile 이므로 비 동기식이며, readFile()메소드를 실행하면서 세번쨰 파라미터로 전달된 함수는 파일을 읽어들이는 작업이 끝났을때 호출이 된다. 이때, err,data 를 전달받아 오류 발생여부 확인할 수 있다.
+    //   console.log(`${ycsbDir}/${wlfileDir}/${opt.wlfile}`);
+    //   console.log(data);
+    //   //에러 발생시 err은 오류 데이터가 들어가고 에러 발생하지 않았을 경우 null 값이 들어간다.
+    // });
+    //
 
 
 
 
-  function checkRuntype(opt){
-    if(opt.runtype == 'load' || opt.runtype == 'run' || opt.runtype == 'loadrun'){
-      runtypeLine = `runtype : ${opt.runtype}`
+      //
+      // var inname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`;
+      // var outname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}${num}`;
+      //
+      // // outname의 파일을 모두 삭제 하기 위함.
+      // fs.exists(outname, function(err){
+      //     if(err){
+      //         fs.unlink(outname,function(err){                // link를 끊어 버리기 위해 unlink(파일 삭제를 의미한다.)
+      //             if(err) throw err;
+      //             console.log('기존 파일 [' + outname +']삭제함');
+      //         })
+      //     }
+      // })
+      //
+      // // infile 과 outfile 변수에 스트림을 쓴다.
+      // var infile = fs.createReadStream(inname,{flags:'r'});
+      // var outfile = fs.createWriteStream(outname,{flags : 'w'});
+      // infile.pipe(outfile); // infile 스트림과 outfile 스트림을 객체를 연결하기 위한 pipe() => 파일 내용 복사
+      // console.log('파일 복사 [ ' + inname + '] -> ' + outname + ']');
+
+
+
+
+      const fs = require('fs');
+      const util = require('util');
+
+      // create promisified versions of fs methods we will use
+      const readFile = util.promisify(fs.readFile);
+      const readdir = util.promisify(fs.readdir);
+      const appendfile = util.promisify(fs.appendFile);
+
+      async function run() {
+          let somephrase = await readFile(`${ycsbDir}/${wlfileDir}/${opt.wlfile}`).toString();
+          let files = await readdir(`/${ycsbDir}/${wlfileDir}`);
+          for (let file of files) {
+              try {
+                  let f = `${ycsbDir}/${wlfileDir}` + file;
+                  let somenumber = await readFile(f).toString();
+                  //intermingle the data from initial file (phrase.js) with each of the files in files dir
+                  let output = somenumber + somephrase;
+                  //write output to new files
+                  let output_file = `${ycsbDir}/${wlfileDir}` + somenumber + 'js';
+                  await appendFile(output_file, output);
+              } catch(e) {
+                  console.log("error in loop", e);
+              }
+          }
+      }
+
+      run().then(() => {
+         // all done here
+      }).catch(err => {
+         // error occurred here
+      });
+
+
+
+    }else {
+      console.log('없ㅇㅁ');
+    }
+
+  }
+
+
+
+  function checkRuntype(runtype){
+    if(runtype == 'load' || runtype == 'run' || runtype == 'loadrun'){
+      runtypeLine = `runtype : ${runtype}`
       console.log(runtypeLine)
     }else {
       runtypeLine = `[ERROR] runtype : (load, run, load/run) 를 입력해주세요.`
@@ -93,62 +172,61 @@ module.exports.ycsb = (opt) => {
     }
   }
 
-  function checkFile(opt){
-      if(opt.wlfile == null) {
+  function checkFile(wlfile){
+      if(wlfile == null) {
         wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
         console.log(wlfileLine)
       }else{
-        var file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
+        var file = `${ycsbDir}/${wlfileDir}/${wlfile}`
         try {
           fs.statSync(file);
-          wlfileLine = `workload file : ${opt.wlfile}`
+          wlfileLine = `workload file : ${wlfile}`
           console.log(wlfileLine)
         }catch (err) {
           if (err.code === 'ENOENT') {
-          wlfileLine = `[ERROR] workload file : '${opt.wlfile}' 파일이 존재하지 않습니다.`
+            console.log(err);
+          wlfileLine = `[ERROR] workload file : '${wlfile}' 파일이 존재하지 않습니다.`
           console.log(wlfileLine)
         }
       }
     }
   }
 
-  function checkLoadsize(opt){
-    if((opt.runtype == 'run') && (opt.loadsize)){
+  function checkLoadsize(runtype, loadsize){
+    if((runtype == 'run') && (loadsize)){
       loadsizeLine = `[ERROR] load size : load size는 load 옵션 입니다.`
       console.log(loadsizeLine);
-    }else if ((opt.runtype == 'load'|| opt.runtype == 'loadrun') && (opt.loadsize)){ // load에 대한 loadsize 옵션
+    }else if ((runtype == 'load'|| runtype == 'loadrun') && (loadsize)){ // load에 대한 loadsize 옵션
 
       // 10M -> 10
-      transformLoadsize(opt)
+      transformLoadsize(loadsize)
 
-      size = opt.loadsize
       fieldcount = 10
       fieldlength = Math.pow(10,6)/fieldcount
       fieldcountLine = `-p fieldcount=${fieldcount}`
       fieldlengthLine = `-p fieldlength=${fieldlength}`
-
       recordcountLine = `-p recordcount=${recordcount}`
+
       loadsizecmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
       // console.log(loadsizecmd);
     }
   }
 
-  function transformLoadsize(opt){
-    size = opt.loadsize
-    if (size.match(/M/)){
-      splitSize = size.split('M');
+  function transformLoadsize(loadsize){
+    if (loadsize.match(/M/)){
+      splitSize = loadsize.split('M');
       recordcount = splitSize[0]
-      loadsizeLine = `load size : ${opt.loadsize}`
+      loadsizeLine = `load size : ${loadsize}`
     }
-    else if (size.match(/G/)){
-      splitSize = size.split('G');
+    else if (loadsize.match(/G/)){
+      splitSize = loadsize.split('G');
       recordcount = splitSize[0]*Math.pow(10,3)
-      loadsizeLine = `load size : ${opt.loadsize}`
+      loadsizeLine = `load size : ${loadsize}`
     }
-    else if (size.match(/T/)){
-      splitSize = size.split('T');
+    else if (loadsize.match(/T/)){
+      splitSize = loadsize.split('T');
       recordcount = splitSize[0]*Math.pow(10,6)
-      loadsizeLine = `load size : ${opt.loadsize}`
+      loadsizeLine = `load size : ${loadsize}`
     }
     else{
       loadsizeLine = `[ERROR] load size : load size를 (###M, ###G, ###T) 형식으로 입력해주세요.`
