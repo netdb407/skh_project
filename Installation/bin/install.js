@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const program = require('commander');
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
@@ -12,116 +14,97 @@ program
   .command('install')
   .option('-p, --package <pkg>')
   .option('-d, --database <dbname>')
-  .option('-s, --server', `server에 설치, -p 옵션에만 적용`)
-  .option('-n, --node', `node에 설치, -p 옵션에만 적용`)
+  .option('-s, --server', `install into server, only can use to -p option`)
+  .option('-n, --node', `install into node, only can use to -p option`)
   .action(function Action(opt){
-    CheckHaveArg(opt.package);
+    checkHaveArg(opt);
   })
 
 program.parse(process.argv)
 
 
 
-function CheckHaveArg(arg){
-  const child = execFile(arg, (err, stdout, stderr) => {
-    // console.log('err : ', err);
-    // console.log('stdout :', stdout);
-    // console.log('stderr :', stderr);
-    if(Object.keys(err).includes('errno')==true){
-      console.log(arg, '는 설치되지 않았습니다.');
-      installPackage(arg);
-      // versionCheck(arg);
+function checkHaveArg(opt){
+  // if(opt.server == true){
+  //   console.log('?');
+  //
+  //   console.log(property.get_nodes());
+  //   console.log('??');
+  // }
+  //sshpass로 -s,-n옵션 중 들어온거에 접속해야함
+  //옵션 들어온거에 따라 sshpass에 dir을 달리 주고
+  //sshpass에는 옵션마다 함수를 만들기
+
+  try {
+    const stdout = exec(`rpm -qa|grep ${opt.package}`);
+    if(stdout != null){
+      console.log('[info]',opt.package, 'is a installed package.', '\nCheck version matching');
+      versionCheck(opt);
     }
-    else if(typeof stderr == 'string'){
-      console.log(arg, '는 이미 존재하는 패키지입니다.', '\n버전을 확인합니다.');
-      versionCheck(arg);
-    }
-  })
-}
-
-
-  //maven : -v, --version
-  //java : -version
-  //git : --version (설치되어있을 시 버전정보 stdout으로 빠짐)
-  //python : -V
-  //sshpass : -V
-function versionCheck(arg){
-  if(arg == 'git'||'maven'){
-    const child = execFile(arg, ['--version'], (err, stdout, stderr) => {
-      // console.log('err : ', err);
-      // console.log('stdout :', stdout);
-      // console.log('stderr :', stderr);
-      var version = arg == 'git'? property.get_gitVersion() : property.get_mavenVersion()
-      console.log('버전일치여부 : ', stdout.includes(version));
-      //버전 일치
-      if(stderr.includes(version)){
-        console.log('버전이 일치합니다.');
-      }
-      //버전 불일치
-      else{
-        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
-        deletePackage(arg);
-        console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
-        installPackage(arg);
-        console.log(arg, ' 설치완료');
-      }
-    })
-  }
-
-  else if(arg == 'python'||'sshpass'){
-    // console.log('err : ', err);
-    // console.log('stdout :', stdout);
-    // console.log('stderr :', stderr);
-    const child = execFile(arg, ['-V'], (err, stdout, stderr) => {
-      var version = arg == 'python'? property.get_pythonVersion() : property.get_sshpassVersion()
-      //버전 일치
-      if(stderr.includes(version)){
-        console.log('버전이 일치합니다.');
-      }
-      //버전 불일치
-      else{
-        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
-        deletePackage(arg);
-        console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
-        // console.log('새로운 버전의 ', arg, '를 설치합니다.');
-        installPackage(arg);
-        console.log(arg, ' 설치완료');
-      }
-    })
-  }
-
-  else if(arg == 'java'){
-    const child = execFile(arg, ['-version'], (err, stdout, stderr) => {
-      var version = property.get_javaVersion()
-      //버전 일치
-      if(stderr.includes(version)){
-        console.log('버전이 일치합니다.');
-      }
-      //버전 불일치
-      else{
-        console.log('버전이 일치하지 않아 기존', arg,'를 삭제합니다.');
-        deletePackage(arg);
-        console.log(arg, ' 삭제완료', '\n새로운 버전의', arg, '를 설치합니다.');
-        installPackage(arg);
-        console.log(arg, ' 설치완료');
-      }
-     })
-    }
-
-  else{
-    console.log(arg, '는 없는 패키지입니다.');
+  } catch (err) {
+    err.stdout;
+    err.stderr;
+    err.pid;
+    err.signal;
+    err.status;
+    console.log('[info]',opt.package, 'is not installed');
+    console.log('[info] Install', opt.package);
+    installPackage(opt);
+    console.log(opt.package, 'complete!');
   }
 }
 
 
-function installPackage(package){
+
+
+function versionCheck(opt){
+  try {
+    const stdout = exec(`rpm -qa|grep ${opt.package}`);
+    var version
+    switch(opt.package){
+      case git :
+        version = property.get_gitVersion()
+        break;
+      case maven :
+        version = property.get_mavenVersion()
+        break;
+      case python :
+        version = property.get_pythonVersion()
+        break;
+      case sshpass :
+        version = property.get_sshpassVersion()
+        break;
+      case java :
+        version = property.get_javaVersion()
+        break;
+    }
+    if(stdout.includes(version)){
+      console.log('[info] Version is matched');
+    }
+  } catch (err) {
+    // err.stdout;
+    // err.stderr;
+    // err.pid;
+    // err.signal;
+    // err.status;
+    console.log('[info] Version is not matched. Delete', opt.package);
+    deletePackage(opt);
+    console.log(opt.package, 'Deletion completed', '\nInstall new version of', opt.package);
+    installPackage(opt);
+    console.log(opt.package, 'complete!');
+  }
+}
+
+
+
+function installPackage(opt){
   // console.log('dir정보 : ', dir);
-  switch(package){
+  switch(opt.package){
       case 'java' :
         javaAction.javaInstall();
         break;
       case 'sshpass' :
-        sshpassAction.sshpassInstall();
+        sshpassAction.sshpassInstall(opt.server, opt.node);
         break;
       case 'git' :
         gitAction.gitInstall();
@@ -134,13 +117,13 @@ function installPackage(package){
         pythonAction.pythonInstall();
        break;
       default :
-        console.log('[ERROR]', package,'는 존재하지 않는 패키지입니다.');
+        console.log('[ERROR]', opt.package,'is cannot be installed');
         break;
      }
  }
 
- function deletePackage(package){
-   switch(package){
+ function deletePackage(opt){
+   switch(opt.package){
      case 'java' :
       javaAction.javaDelete();
       break;
@@ -157,7 +140,7 @@ function installPackage(package){
       pythonAction.pythonDelete();
       break;
      default :
-      console.log('[ERROR]', package,'는 존재하지 않는 패키지입니다.');
+      console.log('[ERROR]', opt.package,'is cannot be installed.');
       break;
    }
  }

@@ -1,61 +1,59 @@
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')
-const cmds = require('../../cmds.js')
+const cmds = require('./cmds.js')
 
 
-module.exports.sshpassInstall = () => {
-
+module.exports.sshpassInstall = (server, node) => {
+  // console.log('this', server, node);
   //프로젝트폴더 로컬에서 먼저 rpm파일 설치!!
-  console.log('sshpass를 로컬에 설치합니다.');
   exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpassFile} `)
-  console.log('설치완료');
-  // //파일 보내기
-  // sshpass -p 'P@ssw0rd' scp -o StrictHostKeyChecking=no hello.txt root@135.79.246.99:/root/hello.tx
-  //
 
-  // //접속
-  // sshpass -p 'P@ssw0rd' ssh -o StrictHostKeyChecking=no root@135.79.246.99
+  //192,193,194,195에 sshpass 먼저 깔기
+  //그담에 다른 rpm 파일 깔기..
+
+  var installDirectoryIP = server == true? property.get_server() : property.get_nodes();
+  // console.log('this',server, node, installDir);
+  var password = property.get_password();
+  var rpmDir = property.get_rpm_dir();
+  // sshpass -p password ssh -o StrictHostKeyChecking=no root@nodes
+  console.log('원격으로', installDirectoryIP,'에 접속한 뒤 rpm 설치 파일을 전송합니다..');
+  // exec(`sshpass -p ${password} scp -o StrictHostKeyChecking=no root@${installDirectoryIP} `)
+  exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${installDirectoryIP}`)
+  exec(`mkdir yh`)
+  exec( `scp ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh`)
+  // exec(`scp -o StrictHostKeyChecking=no ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh `)
+
+  console.log('complete!');
+
+  // mkdir yh
+
+  //프로젝트 폴더 통채로 보내기?
+  // //파일 보내기(*보낼 디렉토리에 폴더명이 존재해야함)
+
+
+  // exec( `scp ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh`)
+
+  // sshpass -p 'netdb3230' scp -o StrictHostKeyChecking=no /home/skh/yh/skh_project/Installation/rpm/*.rpm root@203.255.92.193:/root/yh
+
+  //scp 로 파일 다 보내기
+  //sshpass는 접속만하기 한대에서
+
+   // scp /home/me/wow.html abc@111.222.333.444:/home/abc/
+   // `scp ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh`
+
+
+  // rpm 설치 함수 호출
   //
-  // //명령어
+  //
   //
   // //나가기?원래꺼로 접속
+  // exit하고 ctrl+shift+R
   //   sshpass -p 'P@ssw0rd' ssh -o StrictHostKeyChecking=no root@135.79.246.99
-
-
-
-  // const child = execFile('sshpass', ['-V'], (err, stdout, stderr) => {
-  //
-  //
-  //   if (err) {
-  //     throw err;
-  //   }
-  //
-  //   try{
-  //     if(stdout.includes(sshpassVersion)==true){
-  //       console.log('이미 sshpass가 설치되어있습니다.');
-  //     }
-  //
-  //     else{
-  //       console.log('설치된 sshpass와 버전이 달라 삭제 후 새로 설치합니다.');
-  //       var exec = require('child_process').execSync;
-  //       //기존 JAVA 삭제
-  //       exec(cmds.sshpassDeleteCmd)
-  //       //JAVA 설치
-  //       exec(cmds.sshpassInstallCmd);
-  //     }
-  //   }
-  //   catch(exception){
-  //     console.log('sshpass를 설치합니다.');
-  //
-  //     exec(cmds.sshpassInstallCmd);
-  //   }
-  //
-  // });
 }
+
 
 
 module.exports.sshpassDelete = () => {
   exec(`${cmds.deleteCmd} ${cmds.sshpass}`)
-  console.log('sshpass 삭제완료');
 }
