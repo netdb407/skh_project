@@ -87,8 +87,16 @@ function versionCheck(opt){
   console.log('start version check');
   try {
     console.log(opt.package);
+    console.log('왜안댐');
+    const child = exec(`rpm -qa|grep ${opt.package}`, (err, stdout, stderr) => {
+      console.log('err :', err);
+      console.log('stdout : ', stdout);
+      console.log('stderr : ', stderr);
+    })
+    // const stdout = exec(`rpm -qa|grep ${opt.package}`);
+    // console.log(stdout);
     switch(opt.package){
-      var stdout = exec(`rpm -qa|grep ${opt.package}`);
+
       // var version
       case git :
         var version = property.get_gitVersion()
@@ -106,18 +114,16 @@ function versionCheck(opt){
         var version = property.get_javaVersion()
         break;
     }
-    console.log(version);
-    console.log('stdout : ', stdout);
+    // console.log(version);
+    // console.log('stdout : ', stdout);
     if(stdout.includes(version)==true){
       console.log('[info] Version is matched');
     }
-    if(stdout.includes(version)==false){
-      console.log('[info] Version is not matched. Delete', opt.package);
-      deletePackage(opt);
-      console.log('[info] Install new version of', opt.package);
-      installPackage(opt);
-    }
-  } catch (err) {
+
+  }
+
+
+  catch (err) {
     err.stdout;
     err.stderr;
     err.pid;
@@ -127,6 +133,13 @@ function versionCheck(opt){
     // deletePackage(opt);
     // console.log('[info] Install new version of', opt.package);
     // installPackage(opt);
+
+    if(stdout.includes(version)==false){
+      console.log('[info] Version is not matched. Delete', opt.package);
+      deletePackage(opt);
+      console.log('[info] Install new version of', opt.package);
+      installPackage(opt);
+    }
   }
 }
 
