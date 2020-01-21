@@ -4,7 +4,7 @@ const property = require('../../propertiesReader.js')
 const cmds = require('./cmds.js')
 
 
-module.exports.sshpassInstall = (server, node) => {
+module.exports.sshpassInstall = () => {
   // console.log('this', server, node);
   //프로젝트폴더 로컬에서 먼저 rpm파일 설치!!
   exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpassFile} `)
@@ -12,20 +12,20 @@ module.exports.sshpassInstall = (server, node) => {
   //192,193,194,195에 sshpass 먼저 깔기
   //그담에 다른 rpm 파일 깔기..
 
-  var installDirectoryIP = server == true? property.get_server() : property.get_nodes();
-  // console.log('this',server, node, installDir);
-  var password = property.get_password();
-  var rpmDir = property.get_rpm_dir();
-  // sshpass -p password ssh -o StrictHostKeyChecking=no root@nodes
-  // console.log('원격으로', installDirectoryIP,'에 접속한 뒤 rpm 설치 파일을 전송합니다..');
-  console.log('원격으로', installDirectoryIP, '에 접속합니다.');
-  // exec(`sshpass -p ${password} scp -o StrictHostKeyChecking=no root@${installDirectoryIP} `)
-  exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${installDirectoryIP}`)
-  console.log('rpm 파일을 설치할 디렉토리를 만듭니다.');
-  exec(`mkdir yh`)
-  console.log('rpm 파일을 전송합니다.');
-  exec( `scp ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh`)
-  // exec(`scp -o StrictHostKeyChecking=no ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh `)
+  // var installDirectoryIP = server == true? property.get_server() : property.get_nodes();
+  // // console.log('this',server, node, installDir);
+  // var password = property.get_password();
+  // var rpmDir = property.get_rpm_dir();
+  // // sshpass -p password ssh -o StrictHostKeyChecking=no root@nodes
+  // // console.log('원격으로', installDirectoryIP,'에 접속한 뒤 rpm 설치 파일을 전송합니다..');
+  // console.log('원격으로', installDirectoryIP, '에 접속합니다.');
+  // // exec(`sshpass -p ${password} scp -o StrictHostKeyChecking=no root@${installDirectoryIP} `)
+  // exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${installDirectoryIP}`)
+  // console.log('rpm 파일을 설치할 디렉토리를 만듭니다.');
+  // exec(`mkdir yh`)
+  // console.log('rpm 파일을 전송합니다.');
+  // exec( `scp ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh`)
+  // // exec(`scp -o StrictHostKeyChecking=no ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh `)
 
   console.log('complete!');
 
