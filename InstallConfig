@@ -4,7 +4,8 @@ password = netdb3230
 
 #cluster 정보
 server = 203.255.92.192
-nodes = 203.255.92.193, 203.255.92.194, 203.255.92.195
+nodes = 203.255.92.193,203.255.92.194,203.255.92.195
+//,뒤에 띄어쓰기 안함
 
 #sshpass용
 rpm_dir = /home/skh/yh/skh_project/Installation/rpm/
