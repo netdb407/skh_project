@@ -18,11 +18,11 @@ module.exports = {
 
 
   //cluster 정보
-  get_server(){
-    return properties.get("server");
+  get_serverIP(){
+    return properties.get("serverIP");
   },
-  get_nodes(){
-    return properties.get("nodes");
+  get_nodeIP(){
+    return properties.get("nodeIP");
   },
 
   //directory

@@ -20,81 +20,47 @@ program
   .action(function Action(opt){
 
     if(opt.server == true){
-      var ip = [property.get_server()]
+      var ip = [property.get_serverIP()]
+      var installDir = property.get_server_install_dir();
     }else if(opt.node == true){
-      var arr = property.get_nodes();
-      var ip = arr.split(',');
+      var ipArr = property.get_nodeIP();
+      var ip = ipArr.split(',');
+      var installDir = property.get_node_install_dir();
     }
-
 
     var password = property.get_password();
     var rpmDir = property.get_rpm_dir();
-    console.log('rpm 파일을 전송합니다.');
 
-    // exec(`scp ${rpmDir}*.rpm root@${ip}:/root`)
-    // exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${ip}:/root `)
 
     ip.forEach((i) => {
-      exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:/root `)
-
-
-
-    const stdout = exec(`rpm -qa|grep sshpass`);
-    //sshpass가 있다
-     if(stdout != null){
-       //다른거 설치
-       //scp로 파일 보내고
-       //sshpass로 원격연결해서
-       //존재유무확인
-       //버전체크
-       //함수 이용해서 설치
-       // for(ip){
-       //   usiingSSH(ip[])
-       // }
-
-       //접속
-       // exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${ip}`)
-       //유무확인
-       isInstalledPkg(opt);
-
-     }
-
-     //없다
-     else{
-       exec(`${cmds.installCmd} ${cmds.sshpassFile}`)
-       //sshpass를 로컬에 설치하고
-       //위에 과정 반복
-       // exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${ip}`)
-       isInstalledPkg(opt);
-       // versionCheck();
-       // installPackage();
-     }
-
-       });
+      console.log('----------------------------------------');
+      console.log('[info] IP address is', i);
+      //sshpass가 있다
+      try{
+        const stdout = exec(`rpm -qa|grep sshpass`);
+         if(stdout != null){
+           exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:${installDir}`)
+           console.log('[info] Sending rpm file to',i,'complete!');
+           isInstalledPkg(opt);
+         }
+      }
+      //sshpass가 없다
+      catch(err){
+        exec(`${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
+        console.log('[info] sshpass installation complete!');
+        exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:${installDir}`)
+        console.log('[info] Sending rpm file to',i,'complete!');
+        isInstalledPkg(opt);
+      }
+    });
   })
 
 program.parse(process.argv)
 
 
 
+
 function isInstalledPkg(opt){
-
-  //sshpass로 -s,-n옵션 중 들어온거에 접속해야함
-  //옵션 들어온거에 따라 sshpass에 dir을 달리 주고
-  //sshpass에는 옵션마다 함수를 만들기
-
-  //try catch : -p옵션은 -s또는 -n옵션이 필요하고, -d옵션은 -s/-n옵션이 무시됨
-  //-s/-n옵션이 들어오면 해당 ip에 가서 패키지가 있는지 확인해야 함.
-  //서버는 가서 확인하는 함수
-  //노드는 for문으로 반복하기
-
-
-    // exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.sshpassFile} `)
-  //  exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${installDirectoryIP}`)
-  //  exec(`mkdir yh`)
-    //exec( `scp ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh`)
-
-
   try {
     const stdout = exec(`rpm -qa|grep ${opt.package}`);
     if(stdout != null){
@@ -110,23 +76,8 @@ function isInstalledPkg(opt){
     console.log('[info]',opt.package, 'is not installed');
     console.log('[info] Install', opt.package);
     installPackage(opt);
-    console.log(opt.package, 'complete!');
   }
 }
-
-
-
-// function usingSSH(ip){
-//   var password = property.get_password();
-//   var rpmDir = property.get_rpm_dir();
-//   exec( `scp ${rpmDir}*.rpm root@${ip}:/root/yh`)
-//
-//   exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${ip}`)
-//   exec(`mkdir yh`)
-//   // exec(`exit`)
-//
-//   isInstalledPkg();
-// }
 
 
 
@@ -163,9 +114,8 @@ function versionCheck(opt){
     // err.status;
     console.log('[info] Version is not matched. Delete', opt.package);
     deletePackage(opt);
-    console.log(opt.package, 'Deletion completed', '\nInstall new version of', opt.package);
+    console.log('[info] Install new version of', opt.package);
     installPackage(opt);
-    console.log(opt.package, 'complete!');
   }
 }
 
@@ -175,7 +125,6 @@ function installPackage(opt){
   // console.log('dir정보 : ', dir);
   switch(opt.package){
       case 'java' :
-
         javaAction.javaInstall();
         break;
       case 'sshpass' :
@@ -195,6 +144,7 @@ function installPackage(opt){
         console.log('[ERROR]', opt.package,'is cannot be installed');
         break;
      }
+     console.log('[info]', opt.package, 'Installation complete!');
  }
 
  function deletePackage(opt){
@@ -218,6 +168,7 @@ function installPackage(opt){
       console.log('[ERROR]', opt.package,'is cannot be installed.');
       break;
    }
+   console.log('[info]', opt.package, 'Deletion complete!');
  }
 
 

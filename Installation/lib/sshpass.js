@@ -27,7 +27,7 @@ module.exports.sshpassInstall = () => {
   // exec( `scp ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh`)
   // // exec(`scp -o StrictHostKeyChecking=no ${rpmDir}*.rpm root@${installDirectoryIP}:/root/yh `)
 
-  console.log('complete!');
+  
 
   // mkdir yh
 
