@@ -13,11 +13,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "author": "^1.0.0",
     "child_process": "^1.0.2",
     "commander": "^4.1.0",
+    "dependencies": "0.0.1",
     "esm": "^3.2.25",
-    "inquirer": "^7.0.3",
     "fs": "0.0.1-security",
+    "inquirer": "^7.0.3",
+    "license": "0.0.3",
     "progress": "^2.0.3",
     "properties-reader": "^0.3.1",
     "rxjs": "^6.5.4"
