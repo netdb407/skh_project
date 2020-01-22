@@ -13,7 +13,8 @@ const installCmd = 'rpm -ivh'
 const deleteCmd = 'rpm -e' //git, sshpass
 const yumDeleteCmd = 'yum remove'
 
-const java = 'java'
+//dependencies걸려있는 애들은 yum remove 패키지명* 로 관련된거 다 지워버리기
+const java = 'java*'
 const sshpass = 'sshpass'
 const maven = 'maven-local-5.3.0-1.el8.noarch'
 const python = 'platform-python-3.6.8-2.el8_0.0.1.x86_64'
