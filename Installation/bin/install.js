@@ -18,107 +18,71 @@ program
   .option('-s, --server', `install into server, only can use to -p option`)
   .option('-n, --node', `install into node, only can use to -p option`)
   .action(function Action(opt){
+    let ip;
+    let installDir;
+    let password  = property.get_password();
+    let rpmDir    = property.get_rpm_dir();
 
     if(opt.server == true){
-      var ip = [property.get_serverIP()]
-      var installDir = property.get_server_install_dir();
+      ip = [property.get_serverIP()]
+      installDir = property.get_server_install_dir();
     }else if(opt.node == true){
-      var ipArr = property.get_nodeIP();
-      var ip = ipArr.split(',');
-      var installDir = property.get_node_install_dir();
+    //  var ipArr = property.get_nodeIP();
+      ip = property.get_nodeIP().split(',');
+      installDir = property.get_node_install_dir();
     }
-
-    var password = property.get_password();
-    var rpmDir = property.get_rpm_dir();
-
 
     ip.forEach((i) => {
       console.log('-----------------------------------');
       console.log('[info] IP address is', i);
-      //sshpass가 있다
-      // try{
-      try{
-        const stdout = exec(`rpm -qa|grep sshpass`);
-        var buf = Buffer.from(stdout);
-        var output = buf.toString();
-        // console.log('action, output: ', output);
 
-        if(output != null){
-          //sshpass가 이미 있음
-          exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:${installDir}`)
-          console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-          isInstalledPkg(opt);
-        }
-      }
-      catch{
-        //sshpass가 없어 명령어 사용 못함. 설치해야 함.
-        var dir = property.get_server_install_dir();
-        exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:${installDir}`)
-        console.log('[info] There is no sshpass. We need it to install the package.');
-        exec(`${cmds.installCmd} ${dir}${cmds.sshpassFile}`)
-
-        console.log('[info] sshpass installation complete!');
-
-        //192면 rpmDir이고 노드면 /root여야 함
-        if(ip == property.get_serverIP()){
-          exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:${installDir}`)
-        }else{
-          var dir = property.get_server_install_dir();
-          exec(`sshpass -p ${password} scp ${dir}*.rpm root@${i}:${installDir}`)
-        }
+        // const stdout = exec(`rpm -qa|grep sshpass`)
+        //               .toString()
+        //               .map(x=>{
+        //                 //sshpass가 없으면
+        //                   if(x == null){
+        //                     install_ssh_toServer(i);
+        //                   }
+        //                   //sshpass가 이미 있으면
+        //                   exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:${installDir}`)
+        //                   console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
+        //                   isInstalledPkg(opt);
+        //               })
 
 
-        console.log('[info] Sending rpm file to',i,'complete!');
-        //sshpass는 위에서 이미 설치했는데 -p sshpass -s 명령어 들어오면 안되니까
-        if(opt.package != 'sshpass'){
-          isInstalledPkg(opt);
-        }
-      }
+        const stdout = exec(`rpm -qa|grep sshpass`)
+                      .toString()
+
+                        //sshpass가 없으면
+                          if(stdout == null){
+                            install_ssh_toServer(i);
+                          }
+                          //sshpass가 이미 있으면
+                          exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:${installDir}`)
+                          console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
+                          isInstalledPkg(opt);
 
 
 
-      // }
-      //sshpass가 없다
-      // catch(err){
-        // console.log('[info] We need sshpass to install the package.');
-        // exec(`${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
-        // console.log('[info] sshpass installation complete!');
-        // exec(`sshpass -p ${password} scp ${rpmDir}*.rpm root@${i}:${installDir}`)
-        // console.log('[info] Sending rpm file to',i,'complete!');
-        // isInstalledPkg(opt);
-      // }
-    });
   })
+})
 
 program.parse(process.argv)
 
 
+function install_ssh_toServer(ip){
+  exec(`${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
+  console.log('install sshpass to server Complete!');
+}
 
 
 function isInstalledPkg(opt){
-  // try {
-  //   const stdout = exec(`rpm -qa|grep ${opt.package}`);
-  //   if(stdout != null){
-  //     console.log('[info]',opt.package, 'is already installed.', '\n[info] Check the version is matching or not');
-  //     versionCheck(opt);
-  //   }
-  // } catch (err) {
-  //   err.stdout;
-  //   err.stderr;
-  //   err.pid;
-  //   err.signal;
-  //   err.status;
-  //   console.log('[info]',opt.package, 'is not installed');
-  //   console.log('[info] Install', opt.package);
-  //   installPackage(opt);
-  // }
-
   try{
     const stdout = exec(`rpm -qa|grep ${opt.package}`);
     var buf = Buffer.from(stdout);
     var output = buf.toString();
-    console.log('isInstallPkg, output: ', output);
-    console.log(typeof output);
+    // console.log('isInstallPkg, output: ', output);
+    // console.log(typeof output);
     //에러가 없으면 설치된것
     console.log('[info]',opt.package, 'is already installed.', '\n[info] Check the version is matching or not');
     versionCheck(opt);
@@ -129,18 +93,6 @@ function isInstalledPkg(opt){
     console.log('[info] Install', opt.package);
     installPackage(opt);
   }
-  // const stdout = exec(`rpm -qa|grep ${opt.package}`);
-  // var buf = Buffer.from(stdout);
-  // var output = buf.toString();
-  // // console.log('isInstallPkg, output: ', output);
-  // if(output != null){
-  //   console.log('[info]',opt.package, 'is already installed.', '\n[info] Check the version is matching or not');
-  //   versionCheck(opt);
-  // }else {
-  //   console.log('[info]',opt.package, 'is not installed');
-  //   console.log('[info] Install', opt.package);
-  //   installPackage(opt);
-  // }
 }
 
 
@@ -179,7 +131,7 @@ function versionCheck(opt){
       console.log('[info] Install new version of', opt.package);
       installPackage(opt);
     }
-  // }
+  }
 
 
   // catch (err) {
@@ -189,7 +141,7 @@ function versionCheck(opt){
   //   err.signal;
   //   err.status;
   // }
-}
+
 
 
 

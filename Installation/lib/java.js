@@ -5,7 +5,7 @@ const cmds = require('./cmds.js')
 
 
 module.exports.javaInstall = (package, dir) => {
-  exec(`${cmds.installCmd} ${cmds.rpmDir}${cmds.javaFile}`)
+  exec(`${cmds.installCmd} ${dir}${cmds.javaFile}`)
 }
 
 
