@@ -8,11 +8,11 @@ nodeIP = 203.255.92.193,203.255.92.194,203.255.92.195
 //,뒤에 띄어쓰기 안함
 
 #sshpass용
-rpm_dir = /home/skh/yh/skh_project/Installation/rpm/
+rpm_dir = /home/skh/yh/skh_project/Installation/rpm
 
 #directory
-server_install_dir = /root/
-node_install_dir = /root/
+server_install_dir = /root/rpm/
+node_install_dir = /root/rpm/
 node_data_dir =
 server_wlfile_dir = workloads
 server_ycsb_dir = ./Benchmarking/YCSB
