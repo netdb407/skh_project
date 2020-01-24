@@ -4,11 +4,6 @@ const program = require('commander');
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')
-const javaAction = require('../lib/java.js')
-const sshpassAction = require('../lib/sshpass.js')
-const gitAction = require('../lib/git.js')
-const mavenAction = require('../lib/maven.js')
-const pythonAction = require('../lib/python.js')
 const cmds = require('../lib/cmds.js')
 
 program
@@ -44,6 +39,7 @@ program
         }
         exec(`sshpass -p ${password} scp -r ${rpmDirOrigin} root@${i}:${installDir}`)
         console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
+        exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${i}`)
         isInstalledPkg(opt, rpmDir);
       })
     })
@@ -124,6 +120,7 @@ function versionCheck(opt, rpmDir){
     stdout = exec(`rpm -qa|grep ${opt.package}`).toString();
     if(stdout.includes(version)==true){
       console.log('[info] Version is matched. Exit.');
+      exec(`exit`)
     }else if(stdout.includes(version)==false){
       console.log('[info] Version is not matched. Delete', opt.package);
       deletePackage(opt);
@@ -155,6 +152,7 @@ function versionCheck(opt, rpmDir){
        console.log('[info]', opt.package, 'Installation complete!');
        exec(`rm -rf rpm`)
        console.log('rpm 폴더 삭제');
+       exec(`exit`)
    }
 
 
@@ -178,4 +176,5 @@ function versionCheck(opt, rpmDir){
         break;
      }
      console.log('[info]', opt.package, 'Deletion complete!');
+     exec(`exit`)
    }

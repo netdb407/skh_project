@@ -21,7 +21,6 @@ const python = 'platform-python-3.6.8-2.el8_0.0.1.x86_64'
 const git = 'git-core'
 
 //rpm 설치 파일 정보
-const rpmDir = './Installation/rpm/'
 const javaFile = 'java-1.8.0-openjdk-devel-1.8.0.232.b09-0.el8_0.x86_64.rpm'
 const sshpassFile = 'sshpass-1.06-2.el7.x86_64.rpm'
 const mavenFile = 'maven-local-5.3.0-1.el8.noarch.rpm'
