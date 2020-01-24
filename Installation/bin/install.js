@@ -20,108 +20,90 @@ program
   .action(function Action(opt){
     let ip;
     let installDir;
-    let password  = property.get_password();
-    let rpmDir    = property.get_rpm_dir();
-    // let stdout;
+    let password     = property.get_password();
+    let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
+    let rpmDir       = property.get_rpm_dir(); //root/rpm
 
     if(opt.server == true){
       ip = [property.get_serverIP()]
-      installDir = property.get_server_install_dir();
+      installDir = property.get_server_install_dir(); //root/
     }else if(opt.node == true){
       ip = property.get_nodeIP().split(',');
-      installDir = property.get_node_install_dir();
+      installDir = property.get_node_install_dir(); //root/
     }
 
     ip.forEach((i) => {
       console.log('-----------------------------------\n[info] IP address is', i);
-      // console.log('[info] IP address is', i);
-      // stdout = exec(`rpm -qa|grep sshpass`).toString();
-      // if(stdout == undefined){
-      //   exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
-      //   console.log('[info] install sshpass to server Complete!');
-      // }
-      //   exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
-      //   console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-      //   isInstalledPkg(opt, installDir);
-
         try{
-          // stdout = exec(`rpm -qa|grep sshpass`).toString();
           exec(`rpm -qa|grep sshpass`)
         }
         catch{
-          exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
+          //sshpass가 없을때 (최초 설치)
+          exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
           console.log('[info] install sshpass to server Complete!');
         }
-        exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
+        exec(`sshpass -p ${password} scp -r ${rpmDirOrigin} root@${i}:${installDir}`)
         console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-        isInstalledPkg(opt, installDir);
-
-      // try{
-      //   stdout = exec(`rpm -qa|grep sshpass`).toString();
-      //   // console.log('typeof : ', typeof stdout);
-      //   console.log(stdout);
-      //   console.log(stdout.includes('sshpass'));
-      //                 exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
-      //                 console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-      //                 isInstalledPkg(opt, installDir);
-      // }
-      // catch{
-      //   console.log(stdout==undefined);
-      //   console.log(stdout.includes('sshpass'));
-      //   exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
-      //   console.log('install sshpass to server Complete!');
-      //   // exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
-      //   // console.log('install sshpass to server Complete!');
-      //   // exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
-      //   // console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-      //   // isInstalledPkg(opt, installDir);
-      // }
-      // exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
-      // console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-      // isInstalledPkg(opt, installDir);
-
+        isInstalledPkg(opt, rpmDir);
       })
     })
 
 program.parse(process.argv)
 
 
-// function install_ssh_toServer(ip){
-//   exec(`${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
-//   console.log('install sshpass to server Complete!');
-// }
-// function if_sshpass_notInstalled(){
-//   exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
-//   console.log('install sshpass to server Complete!');
-// }
 
-function isInstalledPkg(opt, dir){
-
+function isInstalledPkg(opt, rpmDir){
+  let package;
+  switch(opt.package){
+    case 'git' :
+      package = cmds.git;
+      break;
+    case 'java' :
+      package = cmds.java;
+      break;
+    case 'sshpass' :
+      package = cmds.sshpass;
+      break;
+    case 'python' :
+      package = cmds.python;
+      break;
+    case 'maven' :
+      package = cmds.maven;
+      break;
+    default :
+      console.log('[ERROR]', opt.package,'is cannot be installed. Try again other package.');
+      return 0;
+  }
   try{
-    exec(`rpm -qa|grep ${opt.package}`).toString();
-    // var buf = Buffer.from(stdout);
-    // var output = buf.toString();
-    // console.log('isInstallPkg, output: ', output);
-    // console.log('pck type :', typeof output);
-    //에러가 없으면 설치된것
-    
-    console.log('[info]',opt.package, 'is already installed.', '\n[info] Check the version is matching or not');
-    versionCheck(opt, dir);
+    console.log('왜이상한데로 빠지냐고', package);
+    exec(`rpm -qa|grep ${package}`)
+    //다른 파일 중에 git 결과 나오네;;git-core여야하는데
+    //입력이 git으로 들어오니까 rpm -qa|grep git 하는데 이러면 git-core가 없어도 에러가 나지 않음;;;;어케
+    //입력된거랑 파일명 일치하게 바꿔주자
+    //switch문 돌리기
+
+
+    console.log('없는데 에러 안나?');
+    if(opt.package != 'sshpass'){
+      //sshpass가 이미 있는데 설치하라는 명령어가 들어오면 여기 지나가지 않음. 메인액션에서 끝남
+      console.log('[info]',opt.package, 'is already installed.', '\n[info] Check the version is matching or not');
+      versionCheck(opt, rpmDir);
+    }
   }
   catch{
     //에러가 있으면 설치되지 않은 것. 명령어가 안먹음
     console.log('[info]',opt.package, 'is not installed');
     console.log('[info] Install', opt.package);
-    installPackage(opt, dir);
+    installPackage(opt, rpmDir);
   }
 }
 
 
 
 
-function versionCheck(opt, dir){
+function versionCheck(opt, rpmDir){
+  let stdout;
   console.log('[info] Start version check');
-  // try {
     switch(opt.package){
       case 'git' :
         var version = property.get_gitVersion()
@@ -139,52 +121,40 @@ function versionCheck(opt, dir){
         var version = property.get_javaVersion()
         break;
     }
-
-    const stdout = exec(`rpm -qa|grep ${opt.package}`);
-    var buf = Buffer.from(stdout);
-    var output = buf.toString();
-    // console.log('versionCheck, output: ', output);
-    if(output.includes(version)==true){
-      console.log('[info] Version is matched');
-    }else if(output.includes(version)==false){
+    stdout = exec(`rpm -qa|grep ${opt.package}`).toString();
+    if(stdout.includes(version)==true){
+      console.log('[info] Version is matched. Exit.');
+    }else if(stdout.includes(version)==false){
       console.log('[info] Version is not matched. Delete', opt.package);
       deletePackage(opt);
       console.log('[info] Install new version of', opt.package);
-      installPackage(opt, dir);
+      installPackage(opt, rpmDir);
     }
   }
 
 
-  // catch (err) {
-  //   err.stdout;
-  //   err.stderr;
-  //   err.pid;
-  //   err.signal;
-  //   err.status;
-  // }
 
-  function installPackage(opt, dir){
+  function installPackage(opt, rpmDir){
     switch(opt.package){
         case 'java' :
-          exec(`${cmds.installCmd} ${dir}${cmds.javaFile}`)
+          exec(`${cmds.installCmd} ${rpmDir}${cmds.javaFile}`)
           break;
         case 'sshpass' :
-          exec(`${cmds.installCmd} ${dir}${cmds.sshpassFile}`)
+          exec(`${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
           break;
         case 'git' :
-          exec(`${cmds.installCmd} ${dir}${cmds.gitFile}`)
+          exec(`${cmds.installCmd} ${rpmDir}${cmds.gitFile}`)
          break;
         case 'maven' :
-          exec(`${cmds.installCmd} ${dir}${cmds.mavenFile}`)
+          exec(`${cmds.installCmd} ${rpmDir}${cmds.mavenFile}`)
          break;
         case 'python' :
-          exec(`${cmds.installCmd} ${dir}${cmds.pythonFile}`)
+          exec(`${cmds.installCmd} ${rpmDir}${cmds.pythonFile}`)
          break;
-        default :
-          console.log('[ERROR]', opt.package,'is cannot be installed');
-          break;
        }
        console.log('[info]', opt.package, 'Installation complete!');
+       exec(`rm -rf rpm`)
+       console.log('rpm 폴더 삭제');
    }
 
 
@@ -192,7 +162,7 @@ function versionCheck(opt, dir){
    function deletePackage(opt){
      switch(opt.package){
        case 'java' :
-        exec(`${cmds.yumDeleteCmd} ${cmds.java}`)
+        exec(`${cmds.yumDeleteCmd} ${cmds.java}*`)
         break;
        case 'sshpass' :
         exec(`${cmds.deleteCmd} ${cmds.sshpass}`)
@@ -206,70 +176,6 @@ function versionCheck(opt, dir){
        case 'python' :
         exec(`${cmds.deleteCmd} ${cmds.python}`)
         break;
-       default :
-        console.log('[ERROR]', opt.package,'is cannot be installed.');
-        break;
      }
      console.log('[info]', opt.package, 'Deletion complete!');
    }
-
-
-
-
-// function installPackage(opt){
-//   // console.log('dir정보 : ', dir);
-//   switch(opt.package){
-//       case 'java' :
-//         javaAction.javaInstall();
-//         break;
-//       case 'sshpass' :
-//         sshpassAction.sshpassInstall();
-//         break;
-//       case 'git' :
-//         gitAction.gitInstall();
-//        break;
-//       case 'maven' :
-//         mavenAction.mavenInstall();
-//         // mavenAction.mavenDelete();
-//        break;
-//       case 'python' :
-//         pythonAction.pythonInstall();
-//        break;
-//       default :
-//         console.log('[ERROR]', opt.package,'is cannot be installed');
-//         break;
-//      }
-//      console.log('[info]', opt.package, 'Installation complete!');
-//  }
-//
-//  function deletePackage(opt){
-//    switch(opt.package){
-//      case 'java' :
-//       javaAction.javaDelete();
-//       break;
-//      case 'sshpass' :
-//       sshpassAction.sshpassDelete();
-//       break;
-//      case 'git' :
-//       gitAction.gitDelete();
-//       break;
-//      case 'maven' :
-//       mavenAction.mavenDelete();
-//       break;
-//      case 'python' :
-//       pythonAction.pythonDelete();
-//       break;
-//      default :
-//       console.log('[ERROR]', opt.package,'is cannot be installed.');
-//       break;
-//    }
-//    console.log('[info]', opt.package, 'Deletion complete!');
-//  }
-
-
-
-
-// function installDatabase(dbname){
-//   // console.log('2');
-//   // console.log(dbname);
-// }

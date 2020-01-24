@@ -10,7 +10,9 @@ module.exports = {
   get_password(){
     return properties.get("password");
   },
-
+  get_rpm_dir_origin(){
+    return properties.get("rpm_dir_origin")
+  },
   get_rpm_dir(){
     return properties.get("rpm_dir");
   },
