@@ -22,34 +22,63 @@ program
     let installDir;
     let password  = property.get_password();
     let rpmDir    = property.get_rpm_dir();
+    // let stdout;
 
     if(opt.server == true){
       ip = [property.get_serverIP()]
       installDir = property.get_server_install_dir();
     }else if(opt.node == true){
-    //  var ipArr = property.get_nodeIP();
       ip = property.get_nodeIP().split(',');
       installDir = property.get_node_install_dir();
     }
 
     ip.forEach((i) => {
-      console.log('-----------------------------------');
-      console.log('[info] IP address is', i);
-      try{
-        const stdout = exec(`rpm -qa|grep sshpass`)
+      console.log('-----------------------------------\n[info] IP address is', i);
+      // console.log('[info] IP address is', i);
+      // stdout = exec(`rpm -qa|grep sshpass`).toString();
+      // if(stdout == undefined){
+      //   exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
+      //   console.log('[info] install sshpass to server Complete!');
+      // }
+      //   exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
+      //   console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
+      //   isInstalledPkg(opt, installDir);
 
-                      exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
-                      console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-                      isInstalledPkg(opt, installDir);
-      }
-      catch{
-
-        exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
-        console.log('install sshpass to server Complete!');
+        try{
+          // stdout = exec(`rpm -qa|grep sshpass`).toString();
+          exec(`rpm -qa|grep sshpass`)
+        }
+        catch{
+          exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
+          console.log('[info] install sshpass to server Complete!');
+        }
         exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
         console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
         isInstalledPkg(opt, installDir);
-      }
+
+      // try{
+      //   stdout = exec(`rpm -qa|grep sshpass`).toString();
+      //   // console.log('typeof : ', typeof stdout);
+      //   console.log(stdout);
+      //   console.log(stdout.includes('sshpass'));
+      //                 exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
+      //                 console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
+      //                 isInstalledPkg(opt, installDir);
+      // }
+      // catch{
+      //   console.log(stdout==undefined);
+      //   console.log(stdout.includes('sshpass'));
+      //   exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
+      //   console.log('install sshpass to server Complete!');
+      //   // exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
+      //   // console.log('install sshpass to server Complete!');
+      //   // exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
+      //   // console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
+      //   // isInstalledPkg(opt, installDir);
+      // }
+      // exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
+      // console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
+      // isInstalledPkg(opt, installDir);
 
       })
     })
@@ -61,32 +90,21 @@ program.parse(process.argv)
 //   exec(`${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
 //   console.log('install sshpass to server Complete!');
 // }
-function if_sshpass_notInstalled(){
-  try{
-    const stdout = exec(`rpm -qa|grep sshpass`)
-
-                  exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
-                  console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-                  isInstalledPkg(opt, installDir);
-  }
-  catch{
-
-    exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
-    console.log('install sshpass to server Complete!');
-    exec(`sshpass -p ${password} scp -r ${rpmDir} root@${i}:${installDir}`)
-    console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-    isInstalledPkg(opt, installDir);
-  }
-}
+// function if_sshpass_notInstalled(){
+//   exec(`${cmds.installCmd} ${installDir}${cmds.sshpassFile}`)
+//   console.log('install sshpass to server Complete!');
+// }
 
 function isInstalledPkg(opt, dir){
+
   try{
-    const stdout = exec(`rpm -qa|grep ${opt.package}`);
-    var buf = Buffer.from(stdout);
-    var output = buf.toString();
+    exec(`rpm -qa|grep ${opt.package}`).toString();
+    // var buf = Buffer.from(stdout);
+    // var output = buf.toString();
     // console.log('isInstallPkg, output: ', output);
-    // console.log(typeof output);
+    // console.log('pck type :', typeof output);
     //에러가 없으면 설치된것
+    
     console.log('[info]',opt.package, 'is already installed.', '\n[info] Check the version is matching or not');
     versionCheck(opt, dir);
   }
