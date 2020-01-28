@@ -10,7 +10,7 @@ program
 
 
 program.parse(process.argv)
-
+//파일 변경 옵션 선택
 var question1 = [
   {
     type : 'list',
@@ -23,6 +23,7 @@ var question1 = [
     message : '변경할 파일의 이름을 입력하세요.'
   }
 ];
+//변경할 파일의 새로운 이름 입력
 var rename = [
   {
     type : 'input',
@@ -30,7 +31,7 @@ var rename = [
     message : '새로운 이름을 입력하세요.'
   }
 ]
-
+//type 선택
 var question2 = [
   {
     type : 'list',
@@ -38,7 +39,7 @@ var question2 = [
     message : 'type을 선택하세요',
     choices : ['YCSB','GRAPH'],
   }];
-
+//YCSB 속성 입력
 var q1 = [
   {
     type : 'input',
@@ -268,6 +269,7 @@ var q1 = [
     default : 1000
   }
 ];
+// Graph benchmark 속성 입력
 var q2 = [
   {
     type : 'input',
@@ -279,15 +281,22 @@ var q2 = [
 inquirer.prompt(question1).then(answers => {
   //파일 이름 변경
   if(answers.choice ==='파일이름'){
-    inquirer.prompt(rename).then(answers1 => {
-      fs.rename(dir+answers.original_name,dir+answers1.new_name,function(err){
-        if(err) console.log('존재하지 않는 이름입니다.');
-        else console.log('이름이 변경되었습니다.');
-      });
+    fs.exists(dir+answers.original_name,function(exists){
+      if(exists){
+        inquirer.prompt(rename).then(answers1 => {
+          fs.rename(dir+answers.original_name,dir+answers1.new_name,function(err){
+            if(err) throw err;
+            else console.log('이름이 변경되었습니다.');
+          });
+        });
+      } else {
+        console.log('존재하지 않는 파일 이름입니다.');
+      }
     });
-  } else {
     // 파일 내용 변경
+  } else {
     inquirer.prompt(question2).then(answers2 => {
+      //YCSB 속성
       if(answers2.type === 'YCSB'){
         inquirer.prompt(q1).then(answers2_1=>{
           if(answers2_1.insertcount!=Number){
@@ -328,11 +337,10 @@ inquirer.prompt(question1).then(answers => {
         });
       });
   } else {
+    //Graph benchmark 속성
     inquirer.prompt(q2).then(answers2_2 => {
-
       var bb = ['type = ' + answers2.type+'\n'+'Graph benchmark = '+answers2_2.Graph_benchmark];
-
-      fs.writeFile(dir + answers.original_name,aa,(err) => {
+      fs.writeFile(dir + answers.original_name,bb,(err) => {
         if(err){
           console.log(err);
         }else {

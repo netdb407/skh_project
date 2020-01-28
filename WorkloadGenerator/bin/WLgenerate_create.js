@@ -11,6 +11,7 @@ program
 
 program.parse(process.argv)
 
+//파일 type&이름
 var question = [
   {
     type : 'list',
@@ -23,7 +24,7 @@ var question = [
     message : 'File 이름을 입력하세요.',
     default : 'workloads',
   }];
-
+//YCSB 속성
 var q1 = [
   {
     type : 'input',
@@ -254,7 +255,7 @@ var q1 = [
   }
 
 ];
-
+//Graph benchmark 속성
 var q2 = [
   {
     type : 'input',
