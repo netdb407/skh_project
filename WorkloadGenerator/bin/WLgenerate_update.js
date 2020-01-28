@@ -1,25 +1,42 @@
 var inquirer = require('inquirer');
 var fs = require('fs');
 const program = require('commander');
+var dir = './Benchmarking/YCSB/workloads/';
 
 program
   .command('generate-wl')
 
 
 
+
 program.parse(process.argv)
 
-var question = [
+var question1 = [
+  {
+    type : 'list',
+    name : 'choice',
+    message : '무엇을 변경하시겠습니까?',
+    choices : ['파일이름','파일내용']
+  },{
+    type : 'input',
+    name : 'original_name',
+    message : '변경할 파일의 이름을 입력하세요.'
+  }
+];
+var rename = [
+  {
+    type : 'input',
+    name : 'new_name',
+    message : '새로운 이름을 입력하세요.'
+  }
+]
+
+var question2 = [
   {
     type : 'list',
     name : 'type',
     message : 'type을 선택하세요',
     choices : ['YCSB','GRAPH'],
-  },{
-    type : 'input',
-    name : 'name',
-    message : 'File 이름을 입력하세요.',
-    default : 'workloads',
   }];
 
 var q1 = [
@@ -32,8 +49,9 @@ var q1 = [
       return valid || 'Please enter a number';
     },
     filter : Number,
-    default : 1000
-  },{
+    default : 1000,
+    }
+  ,{
     type : 'input',
     name : 'Field_count',
     message : 'YCSB properties-Field count',
@@ -153,14 +171,10 @@ var q1 = [
     filter: Number,
     default : 1000
   },{
-    type : 'input',
+    type : 'list',
     name : 'scanlengthdistribution',
     message : 'YCSB properties-scanlengthdistribution',
-    // validate: function(value) {
-    //   var valid = !isNaN(parseFloat(value));
-    //   return valid || 'Please enter a number';
-    // },
-    // filter: Number,
+    choices : ['uniform','zipfian','hotspot','sequential','exponential','latest'],
     default : 'uniform'
   },{
     type : 'input',
@@ -178,10 +192,13 @@ var q1 = [
     message : 'YCSB properties-insertcount',
     validate: function(value) {
       var valid = !isNaN(parseFloat(value));
-      return valid || 'Please enter a number';
+      if(value === 'Record_count value'){
+        return true;
+      } else{
+        return valid || 'Please enter a number';
+      }
     },
-    filter: Number,
-    default : 1000
+    default : 'Record_count value'
   },{
     type : 'input',
     name : 'zeropadding',
@@ -250,9 +267,7 @@ var q1 = [
     },
     default : 1000
   }
-
 ];
-
 var q2 = [
   {
     type : 'input',
@@ -261,85 +276,63 @@ var q2 = [
   }
 ];
 
-inquirer.prompt(question).then(answers => {
-  if(answers.type === 'YCSB'){
-    inquirer.prompt(q1).then(answers1=> {
-      console.log("********************************");
-      console.log("type = %s",answers.type);
-      console.log("File name = %s",answers.name);
-      console.log("----properties----");
-      console.log("record count = %s",answers1.Record_count);
-      console.log("Field count = %s",answers1.Field_count);
-      console.log("fieldlength = %s",answers1.fieldlength);
-      console.log("minfieldlength = %s",answers1.minfieldlength);
-      console.log("readallfields = %s",answers1.readallfields);
-      console.log("writeallfields = %s",answers1.writeallfields);
-      console.log("readproportion = %s",answers1.readproportion);
-      console.log("updateproportion = %s",answers1.updateproportion);
-      console.log("insertproportion = %s",answers1.insertproportion);
-      console.log("scanproportion = %s",answers1.scanproportion);
-      console.log("readmodifywriteproportion = %s",answers1.readmodifywriteproportion);
-      console.log("requestdistribution = %s",answers1.requestdistribution);
-      console.log("minscanlength = %s",answers1.minscanlength);
-      console.log("maxscanlength = %s",answers1.maxscanlength);
-      console.log("scanlengthdistribution = %s",answers1.scanlengthdistribution);
-      console.log("insertstart = %s",answers1.insertstart);
-      console.log("insertcount = %s",answers1.insertcount);
-      console.log("zeropadding = %s",answers1.zeropadding);
-      console.log("insertorder = %s",answers1.insertorder);
-      console.log("fieldnameprefix = %s",answers1.fieldnameprefix);
-      console.log("hdrhistogram.percentiles = %s",answers1.hdrhistogram.percentiles);
-      console.log("hdrhistogram.fileoutput = %s",answers1.hdrhistogram.fileoutput);
-      console.log("histogram = %s",answers1.histogram);
-      console.log("timeseries.granularity = %s",answers1.timeseries);
-      console.log("********************************");
-
-      var aa = ['type = '+answers.type+'\n'+
-      'Record count = '+answers1.Record_count+'\n'+
-      'Field count = '+answers1.Field_count+'\n'+
-      'fieldlength = '+answers1.fieldlength+'\n'+
-      'minfieldlength = '+answers1.minfieldlength+'\n'+
-      'readallfields = '+answers1.readallfields+'\n'+
-      'writeallfields = '+answers1.writeallfields+'\n'+
-      'readproportion = '+answers1.readproportion+'\n'+
-      'updateproportion = '+answers1.updateproportion+'\n'+
-      'insertproportion = '+answers1.insertproportion+'\n'+
-      'scanproportion = '+answers1.scanproportion+'\n'+
-      'readmodifywriteproportion = '+answers1.readmodifywriteproportion+'\n'+
-      'requestdistribution = '+answers1.requestdistribution+'\n'+
-      'minscanlength = '+answers1.minscanlength+'\n'+
-      'maxscanlength = '+answers1.maxscanlength+'\n'+
-      'scanlengthdistribution = '+answers1.scanlengthdistribution+'\n'+
-      'insertstart = '+answers1.insertstart+'\n'+
-      'insertcount = '+answers1.insertcount+'\n'+
-      'zeropadding = '+answers1.zeropadding+'\n'+
-      'insertorder = '+answers1.insertorder+'\n'+
-      'fieldnameprefix = '+answers1.fieldnameprefix+'\n'+
-      'hdrhistogram.percentiles = '+answers1.hdrhistogram.percentiles+'\n'+
-      'hdrhistogram.fileoutput = '+answers1.hdrhistogram.fileoutput+'\n'+
-      'histogram = '+answers1.histogram+'\n'+
-      'timeseries.granularity = '+answers1.timeseries+'\n'
-    ];
-
-        fs.writeFile('./Benchmarking/YCSB/workloads/' + answers.name,aa,(err) => {
+inquirer.prompt(question1).then(answers => {
+  //파일 이름 변경
+  if(answers.choice ==='파일이름'){
+    inquirer.prompt(rename).then(answers1 => {
+      fs.rename(dir+answers.original_name,dir+answers1.new_name,function(err){
+        if(err) console.log('존재하지 않는 이름입니다.');
+        else console.log('이름이 변경되었습니다.');
+      });
+    });
+  } else {
+    // 파일 내용 변경
+    inquirer.prompt(question2).then(answers2 => {
+      if(answers2.type === 'YCSB'){
+        inquirer.prompt(q1).then(answers2_1=>{
+          if(answers2_1.insertcount!=Number){
+            answers2_1.insertcount=answers2_1.Record_count;
+          }
+          var aa = ['type = '+answers2.type+'\n'+
+          'Record count = '+answers2_1.Record_count+'\n'+
+          'Field count = '+answers2_1.Field_count+'\n'+
+          'fieldlength = '+answers2_1.fieldlength+'\n'+
+          'minfieldlength = '+answers2_1.minfieldlength+'\n'+
+          'readallfields = '+answers2_1.readallfields+'\n'+
+          'writeallfields = '+answers2_1.writeallfields+'\n'+
+          'readproportion = '+answers2_1.readproportion+'\n'+
+          'updateproportion = '+answers2_1.updateproportion+'\n'+
+          'insertproportion = '+answers2_1.insertproportion+'\n'+
+          'scanproportion = '+answers2_1.scanproportion+'\n'+
+          'readmodifywriteproportion = '+answers2_1.readmodifywriteproportion+'\n'+
+          'requestdistribution = '+answers2_1.requestdistribution+'\n'+
+          'minscanlength = '+answers2_1.minscanlength+'\n'+
+          'maxscanlength = '+answers2_1.maxscanlength+'\n'+
+          'scanlengthdistribution = '+answers2_1.scanlengthdistribution+'\n'+
+          'insertstart = '+answers2_1.insertstart+'\n'+
+          'insertcount = '+answers2_1.insertcount+'\n'+
+          'zeropadding = '+answers2_1.zeropadding+'\n'+
+          'insertorder = '+answers2_1.insertorder+'\n'+
+          'fieldnameprefix = '+answers2_1.fieldnameprefix+'\n'+
+          'hdrhistogram.percentiles = '+answers2_1.hdrhistogram.percentiles+'\n'+
+          'hdrhistogram.fileoutput = '+answers2_1.hdrhistogram.fileoutput+'\n'+
+          'histogram = '+answers2_1.histogram+'\n'+
+          'timeseries.granularity = '+answers2_1.timeseries+'\n'
+        ];
+        fs.writeFile(dir+answers.original_name,aa,(err) => {
           if(err){
             console.log(err);
           }else {
             console.log('파일저장 성공');
           }
         });
-      })
+      });
   } else {
-    inquirer.prompt(q2).then(answers2 => {
-      console.log("********************************");
-      console.log("type is %s",answers.type);
-      console.log("File name is %s",answers.name);
-      console.log("----properties----");
-      console.log("Graph benchmark is %s",answers2.Graph_benchmark);
-      console.log("********************************");
+    inquirer.prompt(q2).then(answers2_2 => {
 
-      var bb = ['type = ' + answers.type+'\n'+'Graph benchmark = '+answers2.Graph_benchmark];
-      fs.writeFile('./Benchmarking/YCSB/workloads/' + answers.name,bb,(err) => {
+      var bb = ['type = ' + answers2.type+'\n'+'Graph benchmark = '+answers2_2.Graph_benchmark];
+
+      fs.writeFile(dir + answers.original_name,aa,(err) => {
         if(err){
           console.log(err);
         }else {
@@ -348,5 +341,6 @@ inquirer.prompt(question).then(answers => {
       });
     });
   }
-  }
-);
+})
+}
+});
