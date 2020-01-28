@@ -12,6 +12,8 @@ var loadsizecmd = ''
 module.exports.ycsb = (opt) => {
 
   const dbtypeLine = `dbtype : ${opt.dbtype}`
+  if(opt.dbtype == 'cassandra')
+    opt.dbtype = 'cassandra-cql'
   console.log(dbtypeLine);
 
   checkRuntype(opt.runtype)
@@ -39,11 +41,31 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        console.log(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+        console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+        try {
+          const execSync = require('child_process').execSync;
+          const stdout = execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          console.log(`stdout: ${stdout}`);
+        } catch (err) {
+            // console.log(err.stdout)
+            // console.log(err.stderr)
+            // console.log(err.pid)
+            // console.log(err.signal)
+            // console.log(err.status)
+            // etc
+        }
+      }
+    }
+
+    function ycsbRun(){
+      if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
+        console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
+      }else{
+        console.log(` ${ycsbDir}/bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
         try {
           const execSync = require('child_process').execSync;
           // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-          const stdout = execSync(`bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          const stdout = execSync(` ${ycsbDir}/bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
           console.log(`stdout: ${stdout}`);
         } catch (err) {
             err.stdout;
@@ -53,29 +75,6 @@ module.exports.ycsb = (opt) => {
             err.status;
             // etc
         }
-      }
-    }
-
-    function ycsbRun(){
-
-      if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
-        console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
-      }else{
-        console.log(`bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-
-        // try {
-        //   const execSync = require('child_process').execSync;
-        //   // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-        //   const stdout = execSync(`bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-        //   console.log(`stdout: ${stdout}`);
-        // } catch (err) {
-        //     err.stdout;
-        //     err.stderr;
-        //     err.pid;
-        //     err.signal;
-        //     err.status;
-        //     // etc
-        // }
       }
     }
   }
@@ -184,7 +183,7 @@ module.exports.ycsb = (opt) => {
           console.log(wlfileLine)
         }catch (err) {
           if (err.code === 'ENOENT') {
-            console.log(err);
+            // console.log(err);
           wlfileLine = `[ERROR] workload file : '${wlfile}' 파일이 존재하지 않습니다.`
           console.log(wlfileLine)
         }
