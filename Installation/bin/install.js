@@ -6,6 +6,16 @@ const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')
 const cmds = require('../lib/cmds.js')
 
+
+let ip;
+let installDir;
+let password     = property.get_password();
+let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
+let rpmDir       = property.get_rpm_dir(); //root/rpm
+let package;
+let stdout;
+
+
 program
   .command('install')
   .option('-p, --package <pkg>')
@@ -13,11 +23,6 @@ program
   .option('-s, --server', `install into server, only can use to -p option`)
   .option('-n, --node', `install into node, only can use to -p option`)
   .action(function Action(opt){
-    let ip;
-    let installDir;
-    let password     = property.get_password();
-    let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
-    let rpmDir       = property.get_rpm_dir(); //root/rpm
 
     if(opt.server == true){
       ip = [property.get_serverIP()]
@@ -39,8 +44,9 @@ program
         }
         exec(`sshpass -p ${password} scp -r ${rpmDirOrigin} root@${i}:${installDir}`)
         console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-        exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${i}`)
-        isInstalledPkg(opt, rpmDir);
+        //~문제발생~
+        //exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${i}`)
+        isInstalledPkg(i, opt, rpmDir);
       })
     })
 
@@ -48,8 +54,7 @@ program.parse(process.argv)
 
 
 
-function isInstalledPkg(opt, rpmDir){
-  let package;
+function isInstalledPkg(i, opt, rpmDir){
   switch(opt.package){
     case 'git' :
       package = cmds.git;
@@ -68,37 +73,30 @@ function isInstalledPkg(opt, rpmDir){
       break;
     default :
       console.log('[ERROR]', opt.package,'is cannot be installed. Try again other package.');
+      exec(`exit`)
       return 0;
   }
   try{
-    console.log('왜이상한데로 빠지냐고', package);
-    exec(`rpm -qa|grep ${package}`)
-    //다른 파일 중에 git 결과 나오네;;git-core여야하는데
-    //입력이 git으로 들어오니까 rpm -qa|grep git 하는데 이러면 git-core가 없어도 에러가 나지 않음;;;;어케
-    //입력된거랑 파일명 일치하게 바꿔주자
-    //switch문 돌리기
-
-
-    console.log('없는데 에러 안나?');
-    if(opt.package != 'sshpass'){
+    //stdout = exec(`rpm -qa|grep ${package}`)
+    stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`)
+    if(stdout!=null && opt.package != 'sshpass'){
       //sshpass가 이미 있는데 설치하라는 명령어가 들어오면 여기 지나가지 않음. 메인액션에서 끝남
       console.log('[info]',opt.package, 'is already installed.', '\n[info] Check the version is matching or not');
-      versionCheck(opt, rpmDir);
+      versionCheck(i, opt, rpmDir);
     }
   }
   catch{
     //에러가 있으면 설치되지 않은 것. 명령어가 안먹음
     console.log('[info]',opt.package, 'is not installed');
     console.log('[info] Install', opt.package);
-    installPackage(opt, rpmDir);
+    installPackage(i, opt, rpmDir);
   }
 }
 
 
 
 
-function versionCheck(opt, rpmDir){
-  let stdout;
+function versionCheck(i, opt, rpmDir){
   console.log('[info] Start version check');
     switch(opt.package){
       case 'git' :
@@ -117,7 +115,9 @@ function versionCheck(opt, rpmDir){
         var version = property.get_javaVersion()
         break;
     }
-    stdout = exec(`rpm -qa|grep ${opt.package}`).toString();
+    stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`).toString();
+
+    //stdout = exec(`rpm -qa|grep ${opt.package}`).toString();
     if(stdout.includes(version)==true){
       console.log('[info] Version is matched. Exit.');
       exec(`exit`)
@@ -125,28 +125,33 @@ function versionCheck(opt, rpmDir){
       console.log('[info] Version is not matched. Delete', opt.package);
       deletePackage(opt);
       console.log('[info] Install new version of', opt.package);
-      installPackage(opt, rpmDir);
+      installPackage(i, opt, rpmDir);
     }
   }
 
 
 
-  function installPackage(opt, rpmDir){
+  function installPackage(i, opt, rpmDir){
     switch(opt.package){
         case 'java' :
-          exec(`${cmds.installCmd} ${rpmDir}${cmds.javaFile}`)
+          //exec(`${cmds.installCmd} ${rpmDir}${cmds.javaFile}`)
+          exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${cmds.java}`)
           break;
         case 'sshpass' :
-          exec(`${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
+          //exec(`${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
+          exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${cmds.sshpassFile}`)
           break;
         case 'git' :
-          exec(`${cmds.installCmd} ${rpmDir}${cmds.gitFile}`)
+          //exec(`${cmds.installCmd} ${rpmDir}${cmds.gitFile}`)
+          exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${cmds.gitFile}`)
          break;
         case 'maven' :
-          exec(`${cmds.installCmd} ${rpmDir}${cmds.mavenFile}`)
+          //exec(`${cmds.installCmd} ${rpmDir}${cmds.mavenFile}`)
+          exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${cmds.mavenFile}`)
          break;
         case 'python' :
-          exec(`${cmds.installCmd} ${rpmDir}${cmds.pythonFile}`)
+          //exec(`${cmds.installCmd} ${rpmDir}${cmds.pythonFile}`)
+          exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${cmds.pythonFile}`)
          break;
        }
        console.log('[info]', opt.package, 'Installation complete!');
