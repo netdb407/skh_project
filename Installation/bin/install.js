@@ -123,7 +123,7 @@ function versionCheck(i, opt, rpmDir){
       exec(`exit`)
     }else if(stdout.includes(version)==false){
       console.log('[info] Version is not matched. Delete', opt.package);
-      deletePackage(opt);
+      deletePackage(i, opt);
       console.log('[info] Install new version of', opt.package);
       installPackage(i, opt, rpmDir);
     }
@@ -162,22 +162,27 @@ function versionCheck(i, opt, rpmDir){
 
 
 
-   function deletePackage(opt){
+   function deletePackage(i, opt){
      switch(opt.package){
        case 'java' :
-        exec(`${cmds.yumDeleteCmd} ${cmds.java}*`)
+        exec(`sshpass -p ${password} ssh root@${i} ${cmds.yumDeleteCmd} ${cmds.java}*`)
+        //exec(`${cmds.yumDeleteCmd} ${cmds.java}*`)
         break;
        case 'sshpass' :
-        exec(`${cmds.deleteCmd} ${cmds.sshpass}`)
+        exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${cmds.sshpass}`)
+        //exec(`${cmds.deleteCmd} ${cmds.sshpass}`)
         break;
        case 'git' :
-        exec(`${cmds.deleteCmd} ${cmds.git}`)
+        exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${cmds.git}`)
+        //exec(`${cmds.deleteCmd} ${cmds.git}`)
         break;
        case 'maven' :
-        exec(`${cmds.yumDeleteCmd} ${cmds.maven}`)
+        exec(`sshpass -p ${password} ssh root@${i} ${cmds.yumDeleteCmd} ${cmds.maven}`)
+        //exec(`${cmds.yumDeleteCmd} ${cmds.maven}`)
         break;
        case 'python' :
-        exec(`${cmds.deleteCmd} ${cmds.python}`)
+        exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${cmds.python}`)
+        //exec(`${cmds.deleteCmd} ${cmds.python}`)
         break;
      }
      console.log('[info]', opt.package, 'Deletion complete!');
