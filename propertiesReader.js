@@ -1,6 +1,6 @@
 const PropertiesReader = require('properties-reader');
 
-const properties = PropertiesReader('InstallConfig');
+const properties = PropertiesReader('/home/skh/sh/skh_project/config.properties');
 
 module.exports = {
   //user정보
@@ -10,63 +10,41 @@ module.exports = {
   get_password(){
     return properties.get("password");
   },
-  get_rpm_dir_origin(){
-    return properties.get("rpm_dir_origin")
-  },
-  get_rpm_dir(){
-    return properties.get("rpm_dir");
-  },
 
 
 
   //cluster 정보
-  get_serverIP(){
-    return properties.get("serverIP");
+  get_server(){
+    return properties.get("server");
   },
-  get_nodeIP(){
-    return properties.get("nodeIP");
-  },
-
-  //directory
-  get_server_install_dir(){
-    return properties.get("server_install_dir");
-  },
-  get_node_install_dir(){
-    return properties.get("node_install_dir");
-  },
-  get_node_data_dir(){
-    return properties.get("node_data_dir");
-  },
-  get_server_wlfile_dir(){
-    return properties.get("server_wlfile_dir")
-  },
-  get_server_ycsb_dir(){
-    return properties.get("server_ycsb_dir")
+  get_nodes(){
+    return properties.get("nodes");
   },
 
-  //IO Tracer
-  get_IO_output_dir(){
-    return properties.get("IO_output_dir");
-  },
-  get_IO_driverManager_dir(){
-    return properties.get("IO_driverManager_dir");
-  },
 
   //version
-  get_javaVersion(){
-    return properties.get("javaVersion");
+  get_cassandra_version(){
+    return properties.get("cassandra_version");
   },
-  get_sshpassVersion(){
-    return properties.get("sshpassVersion");
+  get_cassandra_file(){
+    return properties.get("cassandra_file");
   },
-  get_pythonVersion(){
-    return properties.get("pythonVersion");
+
+
+  //directory_server
+  get_server_cassandra_dir(){
+    return properties.get("server_cassandra_dir")
   },
-  get_gitVersion(){
-    return properties.get("gitVersion");
+  get_server_cassandra_install_address(){
+    return properties.get("server_cassandra_install_address")
   },
-  get_mavenVersion(){
-    return properties.get("mavenVersion");
+
+
+
+  //directroy_node
+  get_node_cassandra_dir(){
+    return properties.get("node_cassandra_dir")
   }
+
 
 }
