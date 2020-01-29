@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 const program = require('commander');
+const chalk = require('chalk');
+const progress = require('cli-progress');
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js');
 const cmds = require('../lib/cmds.js');
-const chalk = require('chalk');
-const progress = require('cli-progress');
-const mavenHome = requre('../lib/mavenHome')
+const mavenHome = require('../lib/mavenHome')
 
 
 let ip;
@@ -49,8 +49,9 @@ program
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
           //maven home 잡아주기
 
+          //exec(`cat mavenHome >> /etc/profile`)
+          exec(`echo -e "export MAVEN_HOME=/root/maven\nexport PATH=$PATH:/root/maven/bin" >> /etc/profile`)
 
-          exec(`cat /etc/profile >> mavenHome`)
           exec(`source /etc/profile`)
           //cat 명령어로 파일 붙여주기 maven Home
           //source 명령어까지 하면 완료
