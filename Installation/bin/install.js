@@ -42,7 +42,8 @@ program
           exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
           console.log('[info] install sshpass to server Complete!');
         }
-        exec(`sshpass -p ${password} scp -r ${rpmDirOrigin} root@${i}:${installDir}`)
+        //exec(`sshpass -p ${password} scp -r ${rpmDirOrigin} root@${i}:${installDir}`)
+        exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
         console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
         //~문제발생~
         //exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${i}`)
