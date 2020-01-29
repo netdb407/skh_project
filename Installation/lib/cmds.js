@@ -27,6 +27,8 @@ const mavenFile = 'maven-local-5.3.0-1.el8.noarch.rpm'
 const pythonFile = 'platform-python-3.6.8-2.el8_0.0.1.x86_64.rpm'
 const gitFile = 'git-core-2.18.1-3.el8.x86_64.rpm'
 
+const javaDir = ./Installation/rpm/java
+
 
 
 
