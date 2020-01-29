@@ -7,7 +7,6 @@ const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js');
 const cmds = require('../lib/cmds.js');
-const mavenHome = require('../lib/mavenHome')
 
 
 let ip;
@@ -46,17 +45,19 @@ program
           console.log(chalk.green('[INFO]'), 'install sshpass to server Complete!');
         }
         if(opt.package == 'maven'){
-          exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
-          //maven home 잡아주기
-
-          //exec(`cat mavenHome >> /etc/profile`)
-          exec(`echo -e "export MAVEN_HOME=/root/maven\nexport PATH=$PATH:/root/maven/bin" >> /etc/profile`)
-
-          exec(`source /etc/profile`)
+          makeMavenHome(i)
+          return 0;
+          // exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
+          // //maven home 잡아주기
+          //
+          // //exec(`cat mavenHome >> /etc/profile`)
+          // exec(`echo -e "export MAVEN_HOME=/root/maven\nexport PATH=$PATH:/root/maven/bin" >> /etc/profile`)
+          //
+          // exec(`source /etc/profile`)
           //cat 명령어로 파일 붙여주기 maven Home
           //source 명령어까지 하면 완료
 
-          return 0;
+
         }else{
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
           console.log(chalk.green('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
@@ -66,6 +67,13 @@ program
     })
 
 program.parse(process.argv)
+
+
+function makeMavenHome(i){
+  //exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
+  exec(`sshpass -p ${password} ssh root@${i} "echo -e "export MAVEN_HOME=/root/maven\nexport PATH=$PATH:/root/maven/bin" >> /etc/profile"`)
+  exec(`sshpass -p ${password} ssh root@${i} "source /etc/profile"`)
+}
 
 
 
