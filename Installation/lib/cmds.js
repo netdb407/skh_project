@@ -41,7 +41,6 @@ module.exports = {
   maven,
   python,
 
-  rpmDir,
   javaFile,
   sshpassFile,
   mavenFile,

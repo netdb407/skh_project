@@ -9,7 +9,7 @@ nodeIP = 203.255.92.193,203.255.92.194,203.255.92.195
 
 #sshpass용
 rpm_dir_origin = ./Installation/rpm
-rpm_dir = /root/rpm/
+rpm_dir = /root/
 
 #directory
 server_install_dir = /root/
