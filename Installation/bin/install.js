@@ -3,8 +3,9 @@
 const program = require('commander');
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
-const property = require('../../propertiesReader.js')
-const cmds = require('../lib/cmds.js')
+const property = require('../../propertiesReader.js');
+const cmds = require('../lib/cmds.js');
+const chalk = require('chalk');
 
 
 let ip;
@@ -32,14 +33,15 @@ program
     }
 
     ip.forEach((i) => {
-      console.log('-----------------------------------\n[info] IP address is', i);
+      console.log('-----------------------------------');
+      console.log(chalk.green('[INFO]'),'IP address is', i);
         try{
           exec(`rpm -qa|grep sshpass`)
         }
         catch{
           //sshpass가 없을때 (최초 설치)
           exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
-          console.log('[info] install sshpass to server Complete!');
+          console.log(chalk.green('[INFO]'), 'install sshpass to server Complete!');
         }
         if(opt.package == 'maven'){
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
@@ -47,7 +49,7 @@ program
           return 0;
         }else{
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
-          console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
+          console.log(chalk.green('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
           isInstalledPkg(i, opt, rpmDir);
         }
       })
@@ -75,7 +77,7 @@ function isInstalledPkg(i, opt, rpmDir){
       package = cmds.maven;
       break;
     default :
-      console.log('[ERROR]', opt.package,'is cannot be installed. Try again other package.');
+      console.log(chalk.red('[ERROR]'), opt.package,'is cannot be installed. Try again other package.');
       exec(`exit`)
       return 0;
   }
@@ -83,14 +85,15 @@ function isInstalledPkg(i, opt, rpmDir){
     stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`)
     if(stdout!=null && opt.package != 'sshpass'){
       //sshpass가 이미 있는데 설치하라는 명령어가 들어오면 여기 지나가지 않음. 메인액션에서 끝남
-      console.log('[info]',opt.package, 'is already installed.', '\n[info] Check the version is matching or not');
+      console.log(chalk.green('[INFO]'),opt.package, 'is already installed.');
+      console.log(chalk.green('[INFO]'), 'Check the version is matching or not');
       versionCheck(i, opt, rpmDir);
     }
   }
   catch{
     //에러가 있으면 설치되지 않은 것. 명령어가 안먹음
-    console.log('[info]',opt.package, 'is not installed');
-    console.log('[info] Install', opt.package);
+    console.log(chalk.green('[INFO]'), opt.package, 'is not installed');
+    console.log(chalk.green('[INFO]'), 'Install', opt.package);
     installPackage(i, opt, rpmDir);
   }
 }
@@ -99,7 +102,7 @@ function isInstalledPkg(i, opt, rpmDir){
 
 
 function versionCheck(i, opt, rpmDir){
-  console.log('[info] Start version check');
+  console.log(chalk.green('[INFO]'), 'Start version check');
     switch(opt.package){
       case 'git' :
         var version = property.get_gitVersion()
@@ -119,12 +122,12 @@ function versionCheck(i, opt, rpmDir){
     }
     stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`).toString();
     if(stdout.includes(version)==true){
-      console.log('[info] Version is matched. Exit.');
+      console.log(chalk.green('[INFO]'), 'Version is matched. Exit.');
       exec(`exit`)
     }else if(stdout.includes(version)==false){
-      console.log('[info] Version is not matched. Delete', opt.package);
+      console.log(chalk.green('[INFO]'), 'Version is not matched. Delete', opt.package);
       deletePackage(i, opt);
-      console.log('[info] Install new version of', opt.package);
+      console.log(chalk.green('[INFO]'), 'Install new version of', opt.package);
       installPackage(i, opt, rpmDir);
     }
   }
@@ -133,7 +136,7 @@ function versionCheck(i, opt, rpmDir){
 
   function installPackage(i, opt, rpmDir){
      exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${opt.package}/*`)
-     console.log('[info]', opt.package, 'Installation complete!');
+     console.log(chalk.green('[INFO]'), opt.package, 'Installation complete!');
      exec(`rm -rf rpm`)
      console.log('rpm 폴더 삭제');
      exec(`exit`)
@@ -164,6 +167,6 @@ function versionCheck(i, opt, rpmDir){
     }else{
       exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${package}`)
     }
-    console.log('[info]', opt.package, 'Deletion complete!');
+    console.log(chalk.green('[INFO]'), opt.package, 'Deletion complete!');
     exec(`exit`)
   }
