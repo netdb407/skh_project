@@ -7,7 +7,7 @@ const property = require('../../propertiesReader.js');
 const cmds = require('../lib/cmds.js');
 const chalk = require('chalk');
 const progress = require('cli-progress');
-const mavenHome = requre('../lib/mavenHome.js')
+const mavenHome = requre('../lib/mavenHome')
 
 
 let ip;
