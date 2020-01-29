@@ -6,6 +6,8 @@ const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js');
 const cmds = require('../lib/cmds.js');
 const chalk = require('chalk');
+const progress = require('cli-progress');
+const mavenHome = requre('../lib/mavenHome.js')
 
 
 let ip;
@@ -46,11 +48,18 @@ program
         if(opt.package == 'maven'){
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
           //maven home 잡아주기
+
+
+          exec(`cat /etc/profile >> mavenHome`)
+          exec(`source /etc/profile`)
+          //cat 명령어로 파일 붙여주기 maven Home
+          //source 명령어까지 하면 완료
+
           return 0;
         }else{
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
           console.log(chalk.green('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
-          isInstalledPkg(i, opt, rpmDir);
+          progress.isInstalledPkg(i, opt, rpmDir);
         }
       })
     })
