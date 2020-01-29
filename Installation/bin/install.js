@@ -155,7 +155,7 @@ function versionCheck(i, opt, rpmDir){
     //       exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${cmds.pythonFile}`)
     //      break;
     //    }
-      exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${opt.package}*`)
+      exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${opt.package}/*`)
 
 
        console.log('[info]', opt.package, 'Installation complete!');
