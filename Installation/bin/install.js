@@ -6,6 +6,7 @@ const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js')
 const cmds = require('../lib/cmds.js')
 
+
 let ip;
 let installDir;
 let password     = property.get_password();
@@ -22,6 +23,7 @@ program
   .option('-s, --server', `install into server, only can use to -p option`)
   .option('-n, --node', `install into node, only can use to -p option`)
   .action(function Action(opt){
+
     if(opt.server == true){
       ip = [property.get_serverIP()]
       installDir = property.get_server_install_dir(); //root/
@@ -29,6 +31,7 @@ program
       ip = property.get_nodeIP().split(',');
       installDir = property.get_node_install_dir(); //root/
     }
+
     ip.forEach((i) => {
       console.log('-----------------------------------\n[info] IP address is', i);
         try{
@@ -37,11 +40,9 @@ program
         catch{
           //sshpass가 없을때 (최초 설치)
           exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
-          //exec(`${cmds.installCmd} ${rpmDirOrigin}${opt.package}`)
           console.log('[info] install sshpass to server Complete!');
         }
-        //exec(`sshpass -p ${password} scp -r ${rpmDirOrigin} root@${i}:${installDir}`)
-        exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}${opt.package} root@${i}:${installDir}`)
+        exec(`sshpass -p ${password} scp -r ${rpmDirOrigin} root@${i}:${installDir}`)
         console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
         //~문제발생~
         //exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${i}`)
@@ -131,11 +132,7 @@ function versionCheck(i, opt, rpmDir){
 
 
   function installPackage(i, opt, rpmDir){
-    // let pck;
     // switch(opt.package){
-    //     //package 들어온거에 따라서 위치 잡아주기
-    //     pck = opt.package
-    //
     //     case 'java' :
     //       //exec(`${cmds.installCmd} ${rpmDir}${cmds.javaFile}`)
     //       exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${cmds.java}`)
@@ -157,8 +154,8 @@ function versionCheck(i, opt, rpmDir){
     //       exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${cmds.pythonFile}`)
     //      break;
     //    }
+      exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${opt.package}*`)
 
-       exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${opt.package}`)
 
        console.log('[info]', opt.package, 'Installation complete!');
        exec(`rm -rf rpm`)
