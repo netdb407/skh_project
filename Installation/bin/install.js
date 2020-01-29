@@ -23,7 +23,6 @@ program
   .option('-s, --server', `install into server, only can use to -p option`)
   .option('-n, --node', `install into node, only can use to -p option`)
   .action(function Action(opt){
-
     if(opt.server == true){
       ip = [property.get_serverIP()]
       installDir = property.get_server_install_dir(); //root/
@@ -42,7 +41,6 @@ program
           exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
           console.log('[info] install sshpass to server Complete!');
         }
-        //exec(`sshpass -p ${password} scp -r ${rpmDirOrigin} root@${i}:${installDir}`)
         if(opt.package == 'maven'){
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
           //maven home 잡아주기
@@ -50,8 +48,6 @@ program
         }else{
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
           console.log('[info] Sending rpm file to',i,'complete! Ready to install other package.');
-          //~문제발생~
-          //exec(`sshpass -p ${password} ssh -o StrictHostKeyChecking=no root@${i}`)
           isInstalledPkg(i, opt, rpmDir);
         }
       })
@@ -84,7 +80,6 @@ function isInstalledPkg(i, opt, rpmDir){
       return 0;
   }
   try{
-    //stdout = exec(`rpm -qa|grep ${package}`)
     stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`)
     if(stdout!=null && opt.package != 'sshpass'){
       //sshpass가 이미 있는데 설치하라는 명령어가 들어오면 여기 지나가지 않음. 메인액션에서 끝남
@@ -123,8 +118,6 @@ function versionCheck(i, opt, rpmDir){
         break;
     }
     stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`).toString();
-
-    //stdout = exec(`rpm -qa|grep ${opt.package}`).toString();
     if(stdout.includes(version)==true){
       console.log('[info] Version is matched. Exit.');
       exec(`exit`)
@@ -148,29 +141,29 @@ function versionCheck(i, opt, rpmDir){
 
 
 
-   function deletePackage(i, opt){
-     switch(opt.package){
-       case 'java' :
-        exec(`sshpass -p ${password} ssh root@${i} ${cmds.yumDeleteCmd} ${cmds.java}*`)
-        //exec(`${cmds.yumDeleteCmd} ${cmds.java}*`)
-        break;
-       case 'sshpass' :
-        exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${cmds.sshpass}`)
-        //exec(`${cmds.deleteCmd} ${cmds.sshpass}`)
-        break;
-       case 'git' :
-        exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${cmds.git}`)
-        //exec(`${cmds.deleteCmd} ${cmds.git}`)
-        break;
-       case 'maven' :
-        exec(`sshpass -p ${password} ssh root@${i} ${cmds.yumDeleteCmd} ${cmds.maven}`)
-        //exec(`${cmds.yumDeleteCmd} ${cmds.maven}`)
-        break;
-       case 'python' :
-        exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${cmds.python}`)
-        //exec(`${cmds.deleteCmd} ${cmds.python}`)
-        break;
+ function deletePackage(i, opt){
+   switch(opt.package){
+     case 'java' :
+       package = cmds.java
+       break;
+     case 'python' :
+       package = cmds.python
+       break;
+     case 'git' :
+       package = cmds.git
+       break;
+     case 'maven' :
+       package = cmds.maven
+       break;
+     case 'sshpass' :
+       package = cmds.sshpass
+       break;
      }
-     console.log('[info]', opt.package, 'Deletion complete!');
-     exec(`exit`)
-   }
+    if(opt.package == 'java'||'maven'){
+      exec(`sshpass -p ${password} ssh root@${i} ${cmds.yumDeleteCmd} ${package}*`)
+    }else{
+      exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${package}`)
+    }
+    console.log('[info]', opt.package, 'Deletion complete!');
+    exec(`exit`)
+  }
