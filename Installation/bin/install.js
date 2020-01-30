@@ -68,8 +68,8 @@ function installDatabase(opt, nodes, node_arr, password){
         }
 
 
-        cassandraAction.cassandraCopy(node_arr, password, cassandraHome, node_dir);
-	console.log('[cassandra Copy]');
+        cassandraAction.cassandraCopy(node_arr, password, cassandraHome, node_dir, conf);
+	console.log('[cassandra Copy&localhost set]');
 
 	console.log('[cassandra Installed]');
 
