@@ -35,14 +35,14 @@ program
 
     ip.forEach((i) => {
       console.log('-----------------------------------');
-      console.log(chalk.green('[INFO]'),'IP address is', i);
+      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
         try{
           exec(`rpm -qa|grep sshpass`)
         }
         catch{
           //sshpass가 없을때 (최초 설치)
           exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
-          console.log(chalk.green('[INFO]'), 'install sshpass to server Complete!');
+          console.log(chalk.green.bold('[INFO]'), 'install sshpass to server Complete!');
         }
         if(opt.package == 'maven'){
           makeMavenHome(i)
@@ -60,8 +60,8 @@ program
 
         }else{
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
-          console.log(chalk.green('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
-          progress.isInstalledPkg(i, opt, rpmDir);
+          console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
+          isInstalledPkg(i, opt, rpmDir);
         }
       })
     })
@@ -71,8 +71,16 @@ program.parse(process.argv)
 
 function makeMavenHome(i){
   //exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
-  exec(`sshpass -p ${password} ssh root@${i} "echo -e "export MAVEN_HOME=/root/maven\nexport PATH=$PATH:/root/maven/bin" >> /etc/profile"`)
-  exec(`sshpass -p ${password} ssh root@${i} "source /etc/profile"`)
+  //exec(`sshpass -p ${password} ssh root@${i} "echo -e "export MAVEN_HOME=/root/maven\nexport PATH=$PATH:/root/maven/bin" >> /etc/profile"`)
+  exec(`sshpass -p ${password} scp /etc/profile root@${i}:${installDir}`)
+  exec(`sshpass -p ${password} ssh root@${i} cat ${installDir}profile > /etc/profile`)
+
+
+  //sshpass -p netdb3230 scp /etc/profile root@203.255.92.193:/root
+
+  // exec(`sshpass -p ${password} ssh root@${i} "echo -e "export MAVEN_HOME=/root/maven" >> /etc/profile"`)
+  // exec(`sshpass -p ${password} ssh root@${i} "echo -e "export PATH=$PATH:/root/maven/bin" >> /etc/profile"`)
+  // exec(`sshpass -p ${password} ssh root@${i} "source /etc/profile"`)
 }
 
 
@@ -95,7 +103,7 @@ function isInstalledPkg(i, opt, rpmDir){
       package = cmds.maven;
       break;
     default :
-      console.log(chalk.red('[ERROR]'), opt.package,'is cannot be installed. Try again other package.');
+      console.log(chalk.red.bold('[ERROR]'), opt.package,'is cannot be installed. Try again other package.');
       exec(`exit`)
       return 0;
   }
@@ -103,15 +111,15 @@ function isInstalledPkg(i, opt, rpmDir){
     stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`)
     if(stdout!=null && opt.package != 'sshpass'){
       //sshpass가 이미 있는데 설치하라는 명령어가 들어오면 여기 지나가지 않음. 메인액션에서 끝남
-      console.log(chalk.green('[INFO]'),opt.package, 'is already installed.');
-      console.log(chalk.green('[INFO]'), 'Check the version is matching or not');
+      console.log(chalk.green.bold('[INFO]'),opt.package, 'is already installed.');
+      console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not');
       versionCheck(i, opt, rpmDir);
     }
   }
   catch{
     //에러가 있으면 설치되지 않은 것. 명령어가 안먹음
-    console.log(chalk.green('[INFO]'), opt.package, 'is not installed');
-    console.log(chalk.green('[INFO]'), 'Install', opt.package);
+    console.log(chalk.green.bold('[INFO]'), opt.package, 'is not installed');
+    console.log(chalk.green.bold('[INFO]'), 'Install', opt.package);
     installPackage(i, opt, rpmDir);
   }
 }
@@ -120,7 +128,7 @@ function isInstalledPkg(i, opt, rpmDir){
 
 
 function versionCheck(i, opt, rpmDir){
-  console.log(chalk.green('[INFO]'), 'Start version check');
+  console.log(chalk.green.bold('[INFO]'), 'Start version check');
     switch(opt.package){
       case 'git' :
         var version = property.get_gitVersion()
@@ -140,12 +148,12 @@ function versionCheck(i, opt, rpmDir){
     }
     stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`).toString();
     if(stdout.includes(version)==true){
-      console.log(chalk.green('[INFO]'), 'Version is matched. Exit.');
+      console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
       exec(`exit`)
     }else if(stdout.includes(version)==false){
-      console.log(chalk.green('[INFO]'), 'Version is not matched. Delete', opt.package);
+      console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', opt.package);
       deletePackage(i, opt);
-      console.log(chalk.green('[INFO]'), 'Install new version of', opt.package);
+      console.log(chalk.green.bold('[INFO]'), 'Install new version of', opt.package);
       installPackage(i, opt, rpmDir);
     }
   }
@@ -154,7 +162,7 @@ function versionCheck(i, opt, rpmDir){
 
   function installPackage(i, opt, rpmDir){
      exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${opt.package}/*`)
-     console.log(chalk.green('[INFO]'), opt.package, 'Installation complete!');
+     console.log(chalk.green.bold('[INFO]'), opt.package, 'Installation complete!');
      exec(`rm -rf rpm`)
      console.log('rpm 폴더 삭제');
      exec(`exit`)
@@ -185,6 +193,6 @@ function versionCheck(i, opt, rpmDir){
     }else{
       exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${package}`)
     }
-    console.log(chalk.green('[INFO]'), opt.package, 'Deletion complete!');
+    console.log(chalk.green.bold('[INFO]'), opt.package, 'Deletion complete!');
     exec(`exit`)
   }
