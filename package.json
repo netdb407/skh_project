@@ -19,6 +19,7 @@
     "commander": "^4.1.0",
     "esm": "^3.2.25",
     "fs": "0.0.1-security",
+    "git": "^0.1.5",
     "inquirer": "^7.0.3",
     "progress": "^2.0.3",
     "properties-reader": "^0.3.1",
