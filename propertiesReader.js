@@ -44,7 +44,12 @@ module.exports = {
   //directroy_node
   get_node_cassandra_dir(){
     return properties.get("node_cassandra_dir")
-  }
+  },
 
+
+  //benchmark_directory_server
+  get_benchmark_dir(){
+    return properties.get("benchmark_dir")
+  }
 
 }
