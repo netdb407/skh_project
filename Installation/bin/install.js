@@ -47,17 +47,6 @@ program
         if(opt.package == 'maven'){
           makeMavenHome(i)
           return 0;
-          // exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
-          // //maven home 잡아주기
-          //
-          // //exec(`cat mavenHome >> /etc/profile`)
-          // exec(`echo -e "export MAVEN_HOME=/root/maven\nexport PATH=$PATH:/root/maven/bin" >> /etc/profile`)
-          //
-          // exec(`source /etc/profile`)
-          //cat 명령어로 파일 붙여주기 maven Home
-          //source 명령어까지 하면 완료
-
-
         }else{
           exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
           console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
@@ -70,17 +59,10 @@ program.parse(process.argv)
 
 
 function makeMavenHome(i){
-  //exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
-  //exec(`sshpass -p ${password} ssh root@${i} "echo -e "export MAVEN_HOME=/root/maven\nexport PATH=$PATH:/root/maven/bin" >> /etc/profile"`)
   exec(`sshpass -p ${password} scp /etc/profile root@${i}:${installDir}`)
+  console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
   exec(`sshpass -p ${password} ssh root@${i} cat ${installDir}profile > /etc/profile`)
-
-
-  //sshpass -p netdb3230 scp /etc/profile root@203.255.92.193:/root
-
-  // exec(`sshpass -p ${password} ssh root@${i} "echo -e "export MAVEN_HOME=/root/maven" >> /etc/profile"`)
-  // exec(`sshpass -p ${password} ssh root@${i} "echo -e "export PATH=$PATH:/root/maven/bin" >> /etc/profile"`)
-  // exec(`sshpass -p ${password} ssh root@${i} "source /etc/profile"`)
+  console.log(chalk.green.bold('[INFO]'), 'Ready to use Maven.');
 }
 
 
