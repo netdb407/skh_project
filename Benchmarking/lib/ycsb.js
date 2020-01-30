@@ -4,11 +4,13 @@ const wlfileDir = property.get_server_wlfile_dir()
 const ycsbDir = property.get_server_ycsb_dir()
 const nodeIP = property.get_nodes()
 const fs = require('fs')
-var dbtypeLine = ''
-var runtypeLine = ''
-var wlfileLine = ''
-var loadsizeLine = ''
-var loadsizecmd = ''
+const exec = require('child_process').execSync;
+let dbtypeLine = ''
+let runtypeLine = ''
+let wlfileLine = ''
+let loadsizeLine = ''
+let loadsizecmd = ''
+
 module.exports.ycsb = (opt) => {
 
   const dbtypeLine = `dbtype : ${opt.dbtype}`
@@ -41,12 +43,17 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-        try {
-          const execSync = require('child_process').execSync;
-          const stdout = execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-          console.log(`stdout: ${stdout}`);
-        } catch (err) {
+          console.log(`./YCSB/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          try{
+            exec(`cd ./YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`)
+            // exec(`mkdir test`)
+            // exec(`./YCSB/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+            // exec(`/home/skh/sm/skh/YCSB/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+                  // exec(`./bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+            exec(`cd ./YCSB && ./bin/ycsb load ${opt.dbtype} -P workloads/workloada -p hosts=${nodeIP} ${loadsizecmd}`)
+
+          }
+         catch (err) {
             // console.log(err.stdout)
             // console.log(err.stderr)
             // console.log(err.pid)
@@ -61,12 +68,9 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        console.log(` ${ycsbDir}/bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          console.log(`./YCSB/bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
         try {
-          const execSync = require('child_process').execSync;
-          // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-          const stdout = execSync(` ${ycsbDir}/bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-          console.log(`stdout: ${stdout}`);
+          exec(`./YCSB/bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
         } catch (err) {
             err.stdout;
             err.stderr;
@@ -79,85 +83,84 @@ module.exports.ycsb = (opt) => {
     }
   }
 
-  function saveWLfile(opt){
-
-    if(opt.wlfile == `${opt.wlfile}`){
-      console.log('파일잇음~!');
-
-
-    //   fs.readFile(`${ycsbDir}/${wlfileDir}/${opt.wlfile}`,'utf-8',function(err,data){
-    //   // readFile 이므로 비 동기식이며, readFile()메소드를 실행하면서 세번쨰 파라미터로 전달된 함수는 파일을 읽어들이는 작업이 끝났을때 호출이 된다. 이때, err,data 를 전달받아 오류 발생여부 확인할 수 있다.
-    //   console.log(`${ycsbDir}/${wlfileDir}/${opt.wlfile}`);
-    //   console.log(data);
-    //   //에러 발생시 err은 오류 데이터가 들어가고 에러 발생하지 않았을 경우 null 값이 들어간다.
-    // });
-    //
-
-
-
-
-      //
-      // var inname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`;
-      // var outname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}${num}`;
-      //
-      // // outname의 파일을 모두 삭제 하기 위함.
-      // fs.exists(outname, function(err){
-      //     if(err){
-      //         fs.unlink(outname,function(err){                // link를 끊어 버리기 위해 unlink(파일 삭제를 의미한다.)
-      //             if(err) throw err;
-      //             console.log('기존 파일 [' + outname +']삭제함');
-      //         })
-      //     }
-      // })
-      //
-      // // infile 과 outfile 변수에 스트림을 쓴다.
-      // var infile = fs.createReadStream(inname,{flags:'r'});
-      // var outfile = fs.createWriteStream(outname,{flags : 'w'});
-      // infile.pipe(outfile); // infile 스트림과 outfile 스트림을 객체를 연결하기 위한 pipe() => 파일 내용 복사
-      // console.log('파일 복사 [ ' + inname + '] -> ' + outname + ']');
-
-
-
-
-      const fs = require('fs');
-      const util = require('util');
-
-      // create promisified versions of fs methods we will use
-      const readFile = util.promisify(fs.readFile);
-      const readdir = util.promisify(fs.readdir);
-      const appendfile = util.promisify(fs.appendFile);
-
-      async function run() {
-          let somephrase = await readFile(`${ycsbDir}/${wlfileDir}/${opt.wlfile}`).toString();
-          let files = await readdir(`/${ycsbDir}/${wlfileDir}`);
-          for (let file of files) {
-              try {
-                  let f = `${ycsbDir}/${wlfileDir}` + file;
-                  let somenumber = await readFile(f).toString();
-                  //intermingle the data from initial file (phrase.js) with each of the files in files dir
-                  let output = somenumber + somephrase;
-                  //write output to new files
-                  let output_file = `${ycsbDir}/${wlfileDir}` + somenumber + 'js';
-                  await appendFile(output_file, output);
-              } catch(e) {
-                  console.log("error in loop", e);
-              }
-          }
-      }
-
-      run().then(() => {
-         // all done here
-      }).catch(err => {
-         // error occurred here
-      });
-
-
-
-    }else {
-      console.log('없ㅇㅁ');
-    }
-
-  }
+  // function saveWLfile(opt){
+  //
+  //   if(opt.wlfile == `${opt.wlfile}`){
+  //     console.log('파일잇음~!');
+  //
+  //
+  //   //   fs.readFile(`${ycsbDir}/${wlfileDir}/${opt.wlfile}`,'utf-8',function(err,data){
+  //   //   // readFile 이므로 비 동기식이며, readFile()메소드를 실행하면서 세번쨰 파라미터로 전달된 함수는 파일을 읽어들이는 작업이 끝났을때 호출이 된다. 이때, err,data 를 전달받아 오류 발생여부 확인할 수 있다.
+  //   //   console.log(`${ycsbDir}/${wlfileDir}/${opt.wlfile}`);
+  //   //   console.log(data);
+  //   //   //에러 발생시 err은 오류 데이터가 들어가고 에러 발생하지 않았을 경우 null 값이 들어간다.
+  //   // });
+  //   //
+  //
+  //
+  //
+  //
+  //     //
+  //     // let inname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`;
+  //     // let outname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}${num}`;
+  //     //
+  //     // // outname의 파일을 모두 삭제 하기 위함.
+  //     // fs.exists(outname, function(err){
+  //     //     if(err){
+  //     //         fs.unlink(outname,function(err){                // link를 끊어 버리기 위해 unlink(파일 삭제를 의미한다.)
+  //     //             if(err) throw err;
+  //     //             console.log('기존 파일 [' + outname +']삭제함');
+  //     //         })
+  //     //     }
+  //     // })
+  //     //
+  //     // // infile 과 outfile 변수에 스트림을 쓴다.
+  //     // let infile = fs.createReadStream(inname,{flags:'r'});
+  //     // let outfile = fs.createWriteStream(outname,{flags : 'w'});
+  //     // infile.pipe(outfile); // infile 스트림과 outfile 스트림을 객체를 연결하기 위한 pipe() => 파일 내용 복사
+  //     // console.log('파일 복사 [ ' + inname + '] -> ' + outname + ']');
+  //
+  //
+  //
+  //     const fs = require('fs');
+  //     const util = require('util');
+  //
+  //     // create promisified versions of fs methods we will use
+  //     const readFile = util.promisify(fs.readFile);
+  //     const readdir = util.promisify(fs.readdir);
+  //     const appendfile = util.promisify(fs.appendFile);
+  //
+  //     async function run() {
+  //         let somephrase = await readFile(`${ycsbDir}/${wlfileDir}/${opt.wlfile}`).toString();
+  //         let files = await readdir(`/${ycsbDir}/${wlfileDir}`);
+  //         for (let file of files) {
+  //             try {
+  //                 let f = `${ycsbDir}/${wlfileDir}` + file;
+  //                 let somenumber = await readFile(f).toString();
+  //                 //intermingle the data from initial file (phrase.js) with each of the files in files dir
+  //                 let output = somenumber + somephrase;
+  //                 //write output to new files
+  //                 let output_file = `${ycsbDir}/${wlfileDir}` + somenumber + 'js';
+  //                 await appendFile(output_file, output);
+  //             } catch(e) {
+  //                 console.log("error in loop", e);
+  //             }
+  //         }
+  //     }
+  //
+  //     run().then(() => {
+  //        // all done here
+  //     }).catch(err => {
+  //        // error occurred here
+  //     });
+  //
+  //
+  //
+  //   }else {
+  //     console.log('없ㅇㅁ');
+  //   }
+  //
+  // }
 
 
 
@@ -176,7 +179,10 @@ module.exports.ycsb = (opt) => {
         wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
         console.log(wlfileLine)
       }else{
-        var file = `${ycsbDir}/${wlfileDir}/${wlfile}`
+        // let file = `${wlfileDir}/${wlfile}` // 이걸로 해야됨 // workloads/workloada
+        let file = `${ycsbDir}/${wlfileDir}/${wlfile}`
+        // let file = `/${wlfileDir}/${wlfile}`
+        console.log(file);
         try {
           fs.statSync(file);
           wlfileLine = `workload file : ${wlfile}`
@@ -275,7 +281,7 @@ module.exports.ycsb = (opt) => {
 //         const wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
 //         console.log(wlfileLine);
 //       }else{
-//         var file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
+//         let file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
 //         try {
 //           fs.statSync(file);
 //           const wlfileLine = `workload file : ${opt.wlfile}`
@@ -504,12 +510,12 @@ module.exports.ycsb = (opt) => {
       // console.log(loadtypeLine);
       //
       // if(!opt.loadsize){
-      //   var sizeoption = "";
-      //   var size = "";
-      //   var loadSize = "";
+      //   let sizeoption = "";
+      //   let size = "";
+      //   let loadSize = "";
       // }else{
-      //   var sizeoption = '-p insertcount='
-      //   var size = opt.loadsize
+      //   let sizeoption = '-p insertcount='
+      //   let size = opt.loadsize
       //   if (size.match(/M/)){
       //     afterSize = size.split('M');
       //     loadSize = afterSize[0]*1000000;
