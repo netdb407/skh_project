@@ -44,19 +44,23 @@ function installDatabase(opt, nodes, node_arr, password){
 	var fs = require('fs');
 
 
-        cassandraAction.cassandraInstall(dir, install_address, file);
-	console.log('[cassandra Install]'); 
 
+	var exists_cassandra = fs.existsSync(`${cassandraHome}`);
+	var exists_tar = fs.existsSync(`${dir}${file}`);
+	if(exists_cassandra==true){
+         console.log('cassandra is already installed');
+        }else{
+          if(exists_tar==true){
+           cassandraAction.cassandraDecompress(dir, file);
+           console.log('[cassandra Decompress]');
+          }else{
+           cassandraAction.cassandraInstall(dir, install_address, file);
+           console.log('[cassandra Install]');
+           cassandraAction.cassandraDecompress(dir, file);
+           console.log('[cassandra Decompress]');         
+          }
+        }
 	
-	var exists = fs.existsSync(`${dir}${file}`);
-	if(exists==true){
-	 cassandraAction.cassandraDecompress(dir, file);
-         console.log('[cassandra Decompress]');
-	}else{
-	 console.log('tar file not found');
-	 break;
-	}
-
 
 	var exists = fs.existsSync(`${conf}`);
         if(exists==true){

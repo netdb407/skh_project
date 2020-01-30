@@ -35,7 +35,6 @@ module.exports.cassandraCopy = (nodes, password, cassandraHome, node_dir, conf) 
      exec(`sshpass -p ${password} scp -o StrictHostKeyChecking=no -r ${cassandraHome} root@${node}:${node_dir}`)
      var fs = require('fs');
      var data =  fs.readFileSync(`${conf}`, 'utf-8')
-     console.log('??');
      var set_localhost = data.replace(new RegExp(node,'g'), 'localhost');
      var set_seed = set_localhost.replace('localhost', `${node}`);
      fs.writeFileSync(`${conf}`, set_seed, 'utf-8');
