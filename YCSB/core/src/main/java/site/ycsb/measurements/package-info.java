@@ -18,5 +18,5 @@
 /**
  * The YCSB measurements package.
  */
-package com.yahoo.ycsb.measurements;
+package site.ycsb.measurements;
 

@@ -15,10 +15,10 @@
  * LICENSE file.
  */
 
-package com.yahoo.ycsb.measurements;
+package site.ycsb.measurements;
 
-import com.yahoo.ycsb.Status;
-import com.yahoo.ycsb.measurements.exporter.MeasurementsExporter;
+import site.ycsb.Status;
+import site.ycsb.measurements.exporter.MeasurementsExporter;
 
 import java.io.IOException;
 import java.util.Map;

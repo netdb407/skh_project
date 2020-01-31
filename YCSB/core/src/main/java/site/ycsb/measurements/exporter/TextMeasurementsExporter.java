@@ -14,7 +14,7 @@
  * permissions and limitations under the License. See accompanying
  * LICENSE file.
  */
-package com.yahoo.ycsb.measurements.exporter;
+package site.ycsb.measurements.exporter;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -45,13 +45,6 @@ public class TextMeasurementsExporter implements MeasurementsExporter {
     bw.write("[" + metric + "], " + measurement + ", " + d);
     bw.newLine();
   }
-
-  //수정
-  public void write(String metric, String measurement, double d, double d2) throws IOException {
-    bw.write("[" + metric + "], " + measurement + ", " + d + ", " + d2);
-    bw.newLine();
-  }
-  //수정 끝
 
   public void close() throws IOException {
     this.bw.close();
