@@ -5,7 +5,7 @@
   "main": "index.js",
   "bin": {
     "install": "./Installation/bin/install.js",
-    "benchmark": "./Benchmark/bin/BMrun.js"
+    "benchmark": "./Benchmarking/bin/benchmark.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,9 +13,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^3.0.0",
     "child_process": "^1.0.2",
+    "cli-progress": "^3.6.0",
     "commander": "^4.1.0",
     "esm": "^3.2.25",
-    "progress": "^2.0.3"
+    "fs": "0.0.1-security",
+    "inquirer": "^7.0.3",
+    "progress": "^2.0.3",
+    "properties-reader": "^0.3.1",
+    "rxjs": "^6.5.4"
   }
 }
