@@ -15,9 +15,9 @@
  * LICENSE file.
  */
 
-package com.yahoo.ycsb.measurements;
+package site.ycsb.measurements;
 
-import com.yahoo.ycsb.measurements.exporter.MeasurementsExporter;
+import site.ycsb.measurements.exporter.MeasurementsExporter;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -93,7 +93,7 @@ public class OneMeasurementHistogram extends OneMeasurement {
   }
 
   /* (non-Javadoc)
-   * @see com.yahoo.ycsb.OneMeasurement#measure(int)
+   * @see site.ycsb.OneMeasurement#measure(int)
    */
   public synchronized void measure(int latency) {
     //latency reported in us and collected in bucket by ms.

@@ -22,7 +22,6 @@ module.exports.ycsb = (opt) => {
   checkFile(opt.wlfile)
   checkLoadsize(opt.runtype, opt.loadsize)
 
-
   // saveWLfile(opt)
   switch(opt.runtype){
     case 'load' :
@@ -43,12 +42,14 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+        // console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+        console.log(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
           // console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile}  ${loadsizecmd}`);
         try {
           // execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
           // execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
           execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+
             // execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p ${loadsizecmd}`);
         } catch (err) {
             // console.log(err.stdout)
@@ -69,7 +70,11 @@ module.exports.ycsb = (opt) => {
         console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
         try {
           // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-          execSync(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          console.log('실행이 되나?');
+          // execSync(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          execSync(`cd ./YCSB`);
+          execSync(`mkdir TEST123`);
+          console.log('실행이 됏다..');
 
         } catch (err) {
             err.stdout;

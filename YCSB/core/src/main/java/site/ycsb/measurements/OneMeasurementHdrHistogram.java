@@ -15,9 +15,9 @@
  * LICENSE file.
  */
 
-package com.yahoo.ycsb.measurements;
+package site.ycsb.measurements;
 
-import com.yahoo.ycsb.measurements.exporter.MeasurementsExporter;
+import site.ycsb.measurements.exporter.MeasurementsExporter;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.HistogramIterationValue;
 import org.HdrHistogram.HistogramLogWriter;
@@ -145,7 +145,7 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
    * StatusThread per Client process. We optionally serialize the interval to
    * log on this opportunity.
    *
-   * @see com.yahoo.ycsb.measurements.OneMeasurement#getSummary()
+   * @see site.ycsb.measurements.OneMeasurement#getSummary()
    */
   @Override
   public String getSummary() {

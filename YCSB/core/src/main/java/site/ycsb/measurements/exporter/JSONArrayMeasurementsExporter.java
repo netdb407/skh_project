@@ -14,7 +14,7 @@
  * permissions and limitations under the License. See accompanying
  * LICENSE file.
  */
-package com.yahoo.ycsb.measurements.exporter;
+package site.ycsb.measurements.exporter;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
@@ -62,8 +62,8 @@ public class JSONArrayMeasurementsExporter implements MeasurementsExporter {
     g.writeNumberField("value", d);
     g.writeEndObject();
   }
-
-  //수정
+  
+    //수정
   public void write(String metric, String measurement, double d, double d2) throws IOException {
     g.writeStartObject();
     g.writeStringField("metric", metric);
@@ -73,6 +73,8 @@ public class JSONArrayMeasurementsExporter implements MeasurementsExporter {
     g.writeEndObject();
   }
   //수정 끝
+  
+  
 
   public void close() throws IOException {
     if (g != null) {

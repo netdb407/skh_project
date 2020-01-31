@@ -15,9 +15,9 @@
  * LICENSE file.
  */
 
-package com.yahoo.ycsb.measurements;
+package site.ycsb.measurements;
 
-import com.yahoo.ycsb.measurements.exporter.MeasurementsExporter;
+import site.ycsb.measurements.exporter.MeasurementsExporter;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

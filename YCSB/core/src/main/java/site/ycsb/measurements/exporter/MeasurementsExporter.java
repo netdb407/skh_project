@@ -14,7 +14,7 @@
  * permissions and limitations under the License. See accompanying
  * LICENSE file.
  */
-package com.yahoo.ycsb.measurements.exporter;
+package site.ycsb.measurements.exporter;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -53,6 +53,4 @@ public interface MeasurementsExporter extends Closeable {
    * @throws IOException if writing failed
    */
   void write(String metric, String measurement, double d) throws IOException;
-
-  void write(String metric, String measurement, double d, double d2) throws IOException;
 }
