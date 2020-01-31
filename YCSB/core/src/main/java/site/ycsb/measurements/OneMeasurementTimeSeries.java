@@ -29,13 +29,13 @@ class SeriesUnit {
    * @param time
    * @param average
    */
-  public SeriesUnit(long time, double average) {
+  public SeriesUnit(long time, double average, double count) {
     this.time = time;
     this.average = average;
-	
+
 	// operation count
 	this.count = count;
-		
+
   }
 
   protected final long time;
@@ -89,7 +89,7 @@ public class OneMeasurementTimeSeries extends OneMeasurement {
 
     if ((unit > currentunit) || (forceend)) {
       double avg = ((double) sum) / ((double) count);
-      measurements.add(new SeriesUnit(currentunit, avg));
+      measurements.add(new SeriesUnit(currentunit, avg, count));
 
       currentunit = unit;
 
