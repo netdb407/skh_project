@@ -1,5 +1,5 @@
 var inquirer = require('inquirer');
-var fs = require('fs');
+
 const program = require('commander');
 
 program
@@ -15,34 +15,33 @@ var question = [
     name : 'type',
     message : 'type을 선택하세요',
     choices : ['YCSB','GRAPH'],
-  },
-  {
-    type : 'input',
-    name : 'name',
-    message : 'File 이름을 입력하세요.',
-  },
+  }
 ];
 
 var q1 = [
-
   {
     type : 'input',
-    name : 'Record_count',
+    name : 'File name',
+    message : 'File 이름을 입력하세요.',
+  },
+  {
+    type : 'input',
+    name : 'Record count',
     message : 'YCSB properties-Record count',
   },
   {
     type : 'input',
-    name : 'Thread_count',
+    name : 'Thread count',
     message : 'YCSB properties-Thread count',
   },
   {
     type : 'input',
-    name : 'Request_distribution',
+    name : 'Request distribution',
     message : 'YCSB properties-Request distribution',
   },
   {
     type : 'input',
-    name : 'et_cetera',
+    name : 'Etc',
     message : 'YCSB properties-Etc',
   }
 ];
@@ -50,54 +49,25 @@ var q1 = [
 var q2 = [
   {
     type : 'input',
-    name : 'Graph_benchmark',
+    name : 'File name',
+    message : 'File 이름을 입력하세요.',
+  },
+  {
+    type : 'input',
+    name : 'Graph benchmark properties',
     message : 'Graph benchmark properties',
+    value : 'Graph benchmark properties'
   }
 ];
 
 inquirer.prompt(question).then(answers => {
-  if(answers.type === 'YCSB'){
-    inquirer.prompt(q1).then(answers1=> {
-      console.log("********************************");
-      console.log("type is %s",answers.type);
-      console.log("File name is %s",answers.name);
-      console.log("----properties----");
-      console.log("record count is %s",answers1.Record_count);
-      console.log("Thread count is %s",answers1.Thread_count);
-      console.log("Request distribution is %s",answers1.Request_distribution);
-      console.log("et_cetera is %s",answers1.et_cetera);
-      console.log("********************************");
-
-      var aa = ['type = '+answers.type+'\n'+
-      'Record count = '+answers1.Record_count+'\n'+
-      'Thread count = '+answers1.Thread_count+'\n'+
-      'Request distribution = '+answers1.Request_distribution+'\n'+
-      'ETC = '+answers1.et_cetera];
-      fs.writeFile('./Benchmarking/YCSB/workloads/' + answers.name,aa,(err) => {
-        if(err){
-          console.log(err);
-        }else {
-          console.log('파일저장 성공');
-        }
-      });
-  });
+  if(question.type ==='YCSB'){
+    inquirer.prompt(q2).then(answers1 => {
+      console.log(answers,answers1);
+    });
   } else {
-    inquirer.prompt(q2).then(answers2 => {
-      console.log("********************************");
-      console.log("type is %s",answers.type);
-      console.log("File name is %s",answers.name);
-      console.log("----properties----");
-      console.log("Graph benchmark is %s",answers2.Graph_benchmark);
-      console.log("********************************");
-
-      var bb = ['type = ' + answers.type+'\n'+'Graph benchmark = '+answers2.Graph_benchmark];
-      fs.writeFile('./Benchmarking/YCSB/workloads/' + answers.name,bb,(err) => {
-        if(err){
-          console.log(err);
-        }else {
-          console.log('파일저장 성공');
-        }
-      });
+    inquirer.prompt(q1).then(answers2 => {
+      console.log(answers,answers2);
     });
   }
   }
