@@ -2,7 +2,7 @@ const program = require('commander');
 const property = require('../../propertiesReader.js');
 const wlfileDir = property.get_server_wlfile_dir();
 const ycsbDir = property.get_server_ycsb_dir();
-const nodeIP = property.get_nodes();
+const nodeIP = property.get_nodeIP();
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 
@@ -43,11 +43,11 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        // console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-          console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile}  ${loadsizecmd}`);
+        console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          // console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile}  ${loadsizecmd}`);
         try {
-          // execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-            execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p ${loadsizecmd}`);
+          execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+            // execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p ${loadsizecmd}`);
         } catch (err) {
             // console.log(err.stdout)
             // console.log(err.stderr)

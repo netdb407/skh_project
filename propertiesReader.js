@@ -1,6 +1,6 @@
 const PropertiesReader = require('properties-reader');
 
-const properties = PropertiesReader('config.properties');
+const properties = PropertiesReader('InstallConfig');
 
 module.exports = {
   //user정보
@@ -10,13 +10,21 @@ module.exports = {
   get_password(){
     return properties.get("password");
   },
+  get_rpm_dir_origin(){
+    return properties.get("rpm_dir_origin")
+  },
+  get_rpm_dir(){
+    return properties.get("rpm_dir");
+  },
+
+
 
   //cluster 정보
-  get_server(){
-    return properties.get("server");
+  get_serverIP(){
+    return properties.get("serverIP");
   },
-  get_nodes(){
-    return properties.get("nodes");
+  get_nodeIP(){
+    return properties.get("nodeIP");
   },
 
   //directory
