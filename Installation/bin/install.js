@@ -1,180 +1,219 @@
-#!/usr/bin/env node
-
 const program = require('commander');
-const chalk = require('chalk');
-const progress = require('cli-progress');
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
-const property = require('../../propertiesReader.js');
-const cmds = require('../lib/cmds.js');
+const property = require('../../propertiesReader.js')
+// const versionChecking = require('./versionCheck.js')
+const javaAction = require('../lib/java.js')
+const sshpassAction = require('../lib/sshpass.js')
+const gitAction = require('../lib/git.js')
+const mavenAction = require('../lib/maven.js')
+const pythonAction = require('../lib/python.js')
+const serverInfo = property.get_server_install_dir()
+const nodeInfo = property.get_node_install_dir()
+// var pckInfo = null
+// let haveArg
 
 
-let ip;
-let installDir;
-let password     = property.get_password();
-let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
-let rpmDir       = property.get_rpm_dir(); //root/rpm
-let package;
-let stdout;
-
+// module.exports.installPackage = (package, arg) => {
+//   switch(arg){
+//      case 'java' :
+//        versionChecking.versionCheck(arg);
+//        javaAction.javaInstall();
+//        break;
 
 program
   .command('install')
   .option('-p, --package <pkg>')
   .option('-d, --database <dbname>')
-  .option('-s, --server', `install into server, only can use to -p option`)
-  .option('-n, --node', `install into node, only can use to -p option`)
+  .option('-s, --server', `server에 설치, -p 옵션에만 적용`)
+  .option('-n, --node', `node에 설치, -p 옵션에만 적용`)
   .action(function Action(opt){
-    if(opt.server == true){
-      ip = [property.get_serverIP()]
-      installDir = property.get_server_install_dir(); //root/
-    }else if(opt.node == true){
-      ip = property.get_nodeIP().split(',');
-      installDir = property.get_node_install_dir(); //root/
-    }
+    // pckInfo = opt.package
+    // versionCheck(pckInfo);
+    installPackage(opt.package)
 
-    ip.forEach((i) => {
-      console.log('-----------------------------------');
-      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
-        try{
-          exec(`rpm -qa|grep sshpass`)
-        }
-        catch{
-          //sshpass가 없을때 (최초 설치)
-          exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
-          console.log(chalk.green.bold('[INFO]'), 'install sshpass to server Complete!');
-        }
-        if(opt.package == 'maven'){
-          makeMavenHome(i)
-          return 0;
-        }else{
-          exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
-          console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
-          isInstalledPkg(i, opt, rpmDir);
-        }
-      })
-    })
+    // var start = 1;
+    // versionChecking.versionCheck(pckInfo)
+    // versionCheck(pckInfo, haveArg);
+    // console.log('have : ', haveArg);
+
+    // versionCheck(pckInfo).then((x)=>{
+    //   return x;
+    // }).then(installPackage(pckInfo))
+
+
+    // versionCheck(opt.package).then((info)=>{
+    //     installPackage(info)
+    //   })
+
+    //
+    // console.log('이거야');
+    // console.log(haveArg);
+
+    // if(typeof opt.server != "undefined"){
+    //   installPackage(opt.package, serverInfo)
+    // }else if(typeof opt.node != "undefined"){
+    //   installPackage(opt.package, nodeInfo)
+    // }
+
+    //   .then(result => {
+    //     console.log(result);
+    //   });
+
+    // console.log('server :', opt.server);
+    // console.log('node : ', opt.node);
+
+    // console.log('있으면 true, 없으면 false : ', versionChecking.haveArg);
+
+
+    //dir는 들어오면 true, 안들어오면 false
+    //dir중 not null인 것 을 인자로 넣어야 함..
+
+
+
+    // var _promise = function (param) {
+    //   return new Promise(function (resolve, reject){
+    //     setTimeout(function (){
+    //       if(param){
+    //         resolve(console.log('해결'));
+    //       }
+    //       else{
+    //         reject(console.log('실패'));
+    //       }
+    //     }, 2000);
+    //   });
+    // };
+    //
+    // _promise(typeof opt.server != "undefined")
+    //   .then(installPackage(opt.package, serverInfo))
+    //   .catch(function(){
+    //     alert("에러")
+    //   })
+
+  })
 
 program.parse(process.argv)
 
 
-function makeMavenHome(i){
-  exec(`sshpass -p ${password} scp /etc/profile root@${i}:${installDir}`)
-  console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
-  exec(`sshpass -p ${password} ssh root@${i} cat ${installDir}profile > /etc/profile`)
-  console.log(chalk.green.bold('[INFO]'), 'Ready to use Maven.');
-}
 
 
 
-function isInstalledPkg(i, opt, rpmDir){
-  switch(opt.package){
-    case 'git' :
-      package = cmds.git;
-      break;
-    case 'java' :
-      package = cmds.java;
-      break;
-    case 'sshpass' :
-      package = cmds.sshpass;
-      break;
-    case 'python' :
-      package = cmds.python;
-      break;
-    case 'maven' :
-      package = cmds.maven;
-      break;
-    default :
-      console.log(chalk.red.bold('[ERROR]'), opt.package,'is cannot be installed. Try again other package.');
-      exec(`exit`)
-      return 0;
-  }
-  try{
-    stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`)
-    if(stdout!=null && opt.package != 'sshpass'){
-      //sshpass가 이미 있는데 설치하라는 명령어가 들어오면 여기 지나가지 않음. 메인액션에서 끝남
-      console.log(chalk.green.bold('[INFO]'),opt.package, 'is already installed.');
-      console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not');
-      versionCheck(i, opt, rpmDir);
-    }
-  }
-  catch{
-    //에러가 있으면 설치되지 않은 것. 명령어가 안먹음
-    console.log(chalk.green.bold('[INFO]'), opt.package, 'is not installed');
-    console.log(chalk.green.bold('[INFO]'), 'Install', opt.package);
-    installPackage(i, opt, rpmDir);
-  }
-}
+// function versionCheck(pckInfo){
+//  const child = execFile(pckInfo, (err, stdout, stderr) => {
+//    if(Object.keys(err).includes('errno')==true){
+//      console.log('존재 유무 : 설치되지 않았습니다.');
+//      console.log('설치 시작');
+//      return pckInfo;
+//      // installPackage();
+//      // haveArg = false;
+//      // console.log(haveArg);
+//      // return haveArg
+//
+//    }
+//    else if(typeof stderr == 'string'){
+//      console.log('존재 유무 : 이미 존재하는 패키지입니다.');
+//      console.log('실행 종료');
+//      // haveArg = true;
+//      // console.log(haveArg);
+//      return 0;
+//    }
+//  })
+// }
 
 
 
 
-function versionCheck(i, opt, rpmDir){
-  console.log(chalk.green.bold('[INFO]'), 'Start version check');
-    switch(opt.package){
-      case 'git' :
-        var version = property.get_gitVersion()
-        break;
-      case 'maven' :
-        var version = property.get_mavenVersion()
-        break;
-      case 'python' :
-        var version = property.get_pythonVersion()
+
+// function versionCheck(pckInfo, haveArg){
+//  const child = execFile(pckInfo, (err, stdout, stderr) => {
+//    if(Object.keys(err).includes('errno')==true){
+//      console.log('존재 유무 : 설치되지 않았습니다.');
+//      console.log('설치 시작');
+//      // return pckInfo;
+//      // installPackage();
+//      haveArg = false;
+//      // console.log(haveArg);
+//      // return haveArg
+//
+//    }
+//    else if(typeof stderr == 'string'){
+//      console.log('존재 유무 : 이미 존재하는 패키지입니다.');
+//      console.log('실행 종료');
+//      haveArg = true;
+//      // console.log(haveArg);
+//      // return 0;
+//    }
+//  })
+//  // return new Promise((resolve, reject)=>{
+//  //   if(haveArg == true){
+//  //     resolve(console.log('있음'))
+//  //   }else{
+//  //     reject(console.log('없음'))
+//  //   }
+//  // })
+//
+//
+// }
+
+
+
+
+
+// function versionCheck(pckInfo, haveArg){
+//
+//   new Promise((resolve, reject)=>{
+//     versionCheck.function((err, arg)=>{
+//       err ? reject(err) : resolve(arg)
+//     })
+//   }).then(arg => {
+//     haveArg = arg;
+//     console.log(haveArg);
+//   })
+//
+//
+// }
+//
+//
+//
+
+
+
+
+
+// function test(){
+//   Promise.all([versionChecking.versionCheck(pckInfo), versionChecking.changeHaveArg()]).then(
+//     function(values){
+//       console.log(values);
+//     }
+//   )
+// }
+  installPackage(opt.package)
+function installPackage(package){
+  // console.log('dir정보 : ', dir);
+  switch(package){
+      case 'java' :
+        javaAction.javaInstall();
         break;
       case 'sshpass' :
-        var version = property.get_sshpassVersion()
+        sshpassAction.sshpassInstall();
         break;
-      case 'java' :
-        var version = property.get_javaVersion()
-        break;
-    }
-    stdout = exec(`sshpass -p ${password} ssh root@${i} "rpm -qa|grep ${package}"`).toString();
-    if(stdout.includes(version)==true){
-      console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
-      exec(`exit`)
-    }else if(stdout.includes(version)==false){
-      console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', opt.package);
-      deletePackage(i, opt);
-      console.log(chalk.green.bold('[INFO]'), 'Install new version of', opt.package);
-      installPackage(i, opt, rpmDir);
-    }
-  }
-
-
-
-  function installPackage(i, opt, rpmDir){
-     exec(`sshpass -p ${password} ssh root@${i} ${cmds.installCmd} ${rpmDir}${opt.package}/*`)
-     console.log(chalk.green.bold('[INFO]'), opt.package, 'Installation complete!');
-     exec(`rm -rf rpm`)
-     console.log('rpm 폴더 삭제');
-     exec(`exit`)
-   }
-
-
-
- function deletePackage(i, opt){
-   switch(opt.package){
-     case 'java' :
-       package = cmds.java
+      case 'git' :
+        gitAction.gitInstall();
        break;
-     case 'python' :
-       package = cmds.python
+      case 'maven' :
+        mavenAction.mavenInstall();
+        // mavenAction.mavenDelete();
        break;
-     case 'git' :
-       package = cmds.git
-       break;
-     case 'maven' :
-       package = cmds.maven
-       break;
-     case 'sshpass' :
-       package = cmds.sshpass
+      case 'python' :
+        pythonAction.pythonInstall();
        break;
      }
-    if(opt.package == 'java'||'maven'){
-      exec(`sshpass -p ${password} ssh root@${i} ${cmds.yumDeleteCmd} ${package}*`)
-    }else{
-      exec(`sshpass -p ${password} ssh root@${i} ${cmds.deleteCmd} ${package}`)
-    }
-    console.log(chalk.green.bold('[INFO]'), opt.package, 'Deletion complete!');
-    exec(`exit`)
-  }
+ }
+
+
+
+
+// function installDatabase(dbname){
+//   // console.log('2');
+//   // console.log(dbname);
+// }
