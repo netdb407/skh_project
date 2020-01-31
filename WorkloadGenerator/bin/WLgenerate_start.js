@@ -23,6 +23,8 @@ inquirer.prompt(question).then(answers =>{
   }
   //파일 삭제
   else {
-    require('./WLgenerate_delete.js');
+    var deleteFiles = require('./WLgenerate_delete.js');
+    deleteFiles.main();
+      }
   }
-});
+);

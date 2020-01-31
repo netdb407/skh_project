@@ -13,7 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "async": "^3.1.1",
     "author": "^1.0.0",
+    "await": "^0.2.6",
     "child_process": "^1.0.2",
     "commander": "^4.1.0",
     "dependencies": "0.0.1",
