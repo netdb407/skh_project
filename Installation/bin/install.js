@@ -16,7 +16,7 @@ let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
 let rpmDir       = property.get_rpm_dir(); //root/rpm
 let package;
 let stdout;
-let optVar;
+let packageAll;
 
 
 program
@@ -27,61 +27,62 @@ program
   .option('-n, --node', `install into node, only can use to -p option`)
   .option('-a, --all', `install all package`)
   .action(function Action(opt){
-    if(opt.package == true){
-      optVar = 'p'
+    if(opt.package && (opt.server || opt.node )){
+      ip = [property.get_serverIP()]
+      installDir = property.get_server_install_dir(); //root/
+      P_option(ip, opt.package)
     }
-    if(opt.database == true){
-      optVar = 'd'
+    if(opt.database){
+      ip = property.get_nodeIP().split(',');
+      installDir = property.get_node_install_dir(); //root/
     }
+    //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
     if(opt.all == true){
-      optVar = 'a'
+      ip = property.get_nodeIP().split(',');
+      ip.push(property.get_serverIP());
+      packageAll = ['sshpass', 'java', 'maven', 'python', 'git']
+      //for문 돌면서 ip 배열 값들을 opt.package에 넣고 함수 호출
+      //이중 for문? ㅡㅡ아닌데
+      //패키지만 배열이면 되지않나
+
+      //sshpass는 192만 까는건데?;;
+      ip.forEach((i) => {
+        packageAll.forEach((pck) => {
+          P_option(i, pck)
+        })
+      })
+      P_option(ip, opt.package)
     }
-
-    switch(optVar){
-      case 'p' :
-       //package 관련
-       if(opt.server == true){
-         ip = [property.get_serverIP()]
-         installDir = property.get_server_install_dir(); //root/
-       }else if(opt.node == true){
-         ip = property.get_nodeIP().split(',');
-         installDir = property.get_node_install_dir(); //root/
-       }
-
-       ip.forEach((i) => {
-         console.log('-----------------------------------');
-         console.log(chalk.green.bold('[INFO]'),'IP address is', i);
-           try{
-             exec(`rpm -qa|grep sshpass`)
-           }
-           catch{
-             //sshpass가 없을때 (최초 설치)
-             exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
-             console.log(chalk.green.bold('[INFO]'), 'install sshpass to server Complete!');
-           }
-           if(opt.package == 'maven'){
-             makeMavenHome(i)
-             return 0;
-           }else{
-             exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${opt.package} root@${i}:${installDir}`)
-             console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
-             isInstalledPkg(i, opt, rpmDir);
-           }
-         })
-       break;
-
-      case 'd' :
-       //database 관련
-       console.log('install database~');
-       break;
-
-      case 'a' :
-        installAll();
-       //installAll 관련
-     }
-    })
+ })
 
 program.parse(process.argv)
+
+
+
+
+
+ function P_option (ip, package ){
+   ip.forEach((i) => {
+     console.log('-----------------------------------');
+     console.log(chalk.green.bold('[INFO]'),'IP address is', i);
+       try{
+         exec(`rpm -qa|grep sshpass`)
+       }
+       catch{
+         //sshpass가 없을때 (최초 설치)
+         exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
+         console.log(chalk.green.bold('[INFO]'), 'install sshpass to server Complete!');
+       }
+       if(package == 'maven'){
+         makeMavenHome(i)
+         return 0;
+       }else{
+         exec(`sshpass -p ${password} scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
+         console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
+         isInstalledPkg(i, opt, rpmDir);
+       }
+   })
+
 
 
 function makeMavenHome(i){
