@@ -29,7 +29,8 @@ function checkDBtype(opt){
       ycsbAction.ycsb(opt);
       break;
     case 'orientdb' :
-      graphbenchAction.graphbench(opt)
+      // graphbenchAction.graphbench(opt)
+      ycsbAction.ycsb(opt);
       break;
     default :
       console.log('[ERROR] dbtype : (cassandra, arangodb, orientdb)를 입력해주세요.')
