@@ -19,7 +19,9 @@ inquirer.prompt(question).then(answers =>{
   }
   //파일 수정
   else if (answers.start === 'update'){
-    require('./WLgenerate_update.js');
+    const updateFiles = require('./WLgenerate_update.js');
+    updateFiles.main2();
+
   }
   //파일 삭제
   else {

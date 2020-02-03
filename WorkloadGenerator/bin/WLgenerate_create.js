@@ -24,6 +24,7 @@ var question = [
     message : 'File 이름을 입력하세요.',
     default : 'workloads',
   }];
+
 //YCSB 속성
 var q1 = [
   {
@@ -173,6 +174,7 @@ var q1 = [
     filter: Number,
     default : 0
   }];
+
   var q3 = [
     {
     type : 'input',
@@ -187,7 +189,7 @@ var q1 = [
       }
     },
     filter : Number,
-    default : 'Record_count value'
+    default : ''
   },{
     type : 'input',
     name : 'zeropadding',
@@ -256,7 +258,6 @@ var q1 = [
     },
     default : 1000
   }
-
 ];
 //Graph benchmark 속성
 var q2 = [
@@ -361,7 +362,7 @@ inquirer.prompt(question).then(answers => {
             console.log(answers.name+'으로 이름이 변경되었습니다.');
           }
         }
-        fs.writeFile(dir + answers.name,aa,(err) => {
+        fs.writeFile(dir + answers.name,bb,(err) => {
           if(err){
             console.log(err);
           }else {

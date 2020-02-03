@@ -18,11 +18,15 @@ var question1 = [
     message : '무엇을 변경하시겠습니까?',
     choices : ['파일이름','파일내용']
   },{
-    type : 'input',
+    type : 'list',
     name : 'original_name',
-    message : '변경할 파일의 이름을 입력하세요.'
+    message : '변경할 파일의 이름을 선택하세요.',
+    choices : []
   }
 ];
+
+const filelist = fs.readdirSync(dir);
+question1[1].choices = filelist;
 //변경할 파일의 새로운 이름 입력
 var rename = [
   {
@@ -187,7 +191,9 @@ var q1 = [
     },
     filter: Number,
     default : 0
-  },{
+  }];
+  var q2 =[
+    {
     type : 'input',
     name : 'insertcount',
     message : 'YCSB properties-insertcount',
@@ -270,7 +276,7 @@ var q1 = [
   }
 ];
 // Graph benchmark 속성 입력
-var q2 = [
+var q3 = [
   {
     type : 'input',
     name : 'Graph_benchmark',
@@ -278,77 +284,80 @@ var q2 = [
   }
 ];
 
-inquirer.prompt(question1).then(answers => {
-  //파일 이름 변경
-  if(answers.choice ==='파일이름'){
-    fs.exists(dir+answers.original_name,function(exists){
-      if(exists){
-        inquirer.prompt(rename).then(answers1 => {
-          fs.rename(dir+answers.original_name,dir+answers1.new_name,function(err){
-            if(err) throw err;
-            else console.log('이름이 변경되었습니다.');
-          });
-        });
-      } else {
+async function main2(){
+  const answer = await inquirer.prompt(question1)
+  if(answer.choice === '파일이름'){
+    var fsExists = fs.existsSync(dir+answer.original_name);
+    if(fsExists){
+      const answer1 = await inquirer.prompt(rename);
+      if(answer1){
+        fs.renameSync(dir+answer.original_name,dir+answer1.new_name);
+        console.log('이름이 변경되었습니다.');
+      }
+      else {
         console.log('존재하지 않는 파일 이름입니다.');
       }
-    });
-    // 파일 내용 변경
+    }
   } else {
-    inquirer.prompt(question2).then(answers2 => {
-      //YCSB 속성
-      if(answers2.type === 'YCSB'){
-        inquirer.prompt(q1).then(answers2_1=>{
-          if(answers2_1.insertcount!=Number){
-            answers2_1.insertcount=answers2_1.Record_count;
-          }
-          var aa = ['type = '+answers2.type+'\n'+
-          'Record count = '+answers2_1.Record_count+'\n'+
-          'Field count = '+answers2_1.Field_count+'\n'+
-          'fieldlength = '+answers2_1.fieldlength+'\n'+
-          'minfieldlength = '+answers2_1.minfieldlength+'\n'+
-          'readallfields = '+answers2_1.readallfields+'\n'+
-          'writeallfields = '+answers2_1.writeallfields+'\n'+
-          'readproportion = '+answers2_1.readproportion+'\n'+
-          'updateproportion = '+answers2_1.updateproportion+'\n'+
-          'insertproportion = '+answers2_1.insertproportion+'\n'+
-          'scanproportion = '+answers2_1.scanproportion+'\n'+
-          'readmodifywriteproportion = '+answers2_1.readmodifywriteproportion+'\n'+
-          'requestdistribution = '+answers2_1.requestdistribution+'\n'+
-          'minscanlength = '+answers2_1.minscanlength+'\n'+
-          'maxscanlength = '+answers2_1.maxscanlength+'\n'+
-          'scanlengthdistribution = '+answers2_1.scanlengthdistribution+'\n'+
-          'insertstart = '+answers2_1.insertstart+'\n'+
-          'insertcount = '+answers2_1.insertcount+'\n'+
-          'zeropadding = '+answers2_1.zeropadding+'\n'+
-          'insertorder = '+answers2_1.insertorder+'\n'+
-          'fieldnameprefix = '+answers2_1.fieldnameprefix+'\n'+
-          'hdrhistogram.percentiles = '+answers2_1.hdrhistogram.percentiles+'\n'+
-          'hdrhistogram.fileoutput = '+answers2_1.hdrhistogram.fileoutput+'\n'+
-          'histogram = '+answers2_1.histogram+'\n'+
-          'timeseries.granularity = '+answers2_1.timeseries+'\n'
-        ];
-        fs.writeFile(dir+answers.original_name,aa,(err) => {
-          if(err){
-            console.log(err);
-          }else {
-            console.log('파일저장 성공');
+    inquirer.prompt(question2).then(answer2 =>{
+      if(answer2.type === 'YCSB'){
+        inquirer.prompt(q1).then(answer2_1 => {
+          q2[0].default = answer2_1.Record_count;
+          inquirer.prompt(q2).then(answer2_1_1 => {
+            if(answer2_1){
+              var aa = ['type = '+answer2.type+'\n'+
+              'Record count = '+answer2_1.Record_count+'\n'+
+              'Field count = '+answer2_1.Field_count+'\n'+
+              'fieldlength = '+answer2_1.fieldlength+'\n'+
+              'minfieldlength = '+answer2_1.minfieldlength+'\n'+
+              'readallfields = '+answer2_1.readallfields+'\n'+
+              'writeallfields = '+answer2_1.writeallfields+'\n'+
+              'readproportion = '+answer2_1.readproportion+'\n'+
+              'updateproportion = '+answer2_1.updateproportion+'\n'+
+              'insertproportion = '+answer2_1.insertproportion+'\n'+
+              'scanproportion = '+answer2_1.scanproportion+'\n'+
+              'readmodifywriteproportion = '+answer2_1.readmodifywriteproportion+'\n'+
+              'requestdistribution = '+answer2_1.requestdistribution+'\n'+
+              'minscanlength = '+answer2_1.minscanlength+'\n'+
+              'maxscanlength = '+answer2_1.maxscanlength+'\n'+
+              'scanlengthdistribution = '+answer2_1.scanlengthdistribution+'\n'+
+              'insertstart = '+answer2_1.insertstart+'\n'+
+              'insertcount = '+answer2_1_1.insertcount+'\n'+
+              'zeropadding = '+answer2_1_1.zeropadding+'\n'+
+              'insertorder = '+answer2_1_1.insertorder+'\n'+
+              'fieldnameprefix = '+answer2_1_1.fieldnameprefix+'\n'+
+              'hdrhistogram.percentiles = '+answer2_1_1.hdrhistogram.percentiles+'\n'+
+              'hdrhistogram.fileoutput = '+answer2_1_1.hdrhistogram.fileoutput+'\n'+
+              'histogram = '+answer2_1_1.histogram+'\n'+
+              'timeseries.granularity = '+answer2_1_1.timeseries+'\n'
+            ];
+              fs.readFile(dir+answer.original_name,'utf8',function(err,data){
+                if(err) throw err;
+
+                fs.writeFile(dir+answer.original_name,aa,function(err,data){
+                  if(err) throw err;
+                  console.log("파일수정완료");
+                });
+              });
+            }
+          });
+        })
+      }
+      else{
+        inquirer.prompt(q3).then(answer2_2 => {
+          if(answer2_2){
+            var bb = ['type = ' + answer2.type+'\n'+'Graph benchmark = '+answer2_2.Graph_benchmark];
+            fs.readFile(dir+answer.original_name,'utf8',function(err,data){
+              if(err) throw err;
+              fs.writeFile(dir+answer.original_name,bb,function(err,data){
+                if(err) throw err;
+                console.log("파일수정완료");
+              });
+            });
           }
         });
-      });
-  } else {
-    //Graph benchmark 속성
-    inquirer.prompt(q2).then(answers2_2 => {
-      var bb = ['type = ' + answers2.type+'\n'+'Graph benchmark = '+answers2_2.Graph_benchmark];
-      fs.writeFile(dir + answers.original_name,bb,(err) => {
-        if(err){
-          console.log(err);
-        }else {
-          console.log('파일저장 성공');
-        }
-      });
+      }
     });
   }
-})
-}
-});
+};
+module.exports.main2 = main2;
