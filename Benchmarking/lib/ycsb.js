@@ -6,11 +6,11 @@ const nodeIP = property.get_nodeIP();
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 
-var dbtypeLine = ''
-var runtypeLine = ''
-var wlfileLine = ''
-var loadsizeLine = ''
-var loadsizecmd = ''
+let dbtypeLine = ''
+let runtypeLine = ''
+let wlfileLine = ''
+let loadsizeLine = ''
+let loadsizecmd = ''
 module.exports.ycsb = (opt) => {
 
   const dbtypeLine = `dbtype : ${opt.dbtype}`
@@ -21,7 +21,6 @@ module.exports.ycsb = (opt) => {
   checkRuntype(opt.runtype)
   checkFile(opt.wlfile)
   checkLoadsize(opt.runtype, opt.loadsize)
-
 
   // saveWLfile(opt)
   switch(opt.runtype){
@@ -43,10 +42,14 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+        // console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+        console.log(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
           // console.log(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile}  ${loadsizecmd}`);
         try {
-          execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          // execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          // execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+
             // execSync(` ${ycsbDir}/bin/ycsb load ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p ${loadsizecmd}`);
         } catch (err) {
             // console.log(err.stdout)
@@ -64,9 +67,14 @@ module.exports.ycsb = (opt) => {
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
         // console.log(` ${ycsbDir}/bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+        console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
         try {
           // const stdout = execSync(`./ycsb-0.17.0/bin/ycsb.bsh ${skcli.runtype} ${skcli.dbtype} `);
-          // execSync(` ${ycsbDir}/bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          console.log('실행이 되나?');
+          // execSync(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfileDir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
+          execSync(`cd ./YCSB`);
+          execSync(`mkdir TEST123`);
+          console.log('실행이 됏다..');
 
         } catch (err) {
             err.stdout;
@@ -98,8 +106,8 @@ module.exports.ycsb = (opt) => {
 
 
       //
-      // var inname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`;
-      // var outname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}${num}`;
+      // let inname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`;
+      // let outname = `${ycsbDir}/${wlfileDir}/${opt.wlfile}${num}`;
       //
       // // outname의 파일을 모두 삭제 하기 위함.
       // fs.exists(outname, function(err){
@@ -112,8 +120,8 @@ module.exports.ycsb = (opt) => {
       // })
       //
       // // infile 과 outfile 변수에 스트림을 쓴다.
-      // var infile = fs.createReadStream(inname,{flags:'r'});
-      // var outfile = fs.createWriteStream(outname,{flags : 'w'});
+      // let infile = fs.createReadStream(inname,{flags:'r'});
+      // let outfile = fs.createWriteStream(outname,{flags : 'w'});
       // infile.pipe(outfile); // infile 스트림과 outfile 스트림을 객체를 연결하기 위한 pipe() => 파일 내용 복사
       // console.log('파일 복사 [ ' + inname + '] -> ' + outname + ']');
 
@@ -177,7 +185,7 @@ module.exports.ycsb = (opt) => {
         wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
         console.log(wlfileLine)
       }else{
-        var file = `${ycsbDir}/${wlfileDir}/${wlfile}`
+        let file = `${ycsbDir}/${wlfileDir}/${wlfile}`
         try {
           fs.statSync(file);
           wlfileLine = `workload file : ${wlfile}`
@@ -276,7 +284,7 @@ module.exports.ycsb = (opt) => {
 //         const wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
 //         console.log(wlfileLine);
 //       }else{
-//         var file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
+//         let file = `${ycsbDir}/${wlfileDir}/${opt.wlfile}`
 //         try {
 //           fs.statSync(file);
 //           const wlfileLine = `workload file : ${opt.wlfile}`
@@ -505,12 +513,12 @@ module.exports.ycsb = (opt) => {
       // console.log(loadtypeLine);
       //
       // if(!opt.loadsize){
-      //   var sizeoption = "";
-      //   var size = "";
-      //   var loadSize = "";
+      //   let sizeoption = "";
+      //   let size = "";
+      //   let loadSize = "";
       // }else{
-      //   var sizeoption = '-p insertcount='
-      //   var size = opt.loadsize
+      //   let sizeoption = '-p insertcount='
+      //   let size = opt.loadsize
       //   if (size.match(/M/)){
       //     afterSize = size.split('M');
       //     loadSize = afterSize[0]*1000000;
