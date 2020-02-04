@@ -2,7 +2,7 @@ const program = require('commander')
 const property = require('../../propertiesReader.js')
 const wlfile_dir = property.get_server_wlfile_dir()
 const ycsb_dir = property.get_server_ycsb_dir()
-const nodeIP = property.get_nodeIP()
+const nodes_IP = property.get_nodes_IP()
 const ycsb_exporter = property.get_ycsb_exporter()
 const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
 const fs = require('fs')
@@ -45,13 +45,13 @@ saveWLfile(opt)
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        // console.log(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
+        // console.log(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
+        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
           // console.log(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile}  ${loadsizecmd}`);
         try {
-          // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-          // execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-          execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
+          // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
+          // execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
+          execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
 
             // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p ${loadsizecmd}`);
         } catch (err) {
@@ -69,12 +69,12 @@ saveWLfile(opt)
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        // console.log(` ${ycsb_dir}/bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
+        // console.log(` ${ycsb_dir}/bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
+          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
           try {
-            // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-            // execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd}`);
-            execSync(` cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodeIP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
+            // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
+            // execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
+            execSync(` cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
 
               // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p ${loadsizecmd}`);
           }  catch (err) {
