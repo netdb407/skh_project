@@ -23,7 +23,7 @@ server_ycsb_dir = ./YCSB
 
 #ycsb
 ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
-ycsb_exportfile_dir = /home/skh/sm/skh_project/
+ycsb_exportfile_dir = /home/skh/sm/skh_project/YCSB_RESULT
 
 
 #IO Tracer

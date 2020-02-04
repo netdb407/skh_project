@@ -24,8 +24,9 @@ module.exports.ycsb = (opt) => {
   checkRuntype(opt.runtype)
   checkFile(opt.wlfile)
   checkLoadsize(opt.runtype, opt.loadsize)
-saveWLfile(opt)
-  // saveWLfile(opt)
+  saveWLfile(opt)
+  benchmarkName(opt.name)
+
   switch(opt.runtype){
     case 'load' :
       ycsbLoad()
@@ -45,15 +46,14 @@ saveWLfile(opt)
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        // console.log(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
-        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
-          // console.log(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile}  ${loadsizecmd}`);
-        try {
-          // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
-          // execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
-          execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
 
-            // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p ${loadsizecmd}`);
+        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result`);
+
+        try {
+
+          execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result`);
+
+
         } catch (err) {
             err.stdout;
             err.stderr;
@@ -69,14 +69,13 @@ saveWLfile(opt)
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
-        // console.log(` ${ycsb_dir}/bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
-          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
-          try {
-            // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
-            // execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd}`);
-            execSync(` cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}`);
 
-              // execSync(` ${ycsb_dir}/bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p ${loadsizecmd}`);
+          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result`);
+          try {
+
+            execSync(` cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result`);
+
+
           }  catch (err) {
             err.stdout;
             err.stderr;
@@ -241,6 +240,11 @@ saveWLfile(opt)
       loadsizeLine = `[ERROR] load size : load size를 (###M, ###G, ###T) 형식으로 입력해주세요.`
     }
     console.log(loadsizeLine);
+  }
+
+  function benchmarkName(name){
+    console.log(name);
+    execSync(`mkdir ${ycsb_exportfile_dir}/${name}`)
   }
 
 
