@@ -5,11 +5,13 @@ const properties = PropertiesReader('InstallConfig');
 module.exports = {
   //user정보
   get_hostname(){
-    return properties.get("host");
+    return properties.get("server_hostname");
   },
   get_password(){
-    return properties.get("password");
+    return properties.get("server_password");
   },
+
+
   get_rpm_dir_origin(){
     return properties.get("rpm_dir_origin")
   },
@@ -20,11 +22,17 @@ module.exports = {
 
 
   //cluster 정보
-  get_serverIP(){
-    return properties.get("serverIP");
+  get_server_IP(){
+    return properties.get("server_IP");
   },
-  get_nodeIP(){
-    return properties.get("nodeIP");
+  get_nodes_IP(){
+    return properties.get("nodes_IP");
+  },
+  get_nodes_hostname(){
+    return properties.get("nodes_hostname");
+  },
+  get_nodes_password(){
+    return properties.get("nodes_password");
   },
 
   //directory
