@@ -44,6 +44,15 @@ module.exports = {
     return properties.get("server_ycsb_dir")
   },
 
+  //ycsb
+  get_ycsb_exporter(){
+    return properties.get("ycsb_exporter")
+  },
+
+  get_ycsb_exportfile_dir(){
+    return properties.get("ycsb_exportfile_dir")
+  },
+
   //IO Tracer
   get_IO_output_dir(){
     return properties.get("IO_output_dir");
