@@ -13,6 +13,7 @@ let runtypeLine = ''
 let wlfileLine = ''
 let loadsizeLine = ''
 let loadsizecmd = ''
+
 module.exports.ycsb = (opt) => {
 
   const dbtypeLine = `dbtype : ${opt.dbtype}`
@@ -23,7 +24,7 @@ module.exports.ycsb = (opt) => {
   checkRuntype(opt.runtype)
   checkFile(opt.wlfile)
   checkLoadsize(opt.runtype, opt.loadsize)
-
+saveWLfile(opt)
   // saveWLfile(opt)
   switch(opt.runtype){
     case 'load' :

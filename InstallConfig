@@ -1,10 +1,13 @@
 #user정보
-hostname = skh
-password = netdb3230
+server_hostname = skh
+server_password = netdb3230
 
 #cluster 정보
-serverIP = 203.255.92.192
-nodeIP = 203.255.92.193,203.255.92.194,203.255.92.195
+server_IP = 203.255.92.192
+nodes_IP = 203.255.92.193,203.255.92.194,203.255.92.195
+nodes_hostname = skh,skh,skh
+nodes_password = netdb3230,netdb3230,netdb3230
+
 //,뒤에 띄어쓰기 안함
 
 #sshpass용
@@ -29,8 +32,8 @@ IO_driverManager_dir =
 
 
 #version
-javaVersion = 1.8.0
-sshpassVersion = 1.06
-pythonVersion = 3.6.8
-gitVersion = 2.18
-mavenVersion = 5.3.0
+java_version = 1.8.0
+sshpass_version = 1.06
+python_version = 3.6.8
+git_version = 2.18
+maven_version = 5.3.0
