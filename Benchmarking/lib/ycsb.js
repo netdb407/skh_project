@@ -134,7 +134,6 @@ module.exports.ycsb = (opt) => {
       async function run() {
           let somephrase = await readFile(`${ycsb_dir}/${wlfile_dir}/${opt.wlfile}`).toString();
           let files = await readdir(`/${ycsb_dir}/${wlfile_dir}`);
-          console.log(`${ycsb_dir}/${wlfile_dir}/${opt.wlfile}`);
           for (let file of files) {
               try {
                   let f = `${ycsb_dir}/${wlfile_dir}` + file;
