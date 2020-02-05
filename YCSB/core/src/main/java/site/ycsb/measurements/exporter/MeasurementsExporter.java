@@ -52,5 +52,8 @@ public interface MeasurementsExporter extends Closeable {
    * @param d Measurement to write.
    * @throws IOException if writing failed
    */
+
   void write(String metric, String measurement, double d) throws IOException;
-}
+   // 수정
+  void write(String metric, String measurement, double d, double d2) throws IOException;
+  }
