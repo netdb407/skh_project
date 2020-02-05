@@ -30,7 +30,7 @@ program
     if(opt.package && (opt.server || opt.node )){
       ip = [property.get_serverIP()]
       installDir = property.get_server_install_dir(); //root/
-      P_option(ip, opt.package)
+      P_option(ip, opt.package, installDir)
     }
     if(opt.database){
       ip = property.get_nodeIP().split(',');
@@ -41,17 +41,11 @@ program
       ip = property.get_nodeIP().split(',');
       ip.push(property.get_serverIP());
       packageAll = ['sshpass', 'java', 'maven', 'python', 'git']
-      //for문 돌면서 ip 배열 값들을 opt.package에 넣고 함수 호출
-      //이중 for문? ㅡㅡ아닌데
-      //패키지만 배열이면 되지않나
-
-      //sshpass는 192만 까는건데?;;
       ip.forEach((i) => {
         packageAll.forEach((pck) => {
-          P_option(i, pck)
+          P_option(i, pck, installDir)
         })
       })
-      P_option(ip, opt.package)
     }
  })
 
@@ -61,7 +55,7 @@ program.parse(process.argv)
 
 
 
- function P_option (ip, package ){
+ function P_option (ip, pck, installDir){
    ip.forEach((i) => {
      console.log('-----------------------------------');
      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
@@ -82,7 +76,7 @@ program.parse(process.argv)
          isInstalledPkg(i, opt, rpmDir);
        }
    })
-
+}
 
 
 function makeMavenHome(i){
