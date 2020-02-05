@@ -25,7 +25,7 @@ module.exports.ycsb = (opt) => {
   checkFile(opt.wlfile)
   checkLoadsize(opt.runtype, opt.loadsize)
   saveWLfile(opt)
-  benchmarkName(opt.name)
+  benchmarkName(opt)
 
   switch(opt.runtype){
     case 'load' :
@@ -134,6 +134,7 @@ module.exports.ycsb = (opt) => {
       async function run() {
           let somephrase = await readFile(`${ycsb_dir}/${wlfile_dir}/${opt.wlfile}`).toString();
           let files = await readdir(`/${ycsb_dir}/${wlfile_dir}`);
+          console.log(`${ycsb_dir}/${wlfile_dir}/${opt.wlfile}`);
           for (let file of files) {
               try {
                   let f = `${ycsb_dir}/${wlfile_dir}` + file;
@@ -237,9 +238,16 @@ module.exports.ycsb = (opt) => {
     console.log(loadsizeLine);
   }
 
-  function benchmarkName(name){
-    console.log(name);
-    execSync(`mkdir ${ycsb_exportfile_dir}/${name}`)
+  function benchmarkName(opt){
+    if((typeof opt.name) == 'function'){ // n 값이 없으면
+      console.log('빈값');
+      opt.name="benchmark_name"
+      console.log(opt.name);
+    }else { //n 값이 있으면 else if((typeof opt.name) == 'string') {
+      console.log('값이 있음');
+      console.log(opt.name);
+    }
+  //   execSync(`mkdir ${ycsb_exportfile_dir}/${name}`)
   }
 
 
