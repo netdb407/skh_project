@@ -102,9 +102,6 @@ module.exports.ycsb = (opt) => {
     // });
     //
 
-
-
-
       //
       // let inname = `${ycsb_dir}/${wlfile_dir}/${opt.wlfile}`;
       // let outname = `${ycsb_dir}/${wlfile_dir}/${opt.wlfile}${num}`;
@@ -124,8 +121,6 @@ module.exports.ycsb = (opt) => {
       // let outfile = fs.createWriteStream(outname,{flags : 'w'});
       // infile.pipe(outfile); // infile 스트림과 outfile 스트림을 객체를 연결하기 위한 pipe() => 파일 내용 복사
       // console.log('파일 복사 [ ' + inname + '] -> ' + outname + ']');
-
-
 
 
       const fs = require('fs');
