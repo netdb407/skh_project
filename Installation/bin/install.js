@@ -38,6 +38,9 @@ program
       P_option(ip, opt.package, installDir)
     }
     if(opt.database){
+      var nodes = property.get_nodes_IP();
+      var node_arr = nodes.split(',');
+      var password = property.get_password();
       ip = property.get_nodes_IP().split(',');
       installDir = property.get_node_install_dir(); //root/
       installDatabase(opt, nodes, node_arr, password);
