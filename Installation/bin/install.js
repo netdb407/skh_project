@@ -13,7 +13,7 @@ let ip;
 let installDir;
 let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
 let rpmDir       = property.get_rpm_dir(); //root/rpm
-let package;
+let packageName;
 let stdout;
 let packageAll;
 
@@ -27,19 +27,19 @@ program
   .option('-a, --all', `install all package`)
   .action(function Action(opt){
     if(opt.package && (opt.server || opt.node )){
-      ip = [property.get_serverIP()]
+      ip = [property.get_server_IP()]
       installDir = property.get_server_install_dir(); //root/
       P_option(ip, opt.package, installDir)
     }
     if(opt.database){
-      ip = property.get_nodeIP().split(',');
+      ip = property.get_nodes_IP().split(',');
       installDir = property.get_node_install_dir(); //root/
       installDatabase(opt, nodes, node_arr, password);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
     if(opt.all == true){
-      ip = property.get_nodeIP().split(',');
-      ip.push(property.get_serverIP());
+      ip = property.get_nodes_IP().split(',');
+      ip.push(property.get_server_IP());
       packageAll = ['java', 'maven', 'python', 'git']
       ip.forEach((i) => {
         packageAll.forEach((pck) => {
@@ -55,7 +55,7 @@ program.parse(process.argv)
 
 
 
- function P_option (ip, pck, installDir){
+ function P_option (ip, package, installDir){
    ip.forEach((i) => {
      console.log('-----------------------------------');
      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
@@ -66,7 +66,7 @@ program.parse(process.argv)
          exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
          exec(`exit`)
          console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
-         isInstalledPkg(i, opt, rpmDir);
+         isInstalledPkg(i, package, rpmDir);
        }
    })
 }
@@ -82,19 +82,19 @@ function makeMavenHome(i){
 
 
 
-function isInstalledPkg(i, opt, rpmDir){
-  switch(opt.package){
+function isInstalledPkg(i, package, rpmDir){
+  switch(package){
     case 'git' :
-      package = cmds.git;
+      packageName = cmds.git;
       break;
     case 'java' :
-      package = cmds.java;
+      packageName = cmds.java;
       break;
     case 'python' :
-      package = cmds.python;
+      packageName = cmds.python;
       break;
     case 'maven' :
-      package = cmds.maven;
+      packageName = cmds.maven;
       break;
     default :
       console.log(chalk.red.bold('[ERROR]'), opt.package,'is cannot be installed. Try again other package.');
@@ -103,18 +103,18 @@ function isInstalledPkg(i, opt, rpmDir){
   }
   //수정!
   try{
-    stdout = exec(`ssh root@${i} "rpm -qa|grep ${package}"`)
+    stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`)
     if(stdout!=null){
-      console.log(chalk.green.bold('[INFO]'),opt.package, 'is already installed.');
+      console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
       console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not');
-      versionCheck(i, opt, rpmDir);
+      versionCheck(i, package, rpmDir);
     }
   }
   catch{
     //에러가 있으면 설치되지 않은 것. 명령어가 안먹음
-    console.log(chalk.green.bold('[INFO]'), opt.package, 'is not installed');
-    console.log(chalk.green.bold('[INFO]'), 'Install', opt.package);
-    installPackage(i, opt, rpmDir);
+    console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
+    console.log(chalk.green.bold('[INFO]'), 'Install', package);
+    installPackage(i, package, rpmDir);
   }
   exec(`exit`)
 }
@@ -122,9 +122,9 @@ function isInstalledPkg(i, opt, rpmDir){
 
 
 
-function versionCheck(i, opt, rpmDir){
+function versionCheck(i, package, rpmDir){
   console.log(chalk.green.bold('[INFO]'), 'Start version check');
-    switch(opt.package){
+    switch(package){
       case 'git' :
         var version = property.get_gitVersion()
         break;
@@ -143,19 +143,19 @@ function versionCheck(i, opt, rpmDir){
       console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
       exec(`exit`)
     }else if(stdout.includes(version)==false){
-      console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', opt.package);
-      deletePackage(i, opt);
-      console.log(chalk.green.bold('[INFO]'), 'Install new version of', opt.package);
-      installPackage(i, opt, rpmDir);
+      console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
+      deletePackage(i, package);
+      console.log(chalk.green.bold('[INFO]'), 'Install new version of', package);
+      installPackage(i, package, rpmDir);
     }
     exec(`exit`)
   }
 
 
 
-  function installPackage(i, opt, rpmDir){
-     exec(`ssh root@${i} ${cmds.installCmd} ${rpmDir}${opt.package}/*`)
-     console.log(chalk.green.bold('[INFO]'), opt.package, 'Installation complete!');
+  function installPackage(i, package, rpmDir){
+     exec(`ssh root@${i} ${cmds.installCmd} ${rpmDir}${package}/*`)
+     console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
      exec(`rm -rf rpm`)
      console.log('rpm 폴더 삭제');
      exec(`exit`)
@@ -163,27 +163,27 @@ function versionCheck(i, opt, rpmDir){
 
 
 
- function deletePackage(i, opt){
-   switch(opt.package){
+ function deletePackage(i, package){
+   switch(package){
      case 'java' :
-       package = cmds.java
+       packageName = cmds.java
        break;
      case 'python' :
-       package = cmds.python
+       packageName = cmds.python
        break;
      case 'git' :
-       package = cmds.git
+       packageName = cmds.git
        break;
      case 'maven' :
-       package = cmds.maven
+       packageName = cmds.maven
        break;
      }
     if(opt.package == 'java'||'maven'){
-      exec(`ssh root@${i} ${cmds.yumDeleteCmd} ${package}*`)
+      exec(`ssh root@${i} ${cmds.yumDeleteCmd} ${packageName}*`)
     }else{
-      exec(`ssh root@${i} ${cmds.deleteCmd} ${package}`)
+      exec(`ssh root@${i} ${cmds.deleteCmd} ${packageName}`)
     }
-    console.log(chalk.green.bold('[INFO]'), opt.package, 'Deletion complete!');
+    console.log(chalk.green.bold('[INFO]'), package, 'Deletion complete!');
     exec(`exit`)
   }
 
