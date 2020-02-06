@@ -28,6 +28,11 @@ const pythonFile = 'platform-python-3.6.8-2.el8_0.0.1.x86_64.rpm'
 const gitFile = 'git-core-2.18.1-3.el8.x86_64.rpm'
 
 
+//송희 추가
+const wgetCmd = 'wget -P'
+const decompress = 'tar -xvzf'
+const copy = 'cp -f'
+
 
 
 module.exports = {
@@ -45,5 +50,9 @@ module.exports = {
   sshpassFile,
   mavenFile,
   pythonFile,
-  gitFile
+  gitFile,
+
+  wgetCmd,
+  decompress,
+  copy
 }

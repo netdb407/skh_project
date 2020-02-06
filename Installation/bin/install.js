@@ -21,7 +21,7 @@ let version;
 
 program
   .command('install')
-  .option('-p, --package <pkg>')
+  .option('-p, --package <pck>')
   .option('-d, --database <dbname>')
   .option('-s, --server', `install into server, only can use to -p option`)
   .option('-n, --node', `install into node, only can use to -p option`)
@@ -85,6 +85,10 @@ function makeMavenHome(i){
 }
 
 
+function makePythonLink(i){
+  //python link 잡아주기
+}
+
 
 function isInstalledPkg(i, package, rpmDir){
   switch(package){
@@ -105,7 +109,6 @@ function isInstalledPkg(i, package, rpmDir){
       exec(`exit`)
       return 0;
   }
-  //수정!
   try{
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
     if(stdout!=null){
@@ -115,14 +118,10 @@ function isInstalledPkg(i, package, rpmDir){
     }
   }
   catch(e){
-    //에러가 있으면 설치되지 않은 것. 명령어가 안먹음
     console.log(e);
     console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
     console.log(chalk.green.bold('[INFO]'), 'Install', package);
     installPackage(i, package, rpmDir);
-  }
-  finally{
-    exec(`exit`)
   }
 }
 
