@@ -1,6 +1,7 @@
 const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const cmds = require('../lib/cmds.js')
+const chalk = require('chalk');
 
 module.exports.cassandraInstall = (dir,install_address,file) => {
   exec(`${cmds.wgetCmd} ${dir} ${install_address}${file}`)
@@ -26,13 +27,13 @@ module.exports.cassandraSetClusterEnv = (conf, seeds, benchmark_dir) => {
 module.exports.cassandraCopy = (nodes, password, cassandraHome, node_dir, conf) => {
 
   for(var i in nodes){
-     console.log('install...',nodes[i]);
+     console.log(chalk.green.bold('[INFO]'), 'installing...', nodes[i]);
      var node = nodes[i];
      var fs = require('fs');
      var data =  fs.readFileSync(`${conf}`, 'utf-8')
      var set_node = data.replace(/localhost/g, `${node}`);
      fs.writeFileSync(`${conf}`, set_node, 'utf-8');
-     exec(`sshpass -p ${password} scp -o StrictHostKeyChecking=no -r ${cassandraHome} root@${node}:${node_dir}`)
+     exec(`scp -r ${cassandraHome} root@${node}:${node_dir}`)
      var fs = require('fs');
      var data =  fs.readFileSync(`${conf}`, 'utf-8')
      var set_localhost = data.replace(new RegExp(node,'g'), 'localhost');

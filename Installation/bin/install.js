@@ -71,7 +71,11 @@ program.parse(process.argv)
        if(package == 'maven'){
          makeMavenHome(i)
          return 0;
-       }else{
+       }else if(package == 'python'){
+         makePythonLink(i)
+         return 0;
+       }
+       else{
          exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
          console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
          isInstalledPkg(i, package, rpmDir);
@@ -93,6 +97,13 @@ function makePythonLink(i){
   //python link 잡아주기
   exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
   console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
+  //file exist
+  //link의 존재 유무 파악하고 있으면 하지 않기?
+  //fs 쓰기? 이름 같은거 찾기
+  //if(fs 써서 이름 같은거 있는지){
+  //없으면 심볼릭 링크 생성
+  //}있으면 종료
+
 }
 
 
@@ -217,31 +228,31 @@ function versionCheck(i, package, rpmDir){
   	var exists_cassandra = fs.existsSync(`${cassandraHome}`);
   	var exists_tar = fs.existsSync(`${dir}${file}`);
   	if(exists_cassandra==true){
-           console.log('cassandra is already installed');
+           console.log(chalk.green.bold('[INFO]'), 'cassandraFile is already exist');
           }else{
             if(exists_tar==true){
              cassandraAction.cassandraDecompress(dir, file);
-             console.log('[cassandra Decompress]');
+             console.log(chalk.green.bold('[INFO]'), '[cassandra Decompress]');
             }else{
              cassandraAction.cassandraInstall(dir, install_address, file);
-             console.log('[cassandra Install]');
+             console.log(chalk.green.bold('[INFO]'), '[cassandra Install]');
              cassandraAction.cassandraDecompress(dir, file);
-             console.log('[cassandra Decompress]');
+             console.log(chalk.green.bold('[INFO]'), '[cassandra Decompress]');
             }
           }
 
   	var exists = fs.existsSync(`${conf}`);
           if(exists==true){
            cassandraAction.cassandraSetClusterEnv(conf, nodes, benchmark_dir);
-           console.log('[cassandra Set Cluster Environments]');
+           console.log(chalk.green.bold('[INFO]'), 'cassandra Set Cluster Environments');
   	}else{
-           console.log('conf file not found');
+           console.log(chalk.red.bold('[Error]'), 'conf file not found');
            break;
           }
 
           cassandraAction.cassandraCopy(node_arr, password, cassandraHome, node_dir, conf);
-  	console.log('[cassandra Copy&localhost set]');
-  	console.log('[cassandra Installed]');
+  	console.log(chalk.green.bold('[INFO]'), 'cassandra Copy&localhost set');
+  	console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
         break;
      }
   }
