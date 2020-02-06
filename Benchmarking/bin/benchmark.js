@@ -8,9 +8,10 @@ program
   .option('-r, --runtype <runtype>', `runtype을 입력 (load, run, loadrun)`)
   .option('-l, --loadsize <loadsize>', `load size를 입력 (###M, ###G, ###T)`)
   .option('-w --wlfile <wlfile>', `workload file을 입력`)
-  .option('-c --config <config>', `config 파일 입력`)
+  // .option('-c --config <config>', `config 파일 입력`)
   .option('-n, --name <name>', `name을 입력`)
   .option('-o, --output <output>', `output directory 지정`)
+  .option('-t, --timewindow <timewindow>', `time window 지정(sec)`)
   .action(function(opt){
 
     checkDBtype(opt)
