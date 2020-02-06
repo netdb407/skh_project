@@ -11,7 +11,6 @@ const cmds = require('../lib/cmds.js');
 
 let ip;
 let installDir;
-let password     = property.get_password();
 let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
 let rpmDir       = property.get_rpm_dir(); //root/rpm
 let package;
@@ -35,6 +34,7 @@ program
     if(opt.database){
       ip = property.get_nodeIP().split(',');
       installDir = property.get_node_install_dir(); //root/
+      installDatabase(opt, nodes, node_arr, password);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
     if(opt.all == true){
@@ -59,20 +59,12 @@ program.parse(process.argv)
    ip.forEach((i) => {
      console.log('-----------------------------------');
      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
-      //수정!
-       try{
-         exec(`rpm -qa|grep sshpass`)
-       }
-       catch{
-         //sshpass가 없을때 (최초 설치)
-         exec(`${cmds.installCmd} ${rpmDirOrigin}${cmds.sshpassFile}`)
-         console.log(chalk.green.bold('[INFO]'), 'install sshpass to server Complete!');
-       }
        if(package == 'maven'){
          makeMavenHome(i)
          return 0;
        }else{
          exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
+         exec(`exit`)
          console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
          isInstalledPkg(i, opt, rpmDir);
        }
@@ -84,6 +76,7 @@ function makeMavenHome(i){
   exec(`scp /etc/profile root@${i}:${installDir}`)
   console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
   exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
+  exec(`exit`)
   console.log(chalk.green.bold('[INFO]'), 'Ready to use Maven.');
 }
 
@@ -96,9 +89,6 @@ function isInstalledPkg(i, opt, rpmDir){
       break;
     case 'java' :
       package = cmds.java;
-      break;
-    case 'sshpass' :
-      package = cmds.sshpass;
       break;
     case 'python' :
       package = cmds.python;
@@ -114,8 +104,7 @@ function isInstalledPkg(i, opt, rpmDir){
   //수정!
   try{
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${package}"`)
-    if(stdout!=null && opt.package != 'sshpass'){
-      //sshpass가 이미 있는데 설치하라는 명령어가 들어오면 여기 지나가지 않음. 메인액션에서 끝남
+    if(stdout!=null){
       console.log(chalk.green.bold('[INFO]'),opt.package, 'is already installed.');
       console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not');
       versionCheck(i, opt, rpmDir);
@@ -127,6 +116,7 @@ function isInstalledPkg(i, opt, rpmDir){
     console.log(chalk.green.bold('[INFO]'), 'Install', opt.package);
     installPackage(i, opt, rpmDir);
   }
+  exec(`exit`)
 }
 
 
@@ -158,6 +148,7 @@ function versionCheck(i, opt, rpmDir){
       console.log(chalk.green.bold('[INFO]'), 'Install new version of', opt.package);
       installPackage(i, opt, rpmDir);
     }
+    exec(`exit`)
   }
 
 
@@ -186,6 +177,7 @@ function versionCheck(i, opt, rpmDir){
      case 'maven' :
        package = cmds.maven
        break;
+     }
     if(opt.package == 'java'||'maven'){
       exec(`ssh root@${i} ${cmds.yumDeleteCmd} ${package}*`)
     }else{
@@ -194,6 +186,60 @@ function versionCheck(i, opt, rpmDir){
     console.log(chalk.green.bold('[INFO]'), opt.package, 'Deletion complete!');
     exec(`exit`)
   }
+
+
+
+
+  function installDatabase(opt, nodes, node_arr, password){
+    console.log('node정보 : ', node_arr);
+    switch(opt.database){
+        case 'cassandra' :
+  	var dir = property.get_server_cassandra_dir()
+  	var install_address = property.get_server_cassandra_install_address()
+  	var node_dir = property.get_node_cassandra_dir()
+  	var version = property.get_cassandra_version()
+  	var file = property.get_cassandra_file()
+  	var cassandraHome = `${dir}${version}`
+  	var conf = `${cassandraHome}/conf/cassandra.yaml`
+    var benchmark_dir = property.get_benchmark_dir()
+  	var fs = require('fs');
+
+  	var exists_cassandra = fs.existsSync(`${cassandraHome}`);
+  	var exists_tar = fs.existsSync(`${dir}${file}`);
+  	if(exists_cassandra==true){
+           console.log('cassandra is already installed');
+          }else{
+            if(exists_tar==true){
+             cassandraAction.cassandraDecompress(dir, file);
+             console.log('[cassandra Decompress]');
+            }else{
+             cassandraAction.cassandraInstall(dir, install_address, file);
+             console.log('[cassandra Install]');
+             cassandraAction.cassandraDecompress(dir, file);
+             console.log('[cassandra Decompress]');
+            }
+          }
+
+  	var exists = fs.existsSync(`${conf}`);
+          if(exists==true){
+           cassandraAction.cassandraSetClusterEnv(conf, nodes, benchmark_dir);
+           console.log('[cassandra Set Cluster Environments]');
+  	}else{
+           console.log('conf file not found');
+           break;
+          }
+
+          cassandraAction.cassandraCopy(node_arr, password, cassandraHome, node_dir, conf);
+  	console.log('[cassandra Copy&localhost set]');
+
+  	console.log('[cassandra Installed]');
+
+        break;
+     }
+  }
+
+
+
 
 
   function installAll(){
