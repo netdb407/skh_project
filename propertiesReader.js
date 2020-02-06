@@ -71,19 +71,16 @@ module.exports = {
 
   //version
   get_javaVersion(){
-    return properties.get("javaVersion");
-  },
-  get_sshpassVersion(){
-    return properties.get("sshpassVersion");
+    return properties.get("java_version");
   },
   get_pythonVersion(){
-    return properties.get("pythonVersion");
+    return properties.get("python_version");
   },
   get_gitVersion(){
-    return properties.get("gitVersion");
+    return properties.get("git_version");
   },
   get_mavenVersion(){
-    return properties.get("mavenVersion");
+    return properties.get("maven_version");
   }
 
 }

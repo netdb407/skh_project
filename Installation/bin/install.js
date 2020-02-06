@@ -16,6 +16,7 @@ let rpmDir       = property.get_rpm_dir(); //root/rpm
 let packageName;
 let stdout;
 let packageAll;
+let version;
 
 
 program
@@ -27,7 +28,11 @@ program
   .option('-a, --all', `install all package`)
   .action(function Action(opt){
     if(opt.package && (opt.server || opt.node )){
-      ip = [property.get_server_IP()]
+      if(opt.server){
+        ip = [property.get_server_IP()]
+      }else if(opt.node){
+        ip = property.get_nodes_IP().split(',');
+      }
       installDir = property.get_server_install_dir(); //root/
       P_option(ip, opt.package, installDir)
     }
@@ -64,7 +69,6 @@ program.parse(process.argv)
          return 0;
        }else{
          exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
-         exec(`exit`)
          console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
          isInstalledPkg(i, package, rpmDir);
        }
@@ -97,58 +101,59 @@ function isInstalledPkg(i, package, rpmDir){
       packageName = cmds.maven;
       break;
     default :
-      console.log(chalk.red.bold('[ERROR]'), opt.package,'is cannot be installed. Try again other package.');
+      console.log(chalk.red.bold('[ERROR]'), package,'is cannot be installed. Try again other package.');
       exec(`exit`)
       return 0;
   }
   //수정!
   try{
-    stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`)
+    stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
     if(stdout!=null){
       console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
-      console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not');
+      console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
       versionCheck(i, package, rpmDir);
     }
   }
-  catch{
+  catch(e){
     //에러가 있으면 설치되지 않은 것. 명령어가 안먹음
+    console.log(e);
     console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
     console.log(chalk.green.bold('[INFO]'), 'Install', package);
     installPackage(i, package, rpmDir);
   }
-  exec(`exit`)
+  finally{
+    exec(`exit`)
+  }
 }
 
 
 
 
 function versionCheck(i, package, rpmDir){
-  console.log(chalk.green.bold('[INFO]'), 'Start version check');
+  console.log(chalk.green.bold('[INFO]'), 'Start version check ...');
     switch(package){
       case 'git' :
-        var version = property.get_gitVersion()
+        version = property.get_gitVersion()
         break;
       case 'maven' :
-        var version = property.get_mavenVersion()
+        version = property.get_mavenVersion()
         break;
       case 'python' :
-        var version = property.get_pythonVersion()
+        version = property.get_pythonVersion()
         break;
       case 'java' :
-        var version = property.get_javaVersion()
+        version = property.get_javaVersion()
         break;
     }
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${package}"`).toString();
     if(stdout.includes(version)==true){
       console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
-      exec(`exit`)
     }else if(stdout.includes(version)==false){
       console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
       deletePackage(i, package);
       console.log(chalk.green.bold('[INFO]'), 'Install new version of', package);
       installPackage(i, package, rpmDir);
     }
-    exec(`exit`)
   }
 
 
@@ -178,7 +183,7 @@ function versionCheck(i, package, rpmDir){
        packageName = cmds.maven
        break;
      }
-    if(opt.package == 'java'||'maven'){
+    if(package == 'java'||'maven'){
       exec(`ssh root@${i} ${cmds.yumDeleteCmd} ${packageName}*`)
     }else{
       exec(`ssh root@${i} ${cmds.deleteCmd} ${packageName}`)
