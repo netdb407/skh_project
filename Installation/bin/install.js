@@ -7,6 +7,7 @@ const execFile = require('child_process').execFile;
 const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js');
 const cmds = require('../lib/cmds.js');
+const cassandraAction = require('../lib/cassandra.js')
 
 
 let ip;
