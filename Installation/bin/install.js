@@ -91,6 +91,8 @@ function makeMavenHome(i){
 
 function makePythonLink(i){
   //python link 잡아주기
+  exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
+  console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
 }
 
 
@@ -239,9 +241,7 @@ function versionCheck(i, package, rpmDir){
 
           cassandraAction.cassandraCopy(node_arr, password, cassandraHome, node_dir, conf);
   	console.log('[cassandra Copy&localhost set]');
-
   	console.log('[cassandra Installed]');
-
         break;
      }
   }
