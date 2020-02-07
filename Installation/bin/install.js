@@ -71,11 +71,14 @@ program.parse(process.argv)
        if(package == 'maven'){
          makeMavenHome(i)
          return 0;
-       }else if(package == 'python'){
-         makePythonLink(i)
-         return 0;
        }
+       // else if(package == 'python'){
+       //   makePythonLink(i)
+       //   return 0;
+       // }
        else{
+
+         //fs써서 존재유무 확인 ! 
          exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
          console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
          isInstalledPkg(i, package, rpmDir);
@@ -93,18 +96,18 @@ function makeMavenHome(i){
 }
 
 
-function makePythonLink(i){
-  //python link 잡아주기
-  exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
-  console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
-  //file exist
-  //link의 존재 유무 파악하고 있으면 하지 않기?
-  //fs 쓰기? 이름 같은거 찾기
-  //if(fs 써서 이름 같은거 있는지){
-  //없으면 심볼릭 링크 생성
-  //}있으면 종료
-
-}
+// function makePythonLink(i){
+//   //python link 잡아주기
+//   exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
+//   console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
+//   //file exist
+//   //link의 존재 유무 파악하고 있으면 하지 않기?
+//   //fs 쓰기? 이름 같은거 찾기
+//   //if(fs 써서 이름 같은거 있는지){
+//   //없으면 심볼릭 링크 생성
+//   //}있으면 종료
+//
+// }
 
 
 function isInstalledPkg(i, package, rpmDir){
@@ -163,6 +166,10 @@ function versionCheck(i, package, rpmDir){
     }
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${package}"`).toString();
     if(stdout.includes(version)==true){
+      if(package = 'python'){
+        exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
+        console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
+      }
       console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
     }else if(stdout.includes(version)==false){
       console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
