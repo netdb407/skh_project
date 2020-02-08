@@ -11,7 +11,8 @@ program
   // .option('-c --config <config>', `config 파일 입력`)
   .option('-n, --name <name>', `name을 입력`)
   .option('-o, --output <output>', `output directory 지정`)
-  .option('-t, --timewindow <timewindow>', `time window 지정(sec)`)
+  .option('-tw, --timewindow <timewindow>', `time window 지정(sec)`)
+  .option('-th, --threads <threads>',`threads 수를 지정`)
   .action(function(opt){
 
     checkDBtype(opt)

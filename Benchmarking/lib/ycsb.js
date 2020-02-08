@@ -5,6 +5,8 @@ const ycsb_dir = property.get_server_ycsb_dir()
 const nodes_IP = property.get_nodes_IP()
 const ycsb_exporter = property.get_ycsb_exporter()
 const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
+const ycsb_threadcount = property.get_ycsb_threadcount()
+const ycsb_timewindow = property.get_ycsb_timewindow()
 const fs = require('fs')
 const execSync = require('child_process').execSync
 
@@ -382,7 +384,12 @@ module.exports.ycsb = (opt) => {
 
 
 
-
+  function checkTimewindow(tw){
+      if(tw == "") {
+        opt.threads = ${ycsb_timewindow}
+      }
+    }s
+  }
 
 
 

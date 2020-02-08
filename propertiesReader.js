@@ -56,9 +56,14 @@ module.exports = {
   get_ycsb_exporter(){
     return properties.get("ycsb_exporter")
   },
-
   get_ycsb_exportfile_dir(){
     return properties.get("ycsb_exportfile_dir")
+  },
+  get_ycsb_threadcount(){
+    return properties.get("ycsb_threadcount")
+  },
+  get_ycsb_timewindow(){
+    return properties.get("ycsb_timewindow")
   },
 
   //IO Tracer
