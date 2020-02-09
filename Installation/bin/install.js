@@ -8,6 +8,7 @@ const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js');
 const cmds = require('../lib/cmds.js');
 const cassandraAction = require('../lib/cassandra.js')
+const fs = require('fs');
 
 
 let ip;
@@ -28,6 +29,7 @@ program
   .option('-n, --node', `install into node, only can use to -p option`)
   .option('-a, --all', `install all package`)
   .action(function Action(opt){
+    //case 1. -p + -s||-n
     if(opt.package && (opt.server || opt.node )){
       if(opt.server){
         ip = [property.get_server_IP()]
@@ -37,6 +39,8 @@ program
       installDir = property.get_server_install_dir(); //root/
       P_option(ip, opt.package, installDir)
     }
+
+    //case 2. -d(-n으로 디폴트)
     if(opt.database){
       var nodes = property.get_nodes_IP();
       var node_arr = nodes.split(',');
@@ -46,6 +50,8 @@ program
       installDatabase(opt, nodes, node_arr, password);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
+
+    //case 3. -a
     if(opt.all == true){
       ip = property.get_nodes_IP().split(',');
       ip.push(property.get_server_IP());
@@ -56,8 +62,8 @@ program
         })
       })
     }
- })
 
+ })
 program.parse(process.argv)
 
 
@@ -68,21 +74,48 @@ program.parse(process.argv)
    ip.forEach((i) => {
      console.log('-----------------------------------');
      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
-       if(package == 'maven'){
-         makeMavenHome(i)
-         return 0;
-       }
+
+
+     let fstemp = fs.existsSync(`${rpmDirOrigin}/${package}`) //boolean으로 리턴
+     if(fstemp){
+       console.log(chalk.green.bold('[INFO]'), 'directory exists');
+     }else{
+       console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
+       exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
+       console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
+     }
+
+    //  try {
+    //    exec(`ssh root@${i}`)
+    //    // let fstemp = fs.statSync(`${rpmDirOrigin}/${package}`);
+    //    let fstemp = fs.existsSync(`${rpmDirOrigin}/${package}`) //boolean으로 리턴
+    //    if(fstemp){
+    //      console.log(chalk.green.bold('[INFO]'), 'directory exists');
+    //    }else{
+    //      console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
+    //      exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
+    //      console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
+    //    }
+    //
+    // }
+    // catch (err) {
+    //   if (err.code === 'ENOENT') {
+    //     console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
+    //   }
+    //   exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
+    //   console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
+    // }
+
+    if(package == 'maven'){
+      makeMavenHome(i)
+      return 0;
+    }
+    isInstalledPkg(i, package, rpmDir);
+
        // else if(package == 'python'){
        //   makePythonLink(i)
        //   return 0;
        // }
-       else{
-
-         //fs써서 존재유무 확인 ! 
-         exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
-         console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
-         isInstalledPkg(i, package, rpmDir);
-       }
    })
 }
 
@@ -111,6 +144,7 @@ function makeMavenHome(i){
 
 
 function isInstalledPkg(i, package, rpmDir){
+  console.log('ip:', i);
   switch(package){
     case 'git' :
       packageName = cmds.git;
@@ -130,15 +164,19 @@ function isInstalledPkg(i, package, rpmDir){
       return 0;
   }
   try{
+    // exec(`ssh root@${i}`)
+    // stdout = exec(`rpm -qa|grep ${packageName}`).toString();
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
+    // console.log('isInstalledPkg first:',stdout);
     if(stdout!=null){
       console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
       console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
+      // exec(`exit`)
       versionCheck(i, package, rpmDir);
     }
   }
   catch(e){
-    console.log(e);
+    console.log('[ERROR] isInstalledPkg log :', e);
     console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
     console.log(chalk.green.bold('[INFO]'), 'Install', package);
     installPackage(i, package, rpmDir);
@@ -165,18 +203,44 @@ function versionCheck(i, package, rpmDir){
         break;
     }
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${package}"`).toString();
-    if(stdout.includes(version)==true){
-      if(package = 'python'){
-        exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
+    // console.log('versionCheck second:',stdout);
+
+    if(package == 'python' && (stdout.includes(version)<"2.7")){
+      // console.log('versionCheck yes');
+      //syboliclink 삭제 후 생성
+      try{
+        exec(`ssh root@${i}`)
+        fs.statSync('/usr/local/bin/python');
+        console.log(chalk.green.bold('[INFO]'), 'symbolic link exists');
+      }
+      catch(e){
+        exec(`ln -s /usr/bin/python3 /usr/bin/python`)
         console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
       }
+      exec(`exit`)
+
+      // exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
+      // console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
+    }
+
+
+    // if(stdout.includes(version)){
+    //   console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
+    //   console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
+    //   deletePackage(i, package);
+    //   console.log(chalk.green.bold('[INFO]'), 'Install new version of', package);
+    //   installPackage(i, package, rpmDir);
+    // }
+
+    if(stdout.includes(version)){
       console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
-    }else if(stdout.includes(version)==false){
+    }else{
       console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
       deletePackage(i, package);
       console.log(chalk.green.bold('[INFO]'), 'Install new version of', package);
       installPackage(i, package, rpmDir);
     }
+
   }
 
 

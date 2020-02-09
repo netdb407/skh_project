@@ -35,7 +35,7 @@ IO_driverManager_dir =
 #version
 java_version = 1.8.0
 sshpass_version = 1.06
-python_version = 3.6.8
+python_version = 2.7
 git_version = 2.18
 maven_version = 5.3.0
 
