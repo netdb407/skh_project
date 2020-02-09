@@ -8,6 +8,7 @@ const exec = require('child_process').execSync;
 const property = require('../../propertiesReader.js');
 const cmds = require('../lib/cmds.js');
 const cassandraAction = require('../lib/cassandra.js')
+const fs = require('fs');
 
 
 let ip;
@@ -28,6 +29,7 @@ program
   .option('-n, --node', `install into node, only can use to -p option`)
   .option('-a, --all', `install all package`)
   .action(function Action(opt){
+    //case 1. -p + -s||-n
     if(opt.package && (opt.server || opt.node )){
       if(opt.server){
         ip = [property.get_server_IP()]
@@ -37,6 +39,8 @@ program
       installDir = property.get_server_install_dir(); //root/
       P_option(ip, opt.package, installDir)
     }
+
+    //case 2. -d(-n으로 디폴트)
     if(opt.database){
       var nodes = property.get_nodes_IP();
       var node_arr = nodes.split(',');
@@ -46,6 +50,8 @@ program
       installDatabase(opt, nodes, node_arr, password);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
+
+    //case 3. -a
     if(opt.all == true){
       ip = property.get_nodes_IP().split(',');
       ip.push(property.get_server_IP());
@@ -56,8 +62,8 @@ program
         })
       })
     }
- })
 
+ })
 program.parse(process.argv)
 
 
@@ -68,18 +74,31 @@ program.parse(process.argv)
    ip.forEach((i) => {
      console.log('-----------------------------------');
      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
-       if(package == 'maven'){
-         makeMavenHome(i)
-         return 0;
-       }else if(package == 'python'){
-         makePythonLink(i)
-         return 0;
-       }
-       else{
-         exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
-         console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
-         isInstalledPkg(i, package, rpmDir);
-       }
+
+     try {
+       exec(`ssh root@${i}`)
+       fs.statSync(`${rpmDirOrigin}/${package}`);
+       console.log(chalk.green.bold('[INFO]'), 'directory exists');
+       // exec(`exit`)
+    }
+    catch (err) {
+      if (err.code === 'ENOENT') {
+        console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
+      }
+      exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
+      console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
+    }
+
+    if(package == 'maven'){
+      makeMavenHome(i)
+      return 0;
+    }
+    isInstalledPkg(i, package, rpmDir);
+
+       // else if(package == 'python'){
+       //   makePythonLink(i)
+       //   return 0;
+       // }
    })
 }
 
@@ -93,21 +112,22 @@ function makeMavenHome(i){
 }
 
 
-function makePythonLink(i){
-  //python link 잡아주기
-  exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
-  console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
-  //file exist
-  //link의 존재 유무 파악하고 있으면 하지 않기?
-  //fs 쓰기? 이름 같은거 찾기
-  //if(fs 써서 이름 같은거 있는지){
-  //없으면 심볼릭 링크 생성
-  //}있으면 종료
-
-}
+// function makePythonLink(i){
+//   //python link 잡아주기
+//   exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
+//   console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
+//   //file exist
+//   //link의 존재 유무 파악하고 있으면 하지 않기?
+//   //fs 쓰기? 이름 같은거 찾기
+//   //if(fs 써서 이름 같은거 있는지){
+//   //없으면 심볼릭 링크 생성
+//   //}있으면 종료
+//
+// }
 
 
 function isInstalledPkg(i, package, rpmDir){
+  console.log('ip:', i);
   switch(package){
     case 'git' :
       packageName = cmds.git;
@@ -127,15 +147,20 @@ function isInstalledPkg(i, package, rpmDir){
       return 0;
   }
   try{
+    // exec(`ssh root@${i}`)
+    // stdout = exec(`rpm -qa|grep ${packageName}`).toString();
+    console.log('머가 문제임');
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
+    console.log('first:',stdout);
     if(stdout!=null){
       console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
       console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
+      // exec(`exit`)
       versionCheck(i, package, rpmDir);
     }
   }
   catch(e){
-    console.log(e);
+    console.log('log', e);
     console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
     console.log(chalk.green.bold('[INFO]'), 'Install', package);
     installPackage(i, package, rpmDir);
@@ -162,9 +187,26 @@ function versionCheck(i, package, rpmDir){
         break;
     }
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${package}"`).toString();
+    console.log('second:',second);
     if(stdout.includes(version)==true){
+      if(package == 'python'){
+
+
+        try{
+          exec(`ssh root@${i}`)
+          fs.statSync('/usr/bin/python');
+          console.log(chalk.green.bold('[INFO]'), 'symbolic link exists');
+        }
+        catch(e){
+          exec(`ln -s /usr/bin/python3 /usr/bin/python`)
+          console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
+        }
+        exec(`exit`)
+
+        // exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
+        // console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
+      }
       console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
-    }else if(stdout.includes(version)==false){
       console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
       deletePackage(i, package);
       console.log(chalk.green.bold('[INFO]'), 'Install new version of', package);
@@ -216,42 +258,24 @@ function versionCheck(i, package, rpmDir){
     switch(opt.database){
         case 'cassandra' :
   	var dir = property.get_server_cassandra_dir()
-  	var install_address = property.get_server_cassandra_install_address()
   	var node_dir = property.get_node_cassandra_dir()
   	var version = property.get_cassandra_version()
-  	var file = property.get_cassandra_file()
   	var cassandraHome = `${dir}${version}`
   	var conf = `${cassandraHome}/conf/cassandra.yaml`
-    var benchmark_dir = property.get_benchmark_dir()
+    	var update_conf = property.get_update_conf_path()
   	var fs = require('fs');
 
-  	var exists_cassandra = fs.existsSync(`${cassandraHome}`);
-  	var exists_tar = fs.existsSync(`${dir}${file}`);
-  	if(exists_cassandra==true){
-           console.log(chalk.green.bold('[INFO]'), 'cassandraFile is already exist');
-          }else{
-            if(exists_tar==true){
-             cassandraAction.cassandraDecompress(dir, file);
-             console.log(chalk.green.bold('[INFO]'), '[cassandra Decompress]');
-            }else{
-             cassandraAction.cassandraInstall(dir, install_address, file);
-             console.log(chalk.green.bold('[INFO]'), '[cassandra Install]');
-             cassandraAction.cassandraDecompress(dir, file);
-             console.log(chalk.green.bold('[INFO]'), '[cassandra Decompress]');
-            }
-          }
 
   	var exists = fs.existsSync(`${conf}`);
           if(exists==true){
-           cassandraAction.cassandraSetClusterEnv(conf, nodes, benchmark_dir);
+           cassandraAction.cassandraSetClusterEnv(conf, nodes);
            console.log(chalk.green.bold('[INFO]'), 'cassandra Set Cluster Environments');
   	}else{
            console.log(chalk.red.bold('[Error]'), 'conf file not found');
            break;
           }
 
-          cassandraAction.cassandraCopy(node_arr, password, cassandraHome, node_dir, conf);
-  	console.log(chalk.green.bold('[INFO]'), 'cassandra Copy&localhost set');
+        cassandraAction.cassandraCopy(nodes, node_arr, password, cassandraHome, node_dir, conf, update_conf);
   	console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
         break;
      }

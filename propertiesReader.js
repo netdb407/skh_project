@@ -1,6 +1,5 @@
 const PropertiesReader = require('properties-reader');
-
-const properties = PropertiesReader('InstallConfig');
+const properties = PropertiesReader('/home/skh/yh/skh_project/InstallConfig');
 
 module.exports = {
   //user정보
@@ -88,23 +87,17 @@ module.exports = {
  get_cassandra_version(){
    return properties.get("cassandra_version");
  },
- get_cassandra_file(){
-   return properties.get("cassandra_file");
- },
  //directory_server
  get_server_cassandra_dir(){
    return properties.get("server_cassandra_dir")
- },
- get_server_cassandra_install_address(){
-   return properties.get("server_cassandra_install_address")
  },
  //directroy_node
  get_node_cassandra_dir(){
    return properties.get("node_cassandra_dir")
  },
- //benchmark_directory_server
- get_benchmark_dir(){
-   return properties.get("benchmark_dir")
+ //update_configuration_path_server
+ get_update_conf_path(){
+   return properties.get("update_conf_path")
  }
 
 }
