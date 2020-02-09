@@ -105,66 +105,17 @@ function makeMavenHome(i){
 
 
 function makePythonLink(i){
-  //python link 잡아주기
-  // exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
-  // console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
-  //file exist
-  //link의 존재 유무 파악하고 있으면 하지 않기?
-  //fs 쓰기? 이름 같은거 찾기
-  //if(fs 써서 이름 같은거 있는지){
-  //없으면 심볼릭 링크 생성
-  //}있으면 종료
-
-
-  //versioncheck 에서 2.7이 확인되면
-  //링크 잡기
-  //기존 링크 지우고
-  //새로 잡기?
-
   exec(`ssh root@${i}`)
-  // // let fstemp1 = fs.existsSync(`/usr/bin/python`)
-  // let fstemp1  = exec(`cd /usr/bin && ls -l python`).toString();
-  // // let pwd = exec(`pwd`).toString();
-  // // console.log(pwd);
-  // // let temp2 = exec(`ls -l python`)
-  // // console.log('temp2:',temp2);
-  //
-  //
-  // if(fstemp1){
-  //   //??없는데 있다고 나옴 ;;
-  //   console.log('[Info] symbolic link already exists');
-  // }else{
-  //   exec(`ln -s /usr/bin/python2 /usr/bin/python`)
-  //   console.log('[Info] make Symbolic link. Ready to use python');
-  // }
-
-
   exec(`rm -f /usr/bin/python`)
   exec(`ln -s /usr/bin/python2.7 /usr/bin/python`)
-  console.log('[Info] make Symbolic link. Ready to use python');
+  console.log(chalk.green.bold('[INFO]'), 'Make Symbolic link. Ready to use python');
 
 
-
-
-  // try{
-  //   let py = exec(`python`).toString();
-  //   // let temp = exec(`cd /usr/bin && ls -l python*`).toString();
-  //   // let existtemp = fs.existsSync(`/usr/bin/python`)
-  //   // console.log('1', existtemp);
-  //   // console.log('temp:', temp);
-  //   console.log('py:', py);
-  //   console.log('[Info] symbolic link already exists');
-  // }
-  // catch{
-  //   exec(`ln -s /usr/bin/python2.7 /usr/bin/python`)
-  //   console.log('[Info] make Symbolic link. Ready to use python');
-  // }
 
 }
 
 
 function isInstalledPkg(i, package, rpmDir){
-  // console.log('ip:', i);
   switch(package){
     case 'git' :
       packageName = cmds.git;
@@ -184,19 +135,15 @@ function isInstalledPkg(i, package, rpmDir){
       return 0;
   }
   try{
-    // exec(`ssh root@${i}`)
-    // stdout = exec(`rpm -qa|grep ${packageName}`).toString();
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
-    // console.log('isInstalledPkg first:',stdout);
     if(stdout!=null){
       console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
       console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
-      // exec(`exit`)
       versionCheck(i, package, rpmDir);
     }
   }
   catch(e){
-    console.log('[ERROR] isInstalledPkg log :', e);
+    console.log('[ERROR] isInstalledPkg_log :', e);
     console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
     console.log(chalk.green.bold('[INFO]'), 'Install', package);
     installPackage(i, package, rpmDir);
@@ -223,51 +170,12 @@ function versionCheck(i, package, rpmDir){
         break;
     }
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${package}"`).toString();
-    // console.log('versionCheck second:',stdout);
-
-    // if(package == 'python' && (stdout.includes(version))){
-    //   exec(`ln -s /usr/bin/python2.7 /usr/bin/python`)
-    //
-    //   // let fsSymbolic = fs.existsSync('/usr/bin/python');
-    //   // let fsSymbolic2 = fs.existsSync('/usr/bin/python2.7');
-    //   // if(fsSymbolic && fsSymbolic2){
-    //   //   console.log(chalk.green.bold('[INFO]'), 'symbolic link exists');
-    //   // }else{
-    //   //   exec(`ln -s /usr/bin/python2.7 /usr/bin/python`)
-    //   //   console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
-    //   // }
-    //
-    //
-    //
-    //   // try{
-    //   //   exec(`ssh root@${i}`)
-    //   //   let fsSymbolic = fs.existSync('/usr/local/bin/python');
-    //   //   if(fsSymbolic){
-    //   //     console.log(chalk.green.bold('[INFO]'), 'symbolic link exists');
-    //   //   }
-    //   //
-    //   // }
-    //   // catch(e){
-    //   //   exec(`ln -s /usr/bin/python3 /usr/bin/python`)
-    //   //   console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
-    //   // }
-    //   // exec(`exit`)
-    //
-    //   // exec(`ssh root@${i} ln -s /usr/bin/python3 /usr/bin/python`)
-    //   // console.log(chalk.green.bold('[INFO]'), 'Ready to use Python.');
-    // }else{
-    //
-    // }
-    //
-
-
-
     if(stdout.includes(version)){
       if(package == 'python'){
         makePythonLink(i);
+      }else{
+        console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
       }
-      console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
-
     }else{
       console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
       deletePackage(i, package);
@@ -284,7 +192,6 @@ function versionCheck(i, package, rpmDir){
      console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
      exec(`rm -rf rpm`)
      console.log('rpm 폴더 삭제');
-
 
      if(package == 'python'){
         makePythonLink(i);
