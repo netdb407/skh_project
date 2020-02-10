@@ -8,7 +8,7 @@ var question = [
     type : 'list',
     name : 'start',
     message : '실행하실 프로그램을 선택하세요.',
-    choices : ['create','update','delete']
+    choices : ['create','update','read','delete']
   }
 ];
 
@@ -21,7 +21,10 @@ inquirer.prompt(question).then(answers =>{
   else if (answers.start === 'update'){
     const updateFiles = require('./WLgenerate_update.js');
     updateFiles.main2();
-
+  //파일 읽기
+}else if(answers.start ==='read'){
+    const readFiles = require('./WLgenerate_read');
+    readFiles.main3();
   }
   //파일 삭제
   else {

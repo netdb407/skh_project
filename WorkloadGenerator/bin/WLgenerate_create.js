@@ -359,7 +359,6 @@ inquirer.prompt(question).then(answers => {
         for(i=0;i<filelist.length;i++){
           if(filelist[i]===answers.name){
             answers.name = answers.name+'0';
-            console.log(answers.name+'으로 이름이 변경되었습니다.');
           }
         }
         fs.writeFile(dir + answers.name,bb,(err) => {
