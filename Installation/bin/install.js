@@ -53,16 +53,19 @@ program
 
     //case 3. -a
     if(opt.all == true){
-      ip = property.get_nodes_IP().split(',');
+      ip1 = property.get_nodes_IP().split(',');
+      // ip = Array.from(ip1);
+      ip = [ip1]
+      console.log('1:', typeof ip);
       ip.push(property.get_server_IP());
-      packageAll = ['java', 'maven', 'python', 'git']
+      console.log('ip:', ip, typeof ip);
+      packageAll = ['java', 'git', 'python', 'maven']
       ip.forEach((i) => {
         packageAll.forEach((pck) => {
           P_option(i, pck, installDir)
         })
       })
     }
-
  })
 program.parse(process.argv)
 
@@ -71,12 +74,11 @@ program.parse(process.argv)
 
 
  function P_option (ip, package, installDir){
-   ip.forEach((i) => {
+    ip.forEach((i) => {
      console.log('-----------------------------------');
      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
 
-
-     let fstemp = fs.existsSync(`${rpmDirOrigin}/${package}`) //boolean으로 리턴
+     let fstemp = fs.existsSync(`ssh root@${i} ${rpmDirOrigin}/${package}`) //boolean으로 리턴
      if(fstemp){
        console.log(chalk.green.bold('[INFO]'), 'directory exists');
      }else{
@@ -84,14 +86,12 @@ program.parse(process.argv)
        exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
        console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
      }
-
     if(package == 'maven'){
       makeMavenHome(i)
       return 0;
     }
     isInstalledPkg(i, package, rpmDir);
-
-   })
+  })
 }
 
 
@@ -109,9 +109,6 @@ function makePythonLink(i){
   exec(`rm -f /usr/bin/python`)
   exec(`ln -s /usr/bin/python2.7 /usr/bin/python`)
   console.log(chalk.green.bold('[INFO]'), 'Make Symbolic link. Ready to use python');
-
-
-
 }
 
 
@@ -143,7 +140,7 @@ function isInstalledPkg(i, package, rpmDir){
     }
   }
   catch(e){
-    console.log('[ERROR] isInstalledPkg_log :', e);
+    // console.log('[ERROR] isInstalledPkg_log :', e);
     console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
     console.log(chalk.green.bold('[INFO]'), 'Install', package);
     installPackage(i, package, rpmDir);
@@ -182,7 +179,6 @@ function versionCheck(i, package, rpmDir){
       console.log(chalk.green.bold('[INFO]'), 'Install new version of', package);
       installPackage(i, package, rpmDir);
     }
-
   }
 
 
@@ -190,9 +186,8 @@ function versionCheck(i, package, rpmDir){
   function installPackage(i, package, rpmDir){
      exec(`ssh root@${i} ${cmds.installCmd} ${rpmDir}${package}/*`)
      console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
-     exec(`rm -rf rpm`)
+     exec(`rm -rf ${rpmDir}${package}`)
      console.log('rpm 폴더 삭제');
-
      if(package == 'python'){
         makePythonLink(i);
      }
