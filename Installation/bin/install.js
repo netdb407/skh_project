@@ -14,7 +14,8 @@ const fs = require('fs');
 let ip;
 let installDir;
 let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
-let rpmDir       = property.get_rpm_dir(); //root/rpm
+let rpmDir       = property.get_rpm_dir(); //root/
+let root = '/root'
 let packageName;
 let stdout;
 let packageAll;
@@ -53,12 +54,28 @@ program
 
     //case 3. -a
     if(opt.all == true){
-      ip1 = property.get_nodes_IP().split(',');
-      // ip = Array.from(ip1);
-      ip = [ip1]
-      console.log('1:', typeof ip);
-      ip.push(property.get_server_IP());
-      console.log('ip:', ip, typeof ip);
+      installDir = root
+
+      ip = property.get_nodes_IP().split(',');
+       // ip = Array.from(ip1);
+
+       // console.log('1:', typeof ip);
+       ip.push(property.get_server_IP());
+       // console.log('ip:', ip, typeof ip);
+       ip = [ip.sort()];
+
+       // console.log('ip:', ip, typeof ip);
+
+
+
+      // serverip = [property.get_server_IP()]
+      // nodeip = property.get_nodes_IP().split(',');
+      // // ip = Array.from(serverip.concat(nodeip));
+      // ip = serverip.push(nodeip);
+      // console.log('serverip:', typeof serverip);
+      // console.log('nodeip:', typeof nodeip);
+      // console.log('type:', typeof ip, ip);
+
       packageAll = ['java', 'git', 'python', 'maven']
       ip.forEach((i) => {
         packageAll.forEach((pck) => {
@@ -77,13 +94,17 @@ program.parse(process.argv)
     ip.forEach((i) => {
      console.log('-----------------------------------');
      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
-
-     let fstemp = fs.existsSync(`ssh root@${i} ${rpmDirOrigin}/${package}`) //boolean으로 리턴
+     exec(`ssh root@${i}`)
+     let fstemp = fs.existsSync(`${rpmDir}${package}`) //boolean으로 리턴
+     // console.log(`${rpmDir}${package}`);
+     // console.log('fstemp:', fstemp);
      if(fstemp){
        console.log(chalk.green.bold('[INFO]'), 'directory exists');
      }else{
        console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
+       // console.log('installDir:', installDir);
        exec(`scp -r ${rpmDirOrigin}/${package} root@${i}:${installDir}`)
+       // console.log(`${rpmDirOrigin}/${package}`,`${installDir}` );
        console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
      }
     if(package == 'maven'){

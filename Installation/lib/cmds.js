@@ -39,13 +39,11 @@ module.exports = {
   yumDeleteCmd,
 
   java,
-  sshpass,
   git,
   maven,
   python,
 
   javaFile,
-  sshpassFile,
   mavenFile,
   pythonFile,
   gitFile,
