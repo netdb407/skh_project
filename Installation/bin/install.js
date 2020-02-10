@@ -97,10 +97,22 @@ program.parse(process.argv)
 }
 
 
+
+// /etc/profile 에 추가
+// export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-2.el8_1.x86_64/jre/
+// export MAVEN_HOME=/root/maven
+// export PATH=$PATH:$JAVA_HOME/bin
+// export PATH=$PATH:$MAVEN_HOME/bin
+
+
+
 function makeMavenHome(i){
   exec(`scp /etc/profile root@${i}:${installDir}`)
   console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
   exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
+  exec(`ssh root@${i} chmod +x /root/maven/bin/mvn`)
+  exec(`ssh root@${i} source /etc/profile`)
+
   exec(`exit`)
   console.log(chalk.green.bold('[INFO]'), 'Ready to use Maven.');
 }
@@ -188,8 +200,10 @@ function versionCheck(i, package, rpmDir){
   function installPackage(i, package, rpmDir){
      exec(`ssh root@${i} ${cmds.installCmd} ${rpmDir}${package}/*`)
      console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
-     exec(`rm -rf ${rpmDir}${package}`)
-     console.log('rpm 폴더 삭제');
+     if(package !== 'maven'){
+       exec(`rm -rf ${rpmDir}${package}`)
+       console.log('rpm 폴더 삭제');
+     }
      if(package == 'python'){
         makePythonLink(i);
      }
