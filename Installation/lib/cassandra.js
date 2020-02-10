@@ -3,42 +3,37 @@ const exec = require('child_process').execSync;
 const cmds = require('../lib/cmds.js')
 const chalk = require('chalk');
 
-module.exports.cassandraInstall = (dir,install_address,file) => {
-  exec(`${cmds.wgetCmd} ${dir} ${install_address}${file}`)
-}
-
-
-module.exports.cassandraDecompress = (dir,file) => {
-  exec(`${cmds.decompress} ${dir}${file} -C ${dir}`)
-}
-
-
-module.exports.cassandraSetClusterEnv = (conf, seeds, benchmark_dir) => {
+module.exports.cassandraSetClusterEnv = (conf, seeds) => {
   var fs = require('fs');
   var data =  fs.readFileSync(`${conf}`, 'utf-8')
-  var modify_seed = data.replace('127.0.0.1', `${seeds}`);
-  var modify_loba = modify_seed.replace('# listen_on_broadcast_address: false', 'listen_on_broadcast_address: true');
-  var modify_rpc = modify_loba.replace('start_rpc: false', 'start_rpc: true');
-  fs.writeFileSync(`${conf}`, modify_rpc, 'utf-8');
-  exec(`${cmds.copy} ${conf} ${benchmark_dir}`)
+  var update_seeds = data.replace('127.0.0.1', `${seeds}`);
+  var update_loba = update_seeds.replace('# listen_on_broadcast_address: false', 'listen_on_broadcast_address: true');
+  var update_rpc = update_loba.replace('start_rpc: false', 'start_rpc: true');
+  fs.writeFileSync(`${conf}`, update_rpc, 'utf-8');
 }
 
 
-module.exports.cassandraCopy = (nodes, password, cassandraHome, node_dir, conf) => {
-
+module.exports.cassandraCopy = (seeds, nodes, password, cassandraHome, node_dir, conf, update_conf) => {
   for(var i in nodes){
-     console.log(chalk.green.bold('[INFO]'), 'installing...', nodes[i]);
      var node = nodes[i];
      var fs = require('fs');
-     var data =  fs.readFileSync(`${conf}`, 'utf-8')
+     var data =  fs.readFileSync(`${conf}`, 'utf-8');
+     //listen_address와 rpc_address를 각 노드의 IP로 설정
      var set_node = data.replace(/localhost/g, `${node}`);
      fs.writeFileSync(`${conf}`, set_node, 'utf-8');
      exec(`scp -r ${cassandraHome} root@${node}:${node_dir}`)
+     console.log(chalk.green.bold('[INFO]'), 'transmitting...', nodes[i]);
+     //listen_address와 rpc_address를 다시 초기 상태로 설정
      var fs = require('fs');
      var data =  fs.readFileSync(`${conf}`, 'utf-8')
-     var set_localhost = data.replace(new RegExp(node,'g'), 'localhost');
-     var set_seed = set_localhost.replace('localhost', `${node}`);
-     fs.writeFileSync(`${conf}`, set_seed, 'utf-8');
+     var undo_node_info = data.replace(new RegExp(node,'g'), 'localhost');
+     var undo_seeds = undo_node_info.replace('localhost', `${node}`);
+     fs.writeFileSync(`${conf}`, undo_seeds, 'utf-8');
   }
 
+  var data = fs.readFileSync(`${conf}`, 'utf-8')
+  //seeds를 초기 상태로 설정
+  var undo_seeds = data.replace(new RegExp(seeds,'g'), '127.0.0.1');
+  fs.writeFileSync(`${conf}`, undo_seeds, 'utf-8');
+  exec(`${cmds.copy} ${conf} ${update_conf}`)
 }

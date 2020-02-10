@@ -240,50 +240,33 @@ function versionCheck(i, package, rpmDir){
 
 
   function installDatabase(opt, nodes, node_arr, password){
-    console.log('node정보 : ', node_arr);
-    switch(opt.database){
-        case 'cassandra' :
-  	var dir = property.get_server_cassandra_dir()
-  	var install_address = property.get_server_cassandra_install_address()
-  	var node_dir = property.get_node_cassandra_dir()
-  	var version = property.get_cassandra_version()
-  	var file = property.get_cassandra_file()
-  	var cassandraHome = `${dir}${version}`
-  	var conf = `${cassandraHome}/conf/cassandra.yaml`
-    var benchmark_dir = property.get_benchmark_dir()
-  	var fs = require('fs');
+      console.log('node정보 : ', node_arr);
+      switch(opt.database){
+          case 'cassandra' :
+    	var dir = property.get_server_cassandra_dir()
+    	var node_dir = property.get_node_cassandra_dir()
+    	var version = property.get_cassandra_version()
+    	var cassandraHome = `${dir}${version}`
+    	var conf = `${cassandraHome}/conf/cassandra.yaml`
+      	var update_conf = property.get_update_conf_path()
+    	var fs = require('fs');
 
-  	var exists_cassandra = fs.existsSync(`${cassandraHome}`);
-  	var exists_tar = fs.existsSync(`${dir}${file}`);
-  	if(exists_cassandra==true){
-           console.log(chalk.green.bold('[INFO]'), 'cassandraFile is already exist');
-          }else{
-            if(exists_tar==true){
-             cassandraAction.cassandraDecompress(dir, file);
-             console.log(chalk.green.bold('[INFO]'), '[cassandra Decompress]');
-            }else{
-             cassandraAction.cassandraInstall(dir, install_address, file);
-             console.log(chalk.green.bold('[INFO]'), '[cassandra Install]');
-             cassandraAction.cassandraDecompress(dir, file);
-             console.log(chalk.green.bold('[INFO]'), '[cassandra Decompress]');
+
+    	var exists = fs.existsSync(`${conf}`);
+            if(exists==true){
+             cassandraAction.cassandraSetClusterEnv(conf, nodes);
+             console.log(chalk.green.bold('[INFO]'), 'cassandra Set Cluster Environments');
+    	}else{
+             console.log(chalk.red.bold('[Error]'), 'conf file not found');
+             break;
             }
-          }
 
-  	var exists = fs.existsSync(`${conf}`);
-          if(exists==true){
-           cassandraAction.cassandraSetClusterEnv(conf, nodes, benchmark_dir);
-           console.log(chalk.green.bold('[INFO]'), 'cassandra Set Cluster Environments');
-  	}else{
-           console.log(chalk.red.bold('[Error]'), 'conf file not found');
-           break;
-          }
+          cassandraAction.cassandraCopy(nodes, node_arr, password, cassandraHome, node_dir, conf, update_conf);
+    	console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
+          break;
+       }
+    }
 
-          cassandraAction.cassandraCopy(node_arr, password, cassandraHome, node_dir, conf);
-  	console.log(chalk.green.bold('[INFO]'), 'cassandra Copy&localhost set');
-  	console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
-        break;
-     }
-  }
 
 
 
