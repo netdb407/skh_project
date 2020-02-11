@@ -23,8 +23,8 @@ let version;
 
 program
   .command('install')
-  .option('-p, --package <pck>')
-  .option('-d, --database <dbname>')
+  .option('-p, --package <pkgname>', `Install Package (Git, Java, Python, Maven)`)
+  .option('-d, --database <dbname>', `Install Database (Cassandra)`)
   .option('-s, --server', `Install into server, only can use with -p option`)
   .option('-n, --node', `Install into node, only can use with -p option`)
   .option('-a, --all', `Install all into server & node`)
