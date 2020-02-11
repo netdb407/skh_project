@@ -149,9 +149,8 @@ function isInstalledPkg(i, package, rpmDir){
   try{
     // exec(`ssh root@${i}`)
     // stdout = exec(`rpm -qa|grep ${packageName}`).toString();
-    console.log('머가 문제임');
     stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
-    console.log('first:',stdout);
+    // console.log('first:',stdout);
     if(stdout!=null){
       console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
       console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
