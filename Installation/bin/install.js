@@ -25,9 +25,9 @@ program
   .command('install')
   .option('-p, --package <pck>')
   .option('-d, --database <dbname>')
-  .option('-s, --server', `install into server, only can use to -p option`)
-  .option('-n, --node', `install into node, only can use to -p option`)
-  .option('-a, --all', `install all package`)
+  .option('-s, --server', `Install into server, only can use with -p option`)
+  .option('-n, --node', `Install into node, only can use with -p option`)
+  .option('-a, --all', `Install all into server & node`)
   .action(function Action(opt){
     //case 1. -p + -s||-n
     if(opt.package && (opt.server || opt.node )){
