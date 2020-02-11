@@ -24,7 +24,7 @@ let version;
 program
   .command('install')
   .option('-p, --package <pkgname>', `Install Package (Git, Java, Python, Maven)`)
-  .option('-d, --database <dbname>', `Install Database (Cassandra)`)
+  .option('-d, --database <dbname>', `Install Database (Cassandra, Orient, Arango)`)
   .option('-s, --server', `Install into server, only can use with -p option`)
   .option('-n, --node', `Install into node, only can use with -p option`)
   .option('-a, --all', `Install all into server & node`)
@@ -190,7 +190,7 @@ function versionCheck(i, package, rpmDir){
       if(package == 'python'){
         makePythonLink(i);
       }else{
-        console.log(chalk.green.bold('[INFO]'), 'Version is matched. Exit.');
+        console.log(chalk.green.bold('[INFO]'), 'Version is matched. Nothing has changed.');
       }
     }else{
       console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
