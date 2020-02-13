@@ -364,6 +364,7 @@ inquirer.prompt(question).then(answers => {
           if(filelist[i]===answers.name){
             answers.name = answers.name+'0';
           }
+          +
         }
         fs.writeFile(dir + answers.name,bb,(err) => {
           if(err){

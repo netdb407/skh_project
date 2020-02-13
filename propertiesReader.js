@@ -1,16 +1,19 @@
 const PropertiesReader = require('properties-reader');
-
-const properties = PropertiesReader('config.properties');
+const properties = PropertiesReader('/home/skh/yh/skh_project/InstallConfig');
 
 module.exports = {
   //user정보
   get_hostname(){
-    return properties.get("host");
+    return properties.get("server_hostname");
   },
   get_password(){
-    return properties.get("password");
+    return properties.get("server_password");
   },
 
+
+  get_rpm_dir_origin(){
+    return properties.get("rpm_dir_origin")
+  },
   get_rpm_dir(){
     return properties.get("rpm_dir");
   },
@@ -18,11 +21,17 @@ module.exports = {
 
 
   //cluster 정보
-  get_server(){
-    return properties.get("server");
+  get_server_IP(){
+    return properties.get("server_IP");
   },
-  get_nodes(){
-    return properties.get("nodes");
+  get_nodes_IP(){
+    return properties.get("nodes_IP");
+  },
+  get_nodes_hostname(){
+    return properties.get("nodes_hostname");
+  },
+  get_nodes_password(){
+    return properties.get("nodes_password");
   },
 
   //directory
@@ -42,6 +51,15 @@ module.exports = {
     return properties.get("server_ycsb_dir")
   },
 
+  //ycsb
+  get_ycsb_exporter(){
+    return properties.get("ycsb_exporter")
+  },
+
+  get_ycsb_exportfile_dir(){
+    return properties.get("ycsb_exportfile_dir")
+  },
+
   //IO Tracer
   get_IO_output_dir(){
     return properties.get("IO_output_dir");
@@ -52,19 +70,34 @@ module.exports = {
 
   //version
   get_javaVersion(){
-    return properties.get("javaVersion");
-  },
-  get_sshpassVersion(){
-    return properties.get("sshpassVersion");
+    return properties.get("java_version");
   },
   get_pythonVersion(){
-    return properties.get("pythonVersion");
+    return properties.get("python_version");
   },
   get_gitVersion(){
-    return properties.get("gitVersion");
+    return properties.get("git_version");
   },
   get_mavenVersion(){
-    return properties.get("mavenVersion");
-  }
+    return properties.get("maven_version");
+  },
+
+
+  //송희 추가
+ get_cassandra_version(){
+   return properties.get("cassandra_version");
+ },
+ //directory_server
+ get_server_cassandra_dir(){
+   return properties.get("server_cassandra_dir")
+ },
+ //directroy_node
+ get_node_cassandra_dir(){
+   return properties.get("node_cassandra_dir")
+ },
+ //update_configuration_path_server
+ get_update_conf_path(){
+   return properties.get("update_conf_path")
+ }
 
 }
