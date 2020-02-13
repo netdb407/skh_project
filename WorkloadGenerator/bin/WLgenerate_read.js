@@ -1,9 +1,12 @@
 var inquirer = require('inquirer');
 var fs = require('fs');
 const program = require('commander');
-var dir = './Benchmarking/YCSB/workloads/';
-var deleteFiles = {};
+const property = require('../../propertiesReader.js')
+const ycsbDir = property.get_server_ycsb_dir()
+const wlfileDir = property.get_server_wlfile_dir()
 var updateFiles = require('./WLgenerate_update.js');
+
+var dir = ycsbDir+"/"+wlfileDir+"/";
 program
   .command('generate-wl')
 
@@ -25,7 +28,7 @@ program.parse(process.argv)
   questions[0].choices = filelist;
 
   async function main3(){
-  const answer = await inquirer.prompt(questions)
+  const answer = await inquirer.prompt(questions);
   if(answer){
     fs.readFile(dir+answer.dfn,'utf-8',(err,data)=>{
       if(err){
@@ -48,5 +51,3 @@ program.parse(process.argv)
 }
 
 module.exports.main3 = main3;
-
-//파일을 읽고 수정하시겠습니까? 물어본 후 update 불러오기

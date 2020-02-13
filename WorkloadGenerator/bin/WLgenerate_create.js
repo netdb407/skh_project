@@ -1,8 +1,12 @@
+
 var inquirer = require('inquirer');
 var fs = require('fs');
 const program = require('commander');
-var dir = './Benchmarking/YCSB/workloads/';
+const property = require('../../propertiesReader.js')
+const ycsbDir = property.get_server_ycsb_dir()
+const wlfileDir = property.get_server_wlfile_dir()
 
+var dir = ycsbDir+"/"+wlfileDir+"/";
 program
   .command('generate-wl')
 
@@ -10,7 +14,7 @@ program
 
 
 program.parse(process.argv)
-var answers1 ;
+console.log(dir);
 //파일 type&이름
 var question = [
   {
@@ -279,7 +283,7 @@ inquirer.prompt(question).then(answers => {
         console.log("----properties----");
         console.log("record count = %s",answers1.Record_count);
         console.log("Field count = %s",answers1.Field_count);
-        console.log("fieldlength = %s",answers1.fieldlength);
+        console.log("fieldlength = %s",answers1.Field_length);
         console.log("minfieldlength = %s",answers1.minfieldlength);
         console.log("readallfields = %s",answers1.readallfields);
         console.log("writeallfields = %s",answers1.writeallfields);
@@ -306,7 +310,7 @@ inquirer.prompt(question).then(answers => {
         var aa = ['type = '+answers.type+'\n'+
         'Record count = '+answers1.Record_count+'\n'+
         'Field count = '+answers1.Field_count+'\n'+
-        'fieldlength = '+answers1.fieldlength+'\n'+
+        'fieldlength = '+answers1.Field_length+'\n'+
         'minfieldlength = '+answers1.minfieldlength+'\n'+
         'readallfields = '+answers1.readallfields+'\n'+
         'writeallfields = '+answers1.writeallfields+'\n'+
@@ -335,7 +339,7 @@ inquirer.prompt(question).then(answers => {
                 answers.name = answers.name+'0';
               }
             }
-            fs.writeFile(dir + answers.name,aa,(err) => {
+            fs.writeFile(dir + answers.name,aa,'utf-8',(err) => {
               if(err){
                 console.log(err);
               }else {
@@ -365,7 +369,7 @@ inquirer.prompt(question).then(answers => {
           if(err){
             console.log(err);
           }else {
-            console.log('파일저장 성공');
+            console.log(answers.name + ' 이름으로 파일저장 성공');
           }
         });
       });

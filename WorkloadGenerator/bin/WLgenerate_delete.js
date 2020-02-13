@@ -1,8 +1,11 @@
 var inquirer = require('inquirer');
 var fs = require('fs');
 const program = require('commander');
-var dir = './Benchmarking/YCSB/workloads/';
-var deleteFiles = {};
+const property = require('../../propertiesReader.js')
+const ycsbDir = property.get_server_ycsb_dir()
+const wlfileDir = property.get_server_wlfile_dir()
+
+var dir = ycsbDir+"/"+wlfileDir+"/";
 program
   .command('generate-wl')
 
