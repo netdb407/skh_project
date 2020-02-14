@@ -14,7 +14,7 @@ program
 
 
 program.parse(process.argv)
-console.log(dir);
+
 //파일 type&이름
 var question = [
   {
@@ -54,7 +54,7 @@ var q1 = [
     default : 10
   },{
     type : 'input',
-    name : 'Field_length',
+    name : 'fieldlength',
     message : 'YCSB properties-Field length',
     validate: function(value) {
       var valid = !isNaN(parseFloat(value));
@@ -216,7 +216,7 @@ var q1 = [
     default : 'field'
   },{
     type : 'checkbox',
-    name : 'hdrhistogram.percentiles',
+    name : 'hdrhistogram_percentiles',
     message : 'hdrhistogram - percentiles',
     choices : [
       {
@@ -240,7 +240,7 @@ var q1 = [
     ]
   },{
     type : 'list',
-    name : 'hdrhistogram.fileoutput',
+    name : 'hdrhistogram_fileoutput',
     message : 'hdrhistogram.fileoutput',
     choices : ['true','false'],
   },{
@@ -283,7 +283,7 @@ inquirer.prompt(question).then(answers => {
         console.log("----properties----");
         console.log("record count = %s",answers1.Record_count);
         console.log("Field count = %s",answers1.Field_count);
-        console.log("fieldlength = %s",answers1.Field_length);
+        console.log("fieldlength = %s",answers1.fieldlength);
         console.log("minfieldlength = %s",answers1.minfieldlength);
         console.log("readallfields = %s",answers1.readallfields);
         console.log("writeallfields = %s",answers1.writeallfields);
@@ -301,16 +301,16 @@ inquirer.prompt(question).then(answers => {
         console.log("zeropadding = %s",answers1_2.zeropadding);
         console.log("insertorder = %s",answers1_2.insertorder);
         console.log("fieldnameprefix = %s",answers1_2.fieldnameprefix);
-        console.log("hdrhistogram.percentiles = %s",answers1_2.hdrhistogram.percentiles);
-        console.log("hdrhistogram.fileoutput = %s",answers1_2.hdrhistogram.fileoutput);
+        console.log("hdrhistogram.percentiles = %s",answers1_2.hdrhistogram_percentiles);
+        console.log("hdrhistogram.fileoutput = %s",answers1_2.hdrhistogram_fileoutput);
         console.log("histogram = %s",answers1_2.histogram);
         console.log("timeseries.granularity = %s",answers1_2.timeseries);
         console.log("********************************");
 
         var aa = ['type = '+answers.type+'\n'+
-        'Record count = '+answers1.Record_count+'\n'+
-        'Field count = '+answers1.Field_count+'\n'+
-        'fieldlength = '+answers1.Field_length+'\n'+
+        'Recordcount = '+answers1.Record_count+'\n'+
+        'Fieldcount = '+answers1.Field_count+'\n'+
+        'fieldlength = '+answers1.fieldlength+'\n'+
         'minfieldlength = '+answers1.minfieldlength+'\n'+
         'readallfields = '+answers1.readallfields+'\n'+
         'writeallfields = '+answers1.writeallfields+'\n'+
@@ -328,10 +328,10 @@ inquirer.prompt(question).then(answers => {
         'zeropadding = '+answers1_2.zeropadding+'\n'+
         'insertorder = '+answers1_2.insertorder+'\n'+
         'fieldnameprefix = '+answers1_2.fieldnameprefix+'\n'+
-        'hdrhistogram.percentiles = '+answers1_2.hdrhistogram.percentiles+'\n'+
-        'hdrhistogram.fileoutput = '+answers1_2.hdrhistogram.fileoutput+'\n'+
+        'hdrhistogram_percentiles = '+answers1_2.hdrhistogram_percentiles+'\n'+
+        'hdrhistogram_fileoutput = '+answers1_2.hdrhistogram_fileoutput+'\n'+
         'histogram = '+answers1_2.histogram+'\n'+
-        'timeseries.granularity = '+answers1_2.timeseries+'\n'
+        'timeseries_granularity = '+answers1_2.timeseries+'\n'
       ];
           fs.readdir(dir,function(err,filelist){
             for(i=0;i<filelist.length;i++){
@@ -364,7 +364,6 @@ inquirer.prompt(question).then(answers => {
           if(filelist[i]===answers.name){
             answers.name = answers.name+'0';
           }
-          +
         }
         fs.writeFile(dir + answers.name,bb,(err) => {
           if(err){

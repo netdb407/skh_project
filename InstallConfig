@@ -43,10 +43,10 @@ maven_version = 5.3.0
 cassandra_version = apache-cassandra-3.11.5
 
 #directory_server
-server_cassandra_dir = /home/skh/yh/skh_project/
+server_cassandra_dir = ./skh_project/
 
 #directory_node
-node_cassandra_dir = /home/skh/skh_project/
+node_cassandra_dir = ./skh_project/
 
 #update_configuration_path_server
-update_conf_path = /home/skh/yh/skh_project/Update/
+update_conf_path = ./skh_project/Update/
