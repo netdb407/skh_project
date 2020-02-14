@@ -29,6 +29,8 @@ module.exports.ycsb = (opt) => {
   checkLoadsize(opt.runtype, opt.loadsize)
   // saveWLfile(opt)
   benchmarkName(opt)
+  checkTimewindow(opt)
+  checkThreads(opt)
 
   switch(opt.runtype){
     case 'load' :
@@ -50,7 +52,7 @@ module.exports.ycsb = (opt) => {
         console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
       }else{
 
-        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result`);
+        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result -threads ${opt.threads}}`);
 
         try {
 
@@ -308,7 +310,7 @@ module.exports.ycsb = (opt) => {
 
   function benchmarkName(opt){
     if((typeof opt.name) == 'function'){ // n 값이 없으면 디폴트값 만들어줌
-      opt.name = 'ycsb_result_0001'
+      opt.name = 'ycsb_result_1'
 
       try{
         // let file = `${ycsb_exportfile_dir}/${opt.name}/result`
@@ -340,14 +342,14 @@ module.exports.ycsb = (opt) => {
         console.log(seqNum);
 
         // 계산 된 숫자를 자릿수 맞춰줌
-        function pad(n, width) {
-          n = n + '';
-          return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
-        }
-        let seqNew = pad(seqNum, 4)
-        console.log(seqNew);
+        // function pad(n, width) {
+        //   n = n + '';
+        //   return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+        // }
+        // let seqNew = pad(seqNum, 4)
+        // console.log(seqNew);
 
-        opt.name = `ycsb_result_${seqNew}`
+        opt.name = `ycsb_result_${seqNum}`
         console.log(opt.name);
 
 
@@ -381,18 +383,55 @@ module.exports.ycsb = (opt) => {
   //   execSync(`mkdir ${ycsb_exportfile_dir}/${name}`)
   }
 
+//   if(wlfile == null) {
+//     wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
+//     console.log(wlfileLine)
+//   }else{
+//     let file = `${ycsb_dir}/${wlfile_dir}/${wlfile}`
+//     try {
+//       fs.statSync(file);
+//       wlfileLine = `workload file : ${wlfile}`
+//       console.log(wlfileLine)
+//     }catch (err) {
+//       if (err.code === 'ENOENT') {
+//         // console.log(err);
+//       wlfileLine = `[ERROR] workload file : '${wlfile}' 파일이 존재하지 않습니다.`
+//       console.log(wlfileLine)
+//     }
+//   }
+// }
 
-
-
-  function checkTimewindow(tw){
-      if(tw == "") {
-        opt.threads = ${ycsb_timewindow}
+  function checkTimewindow(opt){
+      if(opt.timeindow == null) {
+        opt.timeindow = `${ycsb_timewindow}`
+        timewindowLine = `time window : ${opt.timeindow}`
+        console.log(timewindowLine);
+      }else {
+        opt.timeindow = `${opt.timewindow}`
+        timewindowLine = `time window : ${opt.timeindow}`
+        console.log(timewindowLine);
       }
-    }s
-  }
+    }
 
 
+  // function checkThreads(t){
+  //     if( t== "") {
+  //       t = ${ycsb_threadcount}
+  //     }
+  //   }
+  // }
+  //
 
+  function checkThreads(opt){
+      if(opt.threads == null) {
+        opt.threads = `${ycsb_threadcount}`
+        threadLine = `threads : ${opt.threads}`
+        console.log(threadLine);
+      }else {
+        threadLine = `threads : ${opt.threads}`
+        console.log(threadLine);
+      }
+    }
 
 
 
