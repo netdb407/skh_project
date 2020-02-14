@@ -290,98 +290,151 @@ module.exports.ycsb = (opt) => {
     console.log(loadsizeLine);
   }
 
-  // function checkFile(name){
-  //   let file = `./YCSB_RESULT/${name}`
-  //   try {
-  //     name = `${name}`+'_001'
-  //     console.log(name);
-  //
-  //     return name
-  //   }catch (err) {
-  //     if (err.code === 'ENOENT') {
-  //
-  //   console.log('존재하지안흥ㅁ');
-  //   }
-  // }
-  // }
-  //
 
+    function benchmarkName(opt){
+      if((typeof opt.name) == 'function'){ // n 값이 없으면 디폴트값 만들어줌
+        opt.name = 'ycsb_result_1'
+        try{
+          while(1){
+            // let file = `${ycsb_exportfile_dir}/${opt.name}/result` 이게 서버용
+            let file = `./YCSB_RESULT/${opt.name}`
+            fs.statSync(file);
 
+            let string = opt.name
+            // 마지막 sequence 자르기
+            let strArray=string.split('_')
+            let seqString=strArray[strArray.length-1] // 마지막 인자 => 0000 시퀀스
 
-  function benchmarkName(opt){
-    if((typeof opt.name) == 'function'){ // n 값이 없으면 디폴트값 만들어줌
-      opt.name = 'ycsb_result_1'
+            // 배열에 담기 (스트링->각 요소들을 숫자로)
+            let seqArray = new Array();
+            let newArray = new Array();
+            seqArray = seqString.split("");
 
-      try{
-        // let file = `${ycsb_exportfile_dir}/${opt.name}/result`
-        let file = `./YCSB_RESULT/${opt.name}`
-          fs.statSync(file);
-          // console.log(file);
-         // console.log('지정한 이름이 이미 잇다');
+            let seqNum = 0
+            // 각 요소들을 더해서 숫자로 계산
+            for(let i = 0; i < seqArray.length; i++){
+              newArray[i]=seqArray[i]*Math.pow(10,seqArray.length-1-i)
+              newArray[seqArray.length-1] = newArray[seqArray.length-1]+1
+              seqNum += newArray[i]
+            }
+            opt.name = `ycsb_result_${seqNum}`
+          }
+        }catch (err) {
+          if (err.code === 'ENOENT') {
 
-        let string = opt.name
-        // 마지막 sequence 자르기
-        let strArray=string.split('_')
-        let seqString=strArray[strArray.length-1] // 마지막 인자 => 0000 시퀀스
-
-        // 배열에 담기 (스트링->각 요소들을 숫자로)
-        let seqArray = new Array();
-        let newArray = new Array();
-        seqArray = seqString.split("");
-        console.log(seqArray);
-
-        let seqNum = 0
-        // 각 요소들을 더해서 숫자로 계산
-        for(let i = 0; i < seqArray.length; i++){
-          // console.log(seqArray[i]);
-          // console.log(seqArray.length);
-          newArray[i]=seqArray[i]*Math.pow(10,seqArray.length-1-i)
-          newArray[seqArray.length-1] = newArray[seqArray.length-1]+1
-          seqNum += newArray[i]
         }
-        console.log(seqNum);
-
-        // 계산 된 숫자를 자릿수 맞춰줌
-        // function pad(n, width) {
-        //   n = n + '';
-        //   return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
-        // }
-        // let seqNew = pad(seqNum, 4)
-        // console.log(seqNew);
-
-        opt.name = `ycsb_result_${seqNum}`
-        console.log(opt.name);
-
-
-      }catch (err) {
-        if (err.code === 'ENOENT') {
-
-      console.log('존재하지안흥ㅁ');
       }
-    }
 
-    }else { //n 값이 있으면 else if((typeof opt.name) == 'string') {
-      console.log('값이 있음');
-      console.log(opt.name);
-//
-// 밑에 거로 해야댐
-//         let file = `${ycsb_exportfile_dir}/${opt.name}/result`
-      let file = `./YCSB_RESULT/${opt.name}`
-        try {
-          fs.statSync(file);
-          console.log(file);
-          console.log('이미 존재?');
+      }else { //n 값이 있으면 else if((typeof opt.name) == 'string')
+        try{
+            //         let file = `${ycsb_exportfile_dir}/${opt.name}/result` 이건 서버용
+            let file = `./YCSB_RESULT/${opt.name}`
+            fs.statSync(file);
+            opt.name = `${opt.name}_2`
 
         }catch (err) {
           if (err.code === 'ENOENT') {
-        console.log(file);
-        console.log('존재하지안흥ㅁ');
+console.log(opt.name);
         }
       }
 
+
+  //
+  // 밑에 거로 해야댐
+  //         let file = `${ycsb_exportfile_dir}/${opt.name}/result`
+        // let file = `./YCSB_RESULT/${opt.name}`
+        //   try {
+        //     fs.statSync(file);
+        //     console.log(file);
+        //     console.log('이미 존재?');
+        //
+        //   }catch (err) {
+        //     if (err.code === 'ENOENT') {
+        //   console.log(file);
+        //   console.log('존재하지안흥ㅁ');
+        //   }
+        // }
+
+      }
+    //   execSync(`mkdir ${ycsb_exportfile_dir}/${name}`)
     }
-  //   execSync(`mkdir ${ycsb_exportfile_dir}/${name}`)
-  }
+
+
+//
+//   function benchmarkName(opt){
+//     if((typeof opt.name) == 'function'){ // n 값이 없으면 디폴트값 만들어줌
+//       opt.name = 'ycsb_result_0001'
+//
+//       try{
+//         // let file = `${ycsb_exportfile_dir}/${opt.name}/result`
+//         let file = `./YCSB_RESULT/${opt.name}`
+//           fs.statSync(file);
+//           // console.log(file);
+//          // console.log('지정한 이름이 이미 잇다');
+//
+//         let string = opt.name
+//         // 마지막 sequence 자르기
+//         let strArray=string.split('_')
+//         let seqString=strArray[strArray.length-1] // 마지막 인자 => 0000 시퀀스
+//
+//         // 배열에 담기 (스트링->각 요소들을 숫자로)
+//         let seqArray = new Array();
+//         let newArray = new Array();
+//         seqArray = seqString.split("");
+//         console.log(seqArray);
+//
+//         let seqNum = 0
+//         // 각 요소들을 더해서 숫자로 계산
+//         for(let i = 0; i < seqArray.length; i++){
+//           // console.log(seqArray[i]);
+//           // console.log(seqArray.length);
+//           newArray[i]=seqArray[i]*Math.pow(10,seqArray.length-1-i)
+//           newArray[seqArray.length-1] = newArray[seqArray.length-1]+1
+//           seqNum += newArray[i]
+//         }
+//         console.log(seqNum);
+//
+//         // 계산 된 숫자를 자릿수 맞춰줌
+//         function pad(n, width) {
+//           n = n + '';
+//           return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+//         }
+//         let seqNew = pad(seqNum, 4)
+//         console.log(seqNew);
+//
+//         opt.name = `ycsb_result_${seqNew}`
+//         console.log(opt.name);
+//
+//
+//       }catch (err) {
+//         if (err.code === 'ENOENT') {
+//
+//       console.log('존재하지안흥ㅁ');
+//       }
+//     }
+//
+//     }else { //n 값이 있으면 else if((typeof opt.name) == 'string') {
+//       console.log('값이 있음');
+//       console.log(opt.name);
+// //
+// // 밑에 거로 해야댐
+// //         let file = `${ycsb_exportfile_dir}/${opt.name}/result`
+//       let file = `./YCSB_RESULT/${opt.name}`
+//         try {
+//           fs.statSync(file);
+//           console.log(file);
+//           console.log('이미 존재?');
+//
+//         }catch (err) {
+//           if (err.code === 'ENOENT') {
+//         console.log(file);
+//         console.log('존재하지안흥ㅁ');
+//         }
+//       }
+//
+//     }
+//   //   execSync(`mkdir ${ycsb_exportfile_dir}/${name}`)
+//   }
 
 //   if(wlfile == null) {
 //     wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
