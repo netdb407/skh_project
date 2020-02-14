@@ -7,11 +7,12 @@ program
   .option('-d, --dbtype <dbtype>', `dbtype을 입력 (cassandra, arangodb, orientdb)`)
   .option('-r, --runtype <runtype>', `runtype을 입력 (load, run, loadrun)`)
   .option('-l, --loadsize <loadsize>', `load size를 입력 (###M, ###G, ###T)`)
-  .option('-w --wlfile <wlfile>', `workload file을 입력`)
+  .option('-w, --wlfile <wlfile>', `workload file을 입력(type:facebook, log ..)`)
   // .option('-c --config <config>', `config 파일 입력`)
-  .option('-n, --name <name>', `name을 입력`)
+  .option('-n, --name <name>', `name을 입력:benchmark 이름`)
   .option('-o, --output <output>', `output directory 지정`)
-  .option('-t, --timewindow <timewindow>', `time window 지정(sec)`)
+  .option('-s, --timewindow <timewindow>', `time window 지정(sec)`)
+  .option('-t, --threads <threads>',`threads 수를 지정`)
   .action(function(opt){
 
     checkDBtype(opt)
