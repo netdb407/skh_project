@@ -9,7 +9,7 @@ const ycsb_threadcount = property.get_ycsb_threadcount()
 const ycsb_timewindow = property.get_ycsb_timewindow()
 const fs = require('fs')
 const execSync = require('child_process').execSync
-
+const chalk = require('chalk');
 
 let dbtypeLine = ''
 let runtypeLine = ''
@@ -44,12 +44,12 @@ module.exports.ycsb = (opt) => {
       ycsbRun()
       break;
     default :
-    console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
+    console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
     }
 
     function ycsbLoad(){
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
-        console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
+        console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
       }else{
 
         console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result -threads ${opt.threads}}`);
@@ -72,7 +72,7 @@ module.exports.ycsb = (opt) => {
 
     function ycsbRun(){
       if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
-        console.log('[ERROR] 오류가 있어서 실행할 수 없습니다.');
+        console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
       }else{
 
           console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result`);
@@ -99,14 +99,14 @@ module.exports.ycsb = (opt) => {
       runtypeLine = `runtype : ${runtype}`
       console.log(runtypeLine)
     }else {
-      runtypeLine = `[ERROR] runtype : (load, run, load/run) 를 입력해주세요.`
+      runtypeLine = `error : invalid choice ${runtype}, (choose from 'load', 'run', 'loadrun')`
       console.log(runtypeLine)
     }
   }
 
   function checkFile(wlfile){
       if(wlfile == null) {
-        wlfileLine = `[ERROR] workload file : Workload 파일 이름을 입력해주세요.`
+        wlfileLine = `error : enter workload filename or type(news, contents, facebook, log, recommendation ..)`
         console.log(wlfileLine)
       }else{
         let file = `${ycsb_dir}/${wlfile_dir}/${wlfile}`
@@ -117,7 +117,7 @@ module.exports.ycsb = (opt) => {
         }catch (err) {
           if (err.code === 'ENOENT') {
             // console.log(err);
-          wlfileLine = `[ERROR] workload file : '${wlfile}' 파일이 존재하지 않습니다.`
+          wlfileLine = `error : invalid workload file : workloads/${wlfile} (No such file or type)`
           console.log(wlfileLine)
         }
       }
@@ -126,7 +126,7 @@ module.exports.ycsb = (opt) => {
 
   function checkLoadsize(runtype, loadsize){
     if((runtype == 'run') && (loadsize)){
-      loadsizeLine = `[ERROR] load size : load size는 load 옵션 입니다.`
+      loadsizeLine = `error : [load size] is 'load', 'loadrun' option`
       console.log(loadsizeLine);
     }else if ((runtype == 'load'|| runtype == 'loadrun') && (loadsize)){ // load에 대한 loadsize 옵션
 
@@ -161,7 +161,7 @@ module.exports.ycsb = (opt) => {
       loadsizeLine = `load size : ${loadsize}`
     }
     else{
-      loadsizeLine = `[ERROR] load size : load size를 (###M, ###G, ###T) 형식으로 입력해주세요.`
+      loadsizeLine = `error : enter load size in (###M, ###G, ###T) format`
     }
     console.log(loadsizeLine);
   }
@@ -207,52 +207,78 @@ module.exports.ycsb = (opt) => {
             let file = `${ycsb_exportfile_dir}/${opt.name}`
             // let file = `./YCSB_RESULT/${opt.name}`
             fs.statSync(file);
-            opt.name = `${opt.name}_2`
-          }
 
+            let string = opt.name
+
+            let substring = string.substring(string.length, string.length-2)
+            let newstring = string.substring(0, string.length-2)
+
+            let strArray=string.split('_')
+            let seqString=strArray[strArray.length-1] // 마지막 인자 => 0000 시퀀스
+
+            if(!(isNaN(seqString))){
+
+              // 배열에 담기 (스트링->각 요소들을 숫자로)
+              let seqArray = new Array();
+              let newArray = new Array();
+              seqArray = seqString.split("");
+
+              let seqNum = 0
+              // 각 요소들을 더해서 숫자로 계산
+              for(let i = 0; i < seqArray.length; i++){
+                newArray[i]=seqArray[i]*Math.pow(10,seqArray.length-1-i)
+                newArray[seqArray.length-1] = newArray[seqArray.length-1]+1
+                seqNum += newArray[i]
+              }
+              opt.name = `${strArray[0]}_${seqNum}` // strArray 첫번째 인자
+            }else{
+              opt.name = `${opt.name}_2`
+            }
+          }
         }catch (err) {
           if (err.code === 'ENOENT') {
-            console.log(opt.name);
+
+        }
+      }
+    }
+
+        try{
+          execSync(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
+        }catch (err) {
+          if (err.code === 'ENOENT') {
+            // let file = `${ycsb_exportfile_dir}/${opt.name}`
+            // // let file = `./YCSB_RESULT/${opt.name}`
+            // fs.statSync(file);
+            // opt.name = `${opt.name}_2`
+            // execSync(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
+        }
+      }
+    }
+
+
+    function checkTimewindow(opt){
+        if(opt.timeindow == null) {
+          opt.timeindow = `${ycsb_timewindow}`
+          timewindowLine = `time window : ${opt.timeindow} (sec)`
+          timewindow=ycsb_timewindow*Math.pow(10,3)
+          // console.log(timewindow);
+          console.log(timewindowLine);
+        }else {
+          opt.timeindow = `${opt.timewindow}`
+          timewindowLine = `time window : ${opt.timeindow}`
+          timewindow= `${opt.timewindow}`*Math.pow(10,3)
+          // console.log(timewindow);
+          console.log(timewindowLine);
         }
       }
 
+    function checkThreads(opt){
+        if(opt.threads == null) {
+          opt.threads = `${ycsb_threadcount}`
+          threadLine = `threads : ${opt.threads}`
+          console.log(threadLine);
+        }else {
+          threadLine = `threads : ${opt.threads}`
+          console.log(threadLine);
+        }
       }
-
-      try{
-
-        execSync(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
-      }catch (err) {
-        if (err.code === 'ENOENT') {
-          let file = `${ycsb_exportfile_dir}/${opt.name}`
-          // let file = `./YCSB_RESULT/${opt.name}`
-          fs.statSync(file);
-          opt.name = `${opt.name}_2`
-          execSync(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
-      }
-    }
-
-    }
-
-
-  function checkTimewindow(opt){
-      if(opt.timeindow == null) {
-        opt.timeindow = `${ycsb_timewindow}`
-        timewindowLine = `time window : ${opt.timeindow}`
-        console.log(timewindowLine);
-      }else {
-        opt.timeindow = `${opt.timewindow}`
-        timewindowLine = `time window : ${opt.timeindow}`
-        console.log(timewindowLine);
-      }
-    }
-
-  function checkThreads(opt){
-      if(opt.threads == null) {
-        opt.threads = `${ycsb_threadcount}`
-        threadLine = `threads : ${opt.threads}`
-        console.log(threadLine);
-      }else {
-        threadLine = `threads : ${opt.threads}`
-        console.log(threadLine);
-      }
-    }
