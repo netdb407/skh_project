@@ -18,7 +18,7 @@ let loadsizeLine = ''
 let loadsizecmd = ''
 
 module.exports.ycsb = (opt) => {
-
+// console.log(ycsb_exporter);
   const dbtypeLine = `dbtype : ${opt.dbtype}`
   if(opt.dbtype == 'cassandra')
     opt.dbtype = 'cassandra-cql'
@@ -48,15 +48,15 @@ module.exports.ycsb = (opt) => {
     }
 
     function ycsbLoad(){
-      if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
+      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
       }else{
 
-        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result -threads ${opt.threads}}`);
+        // console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
 
         try {
 
-          execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result`);
+          execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
 
 
         } catch (err) {
@@ -71,14 +71,14 @@ module.exports.ycsb = (opt) => {
     }
 
     function ycsbRun(){
-      if((dbtypeLine.indexOf('ERROR') != -1)||(runtypeLine.indexOf('ERROR') != -1)||(wlfileLine.indexOf('ERROR') != -1)||(loadsizeLine.indexOf('ERROR') != -1)){
+      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
       }else{
 
-          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result`);
+          // console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -s -t`);
           try {
 
-            execSync(` cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_result`);
+            execSync(` cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -s -t`);
 
 
           }  catch (err) {
@@ -92,6 +92,9 @@ module.exports.ycsb = (opt) => {
       }
     }
   }
+
+
+
 
 
   function checkRuntype(runtype){
@@ -265,7 +268,7 @@ module.exports.ycsb = (opt) => {
           console.log(timewindowLine);
         }else {
           opt.timeindow = `${opt.timewindow}`
-          timewindowLine = `time window : ${opt.timeindow}`
+          timewindowLine = `time window : ${opt.timeindow} (sec)`
           timewindow= `${opt.timewindow}`*Math.pow(10,3)
           // console.log(timewindow);
           console.log(timewindowLine);
