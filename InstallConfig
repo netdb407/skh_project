@@ -22,8 +22,10 @@ server_wlfile_dir = workloads
 server_ycsb_dir = ./YCSB
 
 #ycsb
-ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
+ycsb_exporter = site.ycsb.measurements.exporter.JSONArrayMeasurementsExporter
 ycsb_exportfile_dir = /home/skh/sm/skh_project/YCSB_RESULT
+
+
 ycsb_threadcount = 1
 ycsb_timewindow = 1
 
