@@ -10,7 +10,7 @@ program
   .option('-l, --loadsize <loadsize>', `insert load size [###M, ###G, ###T]`)
   .option('-w, --wlfile <wlfile>', `insert workload file type or name [type:news, contents, facebook, log, recommendation ..]`)
   // .option('-c --config <config>', `config 파일 입력`)
-  .option('-n, --name <name>', `insert enchmark name`)
+  .option('-n, --name <name>', `insert benchmark name`)
   .option('-o, --output <output>', `assign output directory (server, node)`)
   .option('-s, --timewindow <timewindow>', `insert time window(sec)`)
   .option('-t, --threads <threads>',`insert number of threads`)

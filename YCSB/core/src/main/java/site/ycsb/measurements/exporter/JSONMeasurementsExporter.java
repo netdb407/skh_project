@@ -63,7 +63,7 @@ public class JSONMeasurementsExporter implements MeasurementsExporter {
     g.writeNumberField("value", d);
     g.writeEndObject();
   }
-  
+
     //수정
   public void write(String metric, String measurement, double d, double d2) throws IOException{
     g.writeStartObject();
@@ -74,12 +74,10 @@ public class JSONMeasurementsExporter implements MeasurementsExporter {
     g.writeEndObject();
   }
   //수정끝 
-  
 
   public void close() throws IOException {
     if (g != null) {
       g.close();
     }
   }
-
 }

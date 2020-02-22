@@ -32,9 +32,7 @@ class SeriesUnit {
   public SeriesUnit(long time, double average, double count) {
     this.time = time;
     this.average = average;
-	
-	// operation count
-	this.count = count;
+    this.count = count;
   }
   
   protected final long time;
