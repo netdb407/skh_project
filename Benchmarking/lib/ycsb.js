@@ -56,7 +56,7 @@ module.exports.ycsb = (opt) => {
     }
 
 
-    printMetrics(workload)
+    // printMetrics(Workload)
 
     function ycsbLoad(){
       if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
@@ -296,46 +296,63 @@ module.exports.ycsb = (opt) => {
           console.log(threadLine);
         }
       }
-
-
-
-      function printMetrics(workload) {
-        const numBucket = workload.options.get('numBucket');
-        let totalOps = 0;
-
-        workload.operations.forEach(operation => {
-          totalOps += workload.latencies[operation].length;
-        });
-
-        console.log(
-          dedent`[OVERALL], RunTime(ms), ${workload.duration}
-          [OVERALL], Throughput(ops/sec), ${totalOps / (workload.duration / 1000)}`
-        );
-
-        workload.operations.forEach(operation => {
-          const lats = workload.latencies[operation].sort((a, b) => a - b);
-          const ops = lats.length;
-          const opName = `[${operation.toUpperCase()}]`;
-
-          console.log(
-            dedent`${opName}, Operations, ${ops}
-            ${opName}, AverageLatency(us), ${stats.mean(lats)}
-            ${opName}, LatencyVariance(us), ${stats.stdev(lats)}
-            ${opName}, MinLatency(us), ${lats[0]}
-            ${opName}, MaxLatency(us), ${lats[lats.length - 1]}
-            ${opName}, 95thPercentileLatency(us), ${stats.percentile(lats, 0.95)}
-            ${opName}, 99thPercentileLatency(us), ${stats.percentile(lats, 0.99)}
-            ${opName}, 99.9thPercentileLatency(us), ${stats.percentile(lats, 0.999)}
-            ${opName}, Return=OK, ${ops}`
-          );
-
-          for (let i = 0; i < numBucket; i++) {
-            const hi = bounds.lt(lats, i + 1);
-            const lo = bounds.le(lats, i);
-            console.log(`${opName}, ${i}, ${hi - lo}`);
-          }
-
-          const lo = bounds.le(lats, numBucket);
-          console.log(`${opName}, ${numBucket}, ${ops - lo}`);
-        });
-      }
+      //
+      // function formatOptions(argv) {
+      //   const options = argv.workload.concat(argv.parameter, [
+      //     ['numBucket', argv.num_bucket],
+      //   ]);
+      //
+      //   return new Map(options);
+      // }
+      //
+      // function parseKeyValuePairs(pairs) {
+      //   return pairs.map(pair => pair.split('='));
+      // }
+      //
+      // function parseWorkloadFile(filePath) {
+      //   const contents = fs.readFileSync(path.resolve(filePath));
+      //   return parseKeyValuePairs(contents.toString().split('\n'));
+      // }
+      //
+      //
+      //
+      // function printMetrics(workload) {
+      //   const numBucket = workload.options.get('numBucket');
+      //   let totalOps = 0;
+      //
+      //   workload.operations.forEach(operation => {
+      //     totalOps += workload.latencies[operation].length;
+      //   });
+      //
+      //   console.log(
+      //     dedent`[OVERALL], RunTime(ms), ${workload.duration}
+      //     [OVERALL], Throughput(ops/sec), ${totalOps / (workload.duration / 1000)}`
+      //   );
+      //
+      //   workload.operations.forEach(operation => {
+      //     const lats = workload.latencies[operation].sort((a, b) => a - b);
+      //     const ops = lats.length;
+      //     const opName = `[${operation.toUpperCase()}]`;
+      //
+      //     console.log(
+      //       dedent`${opName}, Operations, ${ops}
+      //       ${opName}, AverageLatency(us), ${stats.mean(lats)}
+      //       ${opName}, LatencyVariance(us), ${stats.stdev(lats)}
+      //       ${opName}, MinLatency(us), ${lats[0]}
+      //       ${opName}, MaxLatency(us), ${lats[lats.length - 1]}
+      //       ${opName}, 95thPercentileLatency(us), ${stats.percentile(lats, 0.95)}
+      //       ${opName}, 99thPercentileLatency(us), ${stats.percentile(lats, 0.99)}
+      //       ${opName}, 99.9thPercentileLatency(us), ${stats.percentile(lats, 0.999)}
+      //       ${opName}, Return=OK, ${ops}`
+      //     );
+      //
+      //     for (let i = 0; i < numBucket; i++) {
+      //       const hi = bounds.lt(lats, i + 1);
+      //       const lo = bounds.le(lats, i);
+      //       console.log(`${opName}, ${i}, ${hi - lo}`);
+      //     }
+      //
+      //     const lo = bounds.le(lats, numBucket);
+      //     console.log(`${opName}, ${numBucket}, ${ops - lo}`);
+      //   });
+      // }
