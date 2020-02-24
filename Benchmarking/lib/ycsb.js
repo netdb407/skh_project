@@ -1,5 +1,6 @@
 const program = require('commander')
 const property = require('../../propertiesReader.js')
+const exec =  require('child_process').exec
 const wlfile_dir = property.get_server_wlfile_dir()
 const ycsb_dir = property.get_server_ycsb_dir()
 const nodes_IP = property.get_nodes_IP()
@@ -9,21 +10,14 @@ const ycsb_threadcount = property.get_ycsb_threadcount()
 const ycsb_timewindow = property.get_ycsb_timewindow()
 const fs = require('fs')
 const execSync = require('child_process').execSync
-const chalk = require('chalk');
-
-
-const bounds = require('binary-search-bounds');
-const dedent = require('dedent');
-const path = require('path');
-const stats = require('stats-lite');
-
-const Workload = require('./workload');
-
+const chalk = require('chalk')
+const shell = require('shelljs')
 let dbtypeLine = ''
 let runtypeLine = ''
 let wlfileLine = ''
 let loadsizeLine = ''
 let loadsizecmd = ''
+
 
 module.exports.ycsb = (opt) => {
 // console.log(ycsb_exporter);
@@ -56,8 +50,6 @@ module.exports.ycsb = (opt) => {
     }
 
 
-    // printMetrics(Workload)
-
     function ycsbLoad(){
       if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
@@ -67,7 +59,29 @@ module.exports.ycsb = (opt) => {
 
         try {
 
-          execSync(` cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
+          // execSync(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
+          let cmd = `cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`
+
+          execSync(cmd, (err, stdout, stderr) => {
+            if (err) {
+
+              console.error(chalk.green.bold('[INFO]'), `exec error: ${err}`);
+              return;
+            }
+
+            console.log(chalk.green.bold('[INFO]'),`stdout: ${stdout}`);
+            console.log(chalk.green.bold('[stderr]'),`stderr: ${stderr}`);
+          });
+
+          // if(shell.exec(cmd).code !== 0){
+          //   shell.echo('Error: command failed')
+          //   shell.exit(1)
+          // }
+
+          console.log('끗?');
+
+
+
 
 
         } catch (err) {
@@ -81,16 +95,83 @@ module.exports.ycsb = (opt) => {
       }
     }
 
+
     function ycsbRun(){
       if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
       }else{
 
-          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -s -t`);
+          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
           try {
 
-            execSync(` cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -s -t`);
+            // execSync(` cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
+            let cmd = `cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s`
+            let cmd2 = exec(cmd)
+            cmd2.stderr.on('data', function(data) {
+                console.log(data);
+            });
 
+            // execSync(cmd, (err, stdout, stderr) => {
+            //   if (err) {
+            //     console.error(`exec error: ${err}`);
+            //     return;
+            //   }
+            //
+            //   console.log('stdout:', `stdout: ${stdout}`);
+            //   console.log(`stderr: ${stderr}`);
+            // });
+            // if(shell.exec(cmd).code !== 0){
+            //   shell.echo('Error: command failed')
+            //   shell.exit(1)
+            // }
+            // exec(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`)
+
+            // ls = spawn(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
+            //
+            // ls.stdout.on('data', function (data) {
+            //   console.log('stdout: ' + data.toString());
+            // });
+            //
+            // ls.stderr.on('data', function (data) {
+            //   console.log('stderr: ' + data.toString());
+            // });
+            //
+            // ls.on('exit', function (code) {
+            //   console.log('code ' + code.toString());
+            // });
+            // ls = spawn(`./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads}`, ['-s']);
+            //
+            // var spawn = require('child_process').spawn,
+            // ls.stdout.on('data', function(data) {
+            //     console.log('stdout: ' + data);
+            // });
+            //
+            // ls.stderr.on('data', function(data) {
+            //     console.log('stderr: ' + data);
+            // });
+            //
+            // ls.on('exit', function(code) {
+            //     console.log('exit: ' + code);
+            // });
+
+            // var spawn = require('child_process').spawn,
+            //     subprocess;
+            // function on_child_stdout(data) {
+            //   console.log(data.toString());
+            // };
+            // function on_child_exit(exit_code) {
+            //   console.log('the child is no more: ' + exit_code);
+            // };
+            //
+            // // 자식 프로세서 실행
+            // subprocess = spawn(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads}`, '-s');
+            // subprocess.stdout.setEncoding('utf8');
+            // subprocess.stdout.on('data', on_child_stdout);
+            // subprocess.on('exit', on_child_exit);
+
+            // const stdout = execSync(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`).stdout.pipe(process.stdout)
+            // console.log(`stdout: ${stdout}`);
+            console.log('끗;;');
 
           }  catch (err) {
             err.stdout;
@@ -131,7 +212,7 @@ module.exports.ycsb = (opt) => {
         }catch (err) {
           if (err.code === 'ENOENT') {
             // console.log(err);
-          wlfileLine = `error : invalid workload file : workloads/${wlfile} (No such file or type)`
+          wlfileLine = `error : invalid workload file : workloads/${wlfile} (No such type or file)`
           console.log(wlfileLine)
         }
       }
@@ -140,7 +221,7 @@ module.exports.ycsb = (opt) => {
 
   function checkLoadsize(runtype, loadsize){
     if((runtype == 'run') && (loadsize)){
-      loadsizeLine = `error : [load size] is 'load', 'loadrun' option`
+      loadsizeLine = `error : 'loadsize' is 'load', 'loadrun' option`
       console.log(loadsizeLine);
     }else if ((runtype == 'load'|| runtype == 'loadrun') && (loadsize)){ // load에 대한 loadsize 옵션
 
@@ -154,7 +235,6 @@ module.exports.ycsb = (opt) => {
       recordcountLine = `-p recordcount=${recordcount}`
 
       loadsizecmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
-      // console.log(loadsizecmd);
     }
   }
 
@@ -271,17 +351,14 @@ module.exports.ycsb = (opt) => {
 
 
     function checkTimewindow(opt){
-        if(opt.timeindow == null) {
-          opt.timeindow = `${ycsb_timewindow}`
-          timewindowLine = `time window : ${opt.timeindow} (sec)`
+        if(opt.timewindow == null) {
+          opt.timewindow = `${ycsb_timewindow}`
+          timewindowLine = `time window : ${opt.timewindow} (sec)`
           timewindow=ycsb_timewindow*Math.pow(10,3)
-          // console.log(timewindow);
           console.log(timewindowLine);
         }else {
-          opt.timeindow = `${opt.timewindow}`
-          timewindowLine = `time window : ${opt.timeindow} (sec)`
+          timewindowLine = `time window : ${opt.timewindow} (sec)`
           timewindow= `${opt.timewindow}`*Math.pow(10,3)
-          // console.log(timewindow);
           console.log(timewindowLine);
         }
       }
@@ -296,63 +373,3 @@ module.exports.ycsb = (opt) => {
           console.log(threadLine);
         }
       }
-      //
-      // function formatOptions(argv) {
-      //   const options = argv.workload.concat(argv.parameter, [
-      //     ['numBucket', argv.num_bucket],
-      //   ]);
-      //
-      //   return new Map(options);
-      // }
-      //
-      // function parseKeyValuePairs(pairs) {
-      //   return pairs.map(pair => pair.split('='));
-      // }
-      //
-      // function parseWorkloadFile(filePath) {
-      //   const contents = fs.readFileSync(path.resolve(filePath));
-      //   return parseKeyValuePairs(contents.toString().split('\n'));
-      // }
-      //
-      //
-      //
-      // function printMetrics(workload) {
-      //   const numBucket = workload.options.get('numBucket');
-      //   let totalOps = 0;
-      //
-      //   workload.operations.forEach(operation => {
-      //     totalOps += workload.latencies[operation].length;
-      //   });
-      //
-      //   console.log(
-      //     dedent`[OVERALL], RunTime(ms), ${workload.duration}
-      //     [OVERALL], Throughput(ops/sec), ${totalOps / (workload.duration / 1000)}`
-      //   );
-      //
-      //   workload.operations.forEach(operation => {
-      //     const lats = workload.latencies[operation].sort((a, b) => a - b);
-      //     const ops = lats.length;
-      //     const opName = `[${operation.toUpperCase()}]`;
-      //
-      //     console.log(
-      //       dedent`${opName}, Operations, ${ops}
-      //       ${opName}, AverageLatency(us), ${stats.mean(lats)}
-      //       ${opName}, LatencyVariance(us), ${stats.stdev(lats)}
-      //       ${opName}, MinLatency(us), ${lats[0]}
-      //       ${opName}, MaxLatency(us), ${lats[lats.length - 1]}
-      //       ${opName}, 95thPercentileLatency(us), ${stats.percentile(lats, 0.95)}
-      //       ${opName}, 99thPercentileLatency(us), ${stats.percentile(lats, 0.99)}
-      //       ${opName}, 99.9thPercentileLatency(us), ${stats.percentile(lats, 0.999)}
-      //       ${opName}, Return=OK, ${ops}`
-      //     );
-      //
-      //     for (let i = 0; i < numBucket; i++) {
-      //       const hi = bounds.lt(lats, i + 1);
-      //       const lo = bounds.le(lats, i);
-      //       console.log(`${opName}, ${i}, ${hi - lo}`);
-      //     }
-      //
-      //     const lo = bounds.le(lats, numBucket);
-      //     console.log(`${opName}, ${numBucket}, ${ops - lo}`);
-      //   });
-      // }
