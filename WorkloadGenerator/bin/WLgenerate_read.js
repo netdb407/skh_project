@@ -20,7 +20,7 @@ program.parse(process.argv)
     {
     type : 'list',
     name : 'dfn',
-    message : '확인하고 싶은 파일을 선택하세요.',
+    message : 'Please select the file you want to check.',
     choices : []
     }
   ];
@@ -38,7 +38,7 @@ program.parse(process.argv)
       inquirer.prompt([{
         type : 'confirm',
         name : 'updateQ',
-        message : '수정하시겠습니까?',
+        message : 'Do you want to modify it?',
         default : false
         }
       ]).then(answers =>{

@@ -20,12 +20,12 @@ var question = [
   {
     type : 'list',
     name : 'type',
-    message : 'type을 선택하세요',
+    message : 'Please select type.',
     choices : ['YCSB','GRAPH'],
   },{
     type : 'input',
     name : 'name',
-    message : 'File 이름을 입력하세요.',
+    message : 'Please enter a name for the file.',
     default : 'workloads',
   }];
 
@@ -278,8 +278,8 @@ inquirer.prompt(question).then(answers => {
         q3[0].default = answers1.Record_count;
       inquirer.prompt(q3).then(answers1_2=>{
         console.log("********************************");
-        console.log("type = %s",answers.type);
-        console.log("File name = %s",answers.name);
+        console.log('type :' +answers.type);
+        console.log('File name '+answers.name);
         console.log("----properties----");
         console.log("record count = %s",answers1.Record_count);
         console.log("Field count = %s",answers1.Field_count);
@@ -343,7 +343,7 @@ inquirer.prompt(question).then(answers => {
               if(err){
                 console.log(err);
               }else {
-                console.log(answers.name + ' 이름으로 파일저장 성공');
+                console.log('file name : '+answers.name);
               }
             });
           });
@@ -352,10 +352,10 @@ inquirer.prompt(question).then(answers => {
   } else {
     inquirer.prompt(q2).then(answers2 => {
       console.log("********************************");
-      console.log("type is %s",answers.type);
-      console.log("File name is %s",answers.name);
+      console.log("type :"+answers.type);
+      console.log("File name :"+answers.name);
       console.log("----properties----");
-      console.log("Graph benchmark is %s",answers2.Graph_benchmark);
+      console.log("Graph benchmark :"+answers2.Graph_benchmark);
       console.log("********************************");
 
       var bb = ['type = ' + answers.type+'\n'+'Graph benchmark = '+answers2.Graph_benchmark];
@@ -369,7 +369,7 @@ inquirer.prompt(question).then(answers => {
           if(err){
             console.log(err);
           }else {
-            console.log(answers.name + ' 이름으로 파일저장 성공');
+            console.log('file name : '+answers.name);
           }
         });
       });

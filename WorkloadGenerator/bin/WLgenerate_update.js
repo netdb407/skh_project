@@ -20,12 +20,12 @@ var question1 = [
   {
     type : 'list',
     name : 'choice',
-    message : '무엇을 변경하시겠습니까?',
-    choices : ['파일이름','파일내용']
+    message : 'What would you like to change?',
+    choices : ['FileName','FileContents']
   },{
     type : 'list',
     name : 'original_name',
-    message : '변경할 파일의 이름을 선택하세요.',
+    message : 'Please select a file to change.',
     choices : []
   }
 ];
@@ -37,7 +37,7 @@ var rename = [
   {
     type : 'input',
     name : 'new_name',
-    message : '새로운 이름을 입력하세요.'
+    message : 'Please enter a new name.'
   }
 ]
 //type 선택
@@ -45,7 +45,7 @@ var question2 = [
   {
     type : 'list',
     name : 'type',
-    message : 'type을 선택하세요',
+    message : 'Please choose the type.',
     choices : ['YCSB','GRAPH'],
   }];
 //YCSB 속성 입력
@@ -197,7 +197,7 @@ var q1 = [
     filter: Number,
     default :''
   }];
-  var q2 =[
+var q2 =[
     {
     type : 'input',
     name : 'insertcount',
@@ -289,10 +289,10 @@ var q3 = [
   }
 ];
 
+//실행
 async function main2(){
   const answer = await inquirer.prompt(question1);
   var fileproperties = PropertiesReader(dir+answer.original_name);
-  console.log(fileproperties);
   q1[0].default = fileproperties.path().Recordcount;
   q1[1].default = fileproperties._properties.Fieldcount;
   q1[2].default = fileproperties._properties.fieldlength;
@@ -317,16 +317,24 @@ async function main2(){
   q2[6].default = fileproperties._properties.histogram;
   q2[7].default = fileproperties._properties.timeseries_granularity;
 
-  if(answer.choice === '파일이름'){
+  if(answer.choice === 'FileName'){
     var fsExists = fs.existsSync(dir+answer.original_name);
     if(fsExists){
       inquirer.prompt(rename).then(answer1 => {
         if(answer1){
-          fs.renameSync(dir+answer.original_name,dir+answer1.new_name);
-          console.log('이름이 변경되었습니다.');
+          for(i=0;i<filelist.length;i++){
+              if(answer1.new_name == filelist[i]){
+                console.log('The same name exists.');
+                return false;
+              }
+          }
+          fs.rename(dir+answer.original_name,dir+answer1.new_name,(err) => {
+            if(err) console.log(err);
+            console.log('The name has been changed.');
+          });
         }
         else {
-          console.log('존재하지 않는 파일 이름입니다.');
+          console.log('The file name does not exist.');
         }
       });
     }
@@ -368,7 +376,7 @@ async function main2(){
 
                 fs.writeFile(dir+answer.original_name,aa,function(err,data){
                   if(err) throw err;
-                  console.log("파일수정완료");
+                  console.log('The file has been modified successfully.');
                 });
               });
             }
@@ -383,7 +391,7 @@ async function main2(){
               if(err) throw err;
               fs.writeFile(dir+answer.original_name,bb,function(err,data){
                 if(err) throw err;
-                console.log("파일수정완료");
+                console.log('The file has been modified successfully.');
               });
             });
           }
@@ -391,6 +399,5 @@ async function main2(){
       }
     });
   }
-// };
 };
 module.exports.main2 = main2;
