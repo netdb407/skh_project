@@ -8,9 +8,9 @@ nodes_IP = 203.255.92.193,203.255.92.194,203.255.92.195
 nodes_hostname = skh,skh,skh
 nodes_password = netdb3230,netdb3230,netdb3230
 
-
+# ! 192 서버컴에 mkdir ssdStorage한 다음에 설치하기
 rpm_dir_origin = ./Installation/rpm/
-rpm_dir = /root/
+rpm_dir = /root/ssdStorage
 
 #directory
 server_install_dir = /root/ssdStorage

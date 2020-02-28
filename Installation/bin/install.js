@@ -111,6 +111,10 @@ function isInstalledPkg(i, package, installDir){
        console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
        exec(`scp -r ${rpmDirOrigin}${package} root@${i}:${installDir}`)
        console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
+       if(package !== 'maven'){
+         exec(`rm -rf ${rpmDir}${package}`)
+         console.log('rpm 폴더 삭제');
+       }
      }
      console.log(chalk.green.bold('[INFO]'), 'Install', package);
      installPackage(i, package, rpmDir);
