@@ -71,33 +71,6 @@ program.parse(process.argv)
 
 //java rpm 파일 바뀌었는데 테스트해보기 : 카산드라 돌릴 때 devel 버전이어야 하니까 지우고 다시 해보기
 
-//  function P_option (ip, package, installDir){
-//     ip.forEach((i) => {
-//      console.log('-----------------------------------');
-//      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
-//      exec(`ssh root@${i}`)
-//      let fstemp = fs.existsSync(`${rpmDir}${package}`) //boolean으로 리턴
-//      // console.log(`${rpmDir}${package}`);
-//      // console.log('fstemp:', fstemp);
-//      if(fstemp){
-//        console.log(chalk.green.bold('[INFO]'), 'directory exists');
-//      }else{
-//        console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
-//        // console.log('installDir:', installDir);
-//        exec(`scp -r ${rpmDirOrigin}${package} root@${i}:${installDir}`)
-//        // console.log(`${rpmDirOrigin}/${package}`,`${installDir}` );
-//        console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
-//      }
-//     if(package == 'maven'){
-//       makeMavenHome(i)
-//       return 0;
-//     }
-//     isInstalledPkg(i, package, rpmDir);
-//   })
-// }
-//존재여부 - 없다고 나오면 프로젝트 폴더 보내기 !!
-//존재여부 체크를 같이 해야하지 않나? isInstalled()를 먼저 한 뒤에 scp로 폴더 전송하는게 맞아보임
-
 function isInstalledPkg(i, package, installDir){
   ip.forEach((i) => {
    console.log('-----------------------------------');
@@ -122,44 +95,31 @@ function isInstalledPkg(i, package, installDir){
        return 0;
    }
    try{
-     // exec(`ssh root@${i}`)
-     // stdout = exec(`rpm -qa|grep ${packageName}`).toString();
      stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
-     // console.log('first:',stdout);
      if(stdout!=null){
        console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
        console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
-       // exec(`exit`)
        versionCheck(i, package, rpmDir);
      }
    }
    catch(e){
      // console.log('[ERROR] isInstalledPkg_log :', e);
      let fstemp = fs.existsSync(`${rpmDir}${package}`) //boolean으로 리턴
-     // console.log(`${rpmDir}${package}`);
-     // console.log('fstemp:', fstemp);
      if(fstemp){
        console.log(chalk.green.bold('[INFO]'), 'directory exists');
      }else{
        console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
-       // console.log('installDir:', installDir);
        exec(`scp -r ${rpmDirOrigin}${package} root@${i}:${installDir}`)
-       // console.log(`${rpmDirOrigin}/${package}`,`${installDir}` );
        console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
      }
-     //console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
      console.log(chalk.green.bold('[INFO]'), 'Install', package);
      installPackage(i, package, rpmDir);
    }
-
   if(package == 'maven'){
     makeMavenHome(i)
     return 0;
   }
-
 })
-
-
 }
 
 // /etc/profile 에 추가
@@ -191,46 +151,6 @@ function makePythonLink(i){
   console.log(chalk.green.bold('[INFO]'), 'Make Symbolic link. Ready to use python');
 }
 
-
-// function isInstalledPkg(i, package, rpmDir){
-//   console.log('ip:', i);
-//   switch(package){
-//     case 'git' :
-//       packageName = cmds.git;
-//       break;
-//     case 'java' :
-//       packageName = cmds.java;
-//       break;
-//     case 'python' :
-//       packageName = cmds.python;
-//       break;
-//     case 'maven' :
-//       packageName = cmds.maven;
-//       break;
-//     default :
-//       console.log(chalk.red.bold('[ERROR]'), package,'is cannot be installed. Try again other package.');
-//       exec(`exit`)
-//       return 0;
-//   }
-//   try{
-//     // exec(`ssh root@${i}`)
-//     // stdout = exec(`rpm -qa|grep ${packageName}`).toString();
-//     stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
-//     // console.log('first:',stdout);
-//     if(stdout!=null){
-//       console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
-//       console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
-//       // exec(`exit`)
-//       versionCheck(i, package, rpmDir);
-//     }
-//   }
-//   catch(e){
-//     // console.log('[ERROR] isInstalledPkg_log :', e);
-//     console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
-//     console.log(chalk.green.bold('[INFO]'), 'Install', package);
-//     installPackage(i, package, rpmDir);
-//   }
-// }
 
 
 
