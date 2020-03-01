@@ -9,8 +9,8 @@ nodes_hostname = skh,skh,skh
 nodes_password = netdb3230,netdb3230,netdb3230
 
 # ! 192 서버컴에 mkdir ssdStorage한 다음에 설치하기
-rpm_dir_origin = ./Installation/rpm/
-rpm_dir = /root/ssdStorage
+rpm_dir_in_skhproject    = ./Installation/rpm/
+rpm_dir_in_ServerAndNode = /root/skh_project/Installation/rpm/
 
 
 
@@ -28,7 +28,7 @@ node_data_dir =
 
 
 
-#ycsb
+#ycsb(192 서버컴에만 있음)
 ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
 #ycsb_exportfile_dir = /home/skh/sm/skh_project/YCSB_RESULT
 ycsb_exportfile_dir = /root/skh_project/YCSB_RESULT
