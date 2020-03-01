@@ -13,8 +13,8 @@ const fs = require('fs');
 
 let ip;
 let installDir;
-let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
-let rpmDir       = property.get_rpm_dir(); //root/
+let rpm_dir_in_skhproject     = property.get_rpm_dir_in_skhproject(); //프로젝트 폴더 rpm
+let rpm_dir_in_ServerAndNode  = property.get_rpm_dir_in_ServerAndNode(); //root/
 let packageName;
 let stdout;
 let packageAll;
@@ -33,10 +33,12 @@ program
     if(opt.package && (opt.server || opt.node )){
       if(opt.server){
         ip = [property.get_server_IP()]
+        installDir = property.get_server_install_dir(); // root/skh_project
       }else if(opt.node){
         ip = property.get_nodes_IP().split(',');
+        installDir = property.get_node_install_dir(); // root/ssdStorage
       }
-      installDir = property.get_server_install_dir(); //root/
+
       isInstalledPkg(ip, opt.package, installDir)
     }
 
@@ -46,17 +48,18 @@ program
       var node_arr = nodes.split(',');
       var password = property.get_password();
       ip = property.get_nodes_IP().split(',');
-      installDir = property.get_node_install_dir(); //root/
+      //installDir = property.get_node_install_dir(); // root/ssdStorage
+
       installDatabase(opt, nodes, node_arr, password);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
 
     //case 3. -a
-    if(opt.all == true){
-      installDir = rpmDir
+    if(opt.all){
+      installDir = rpm_dir_in_ServerAndNode
       ip = property.get_nodes_IP().split(',');
       ip.push(property.get_server_IP());
-      ip = [ip.sort()];
+      ip = ip.sort();
       packageAll = ['java', 'git', 'python', 'maven']
       ip.forEach((i) => {
         packageAll.forEach((pck) => {
@@ -99,25 +102,26 @@ function isInstalledPkg(i, package, installDir){
      if(stdout!=null){
        console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
        console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
-       versionCheck(i, package, rpmDir);
+       versionCheck(i, package, rpm_dir_in_ServerAndNode);
      }
    }
    catch(e){
      // console.log('[ERROR] isInstalledPkg_log :', e);
-     let fstemp = fs.existsSync(`${rpmDir}${package}`) //boolean으로 리턴
+     let fstemp = fs.existsSync(`${rpm_dir_in_ServerAndNode}${package}`) //boolean으로 리턴
      if(fstemp){
        console.log(chalk.green.bold('[INFO]'), 'directory exists');
      }else{
        console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
-       exec(`scp -r ${rpmDirOrigin}${package} root@${i}:${installDir}`)
+       console.log('???', rpm_dir_in_skhproject);
+       exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
        console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
        if(package !== 'maven'){
-         exec(`rm -rf ${rpmDir}${package}`)
-         console.log('rpm 폴더 삭제');
+         exec(`rm -rf ${rpm_dir_in_ServerAndNode}${package}`)
+         console.log(chalk.green.bold('[INFO]'), 'rpm 폴더 삭제');
        }
      }
      console.log(chalk.green.bold('[INFO]'), 'Install', package);
-     installPackage(i, package, rpmDir);
+     installPackage(i, package, rpm_dir_in_ServerAndNode);
    }
   if(package == 'maven'){
     makeMavenHome(i)
@@ -159,7 +163,7 @@ function makePythonLink(i){
 
 
 
-function versionCheck(i, package, rpmDir){
+function versionCheck(i, package, rpm_dir_in_ServerAndNode){
   console.log(chalk.green.bold('[INFO]'), 'Start version check ...');
     switch(package){
       case 'git' :
@@ -186,17 +190,17 @@ function versionCheck(i, package, rpmDir){
       console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
       deletePackage(i, package);
       console.log(chalk.green.bold('[INFO]'), 'Install new version of', package);
-      installPackage(i, package, rpmDir);
+      installPackage(i, package, rpm_dir_in_ServerAndNode);
     }
   }
 
 
 
-  function installPackage(i, package, rpmDir){
-     exec(`ssh root@${i} ${cmds.installCmd} ${rpmDir}${package}/*`)
+  function installPackage(i, package, rpm_dir_in_ServerAndNode){
+     exec(`ssh root@${i} ${cmds.installCmd} ${rpm_dir_in_ServerAndNode}${package}/*`)
      console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
      if(package !== 'maven'){
-       exec(`rm -rf ${rpmDir}${package}`)
+       exec(`rm -rf ${rpm_dir_in_ServerAndNode}${package}`)
        console.log('rpm 폴더 삭제');
      }
      if(package == 'python'){
