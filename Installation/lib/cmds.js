@@ -9,7 +9,7 @@
 
 const installCmd = 'rpm -ivh'
 const deleteCmd = 'rpm -e' //git, sshpass
-const yumDeleteCmd = 'yum remove'
+const yumDeleteCmd = 'yum remove -y'
 
 //dependencies걸려있는 애들은 yum remove 패키지명* 로 관련된거 다 지워버리기
 const java = 'java-11-openjdk'
