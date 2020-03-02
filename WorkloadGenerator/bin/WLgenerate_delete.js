@@ -1,4 +1,3 @@
-
 var inquirer = require('inquirer');
 var fs = require('fs');
 const program = require('commander');
@@ -20,7 +19,7 @@ program.parse(process.argv)
     {
     type : 'list',
     name : 'dfn',
-    message : 'Please select a file name to delete.',
+    message : '삭제할 파일 이름을 입력하세요',
     choices : []
     }
   ];
@@ -31,7 +30,7 @@ program.parse(process.argv)
   const answer = await inquirer.prompt(questions)
   if(answer){
     fs.unlinkSync(dir+answer.dfn);
-      console.log('File has been deleted.');
+      console.log('파일이 삭제되었습니다.');
   }
 }
 

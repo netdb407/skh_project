@@ -11,8 +11,8 @@ var question = [
   {
     type : 'list',
     name : 'start',
-    message : 'Please select the program you want to run.',
-    choices : ['create','update','delete','read']
+    message : '실행하실 프로그램을 선택하세요.',
+    choices : ['create','update','read','delete']
   }
 ];
 
