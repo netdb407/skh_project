@@ -1,4 +1,5 @@
 const PropertiesReader = require('properties-reader');
+
 const properties = PropertiesReader('./InstallConfig');
 
 module.exports = {
@@ -11,11 +12,11 @@ module.exports = {
   },
 
 
-  get_rpm_dir_origin(){
-    return properties.get("rpm_dir_origin")
+  get_rpm_dir_in_skhproject(){
+    return properties.get("rpm_dir_in_skhproject")
   },
-  get_rpm_dir(){
-    return properties.get("rpm_dir");
+  get_rpm_dir_in_ServerAndNode(){
+    return properties.get("rpm_dir_in_ServerAndNode");
   },
 
 
@@ -55,9 +56,14 @@ module.exports = {
   get_ycsb_exporter(){
     return properties.get("ycsb_exporter")
   },
-
   get_ycsb_exportfile_dir(){
     return properties.get("ycsb_exportfile_dir")
+  },
+  get_ycsb_threadcount(){
+    return properties.get("ycsb_threadcount")
+  },
+  get_ycsb_timewindow(){
+    return properties.get("ycsb_timewindow")
   },
 
   //IO Tracer
