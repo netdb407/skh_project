@@ -9,7 +9,7 @@ nodes_hostname = skh,skh,skh
 nodes_password = netdb3230,netdb3230,netdb3230
 
 # ! 192 서버컴에 mkdir ssdStorage한 다음에 설치하기
-rpm_dir_in_skhproject    = /root/skh_project/Installation/rpm/
+rpm_dir_in_skhproject = /root/skh_project/Installation/rpm/
 
 
 #server directory

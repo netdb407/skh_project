@@ -18,10 +18,10 @@ const python = 'python2'
 const git = 'git-core'
 
 //rpm 설치 파일 정보
-const javaFile = 'java-1.8.0-openjdk-devel-1.8.0.232.b09-0.el8_0.x86_64.rpm'
-const mavenFile = 'maven-local-5.3.0-1.el8.noarch.rpm'
-const pythonFile = 'python2'
-const gitFile = 'git-core-2.18.1-3.el8.x86_64.rpm'
+// const javaFile = 'java-11-openjdk-devel-11'
+// const mavenFile = 'maven-local-5.3.0-1.el8.noarch.rpm'
+// const pythonFile = 'python2'
+// const gitFile = 'git-core-2.18.1-3.el8.x86_64.rpm'
 
 
 //송희 추가
@@ -41,10 +41,6 @@ module.exports = {
   maven,
   python,
 
-  javaFile,
-  mavenFile,
-  pythonFile,
-  gitFile,
 
   wgetCmd,
   decompress,

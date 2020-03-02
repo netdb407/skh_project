@@ -60,7 +60,6 @@ program
       ip.push(property.get_server_IP());
       ip = ip.sort();
       packageAll = ['git', 'java', 'python', 'maven']
-      console.log('몬데');
       ip.forEach((i) => {
         packageAll.forEach((pck) => {
           isInstalledPkg(i, pck, installDir)
@@ -79,7 +78,6 @@ function isInstalledPkg(i, package, installDir){
    console.log('-----------------------------------');
    console.log(chalk.green.bold('[INFO]'),'IP address is', i);
    installDir = i==property.get_server_IP()? property.get_server_install_dir() : property.get_node_install_dir();
-   console.log('installDir:', i, 'and', installDir);
    exec(`ssh root@${i}`)
    switch(package){
      case 'git' :
@@ -266,12 +264,4 @@ function versionCheck(i, package, installDir){
   	console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
         break;
      }
-  }
-
-
-
-
-
-  function installAll(){
-    console.log('install all package~');
   }
