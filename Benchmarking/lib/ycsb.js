@@ -20,7 +20,6 @@ let loadsizecmd = ''
 
 
 module.exports.ycsb = (opt) => {
-// console.log(ycsb_exporter);
   const dbtypeLine = `dbtype : ${opt.dbtype}`
   if(opt.dbtype == 'cassandra')
     opt.dbtype = 'cassandra-cql'
@@ -42,8 +41,9 @@ module.exports.ycsb = (opt) => {
       ycsbRun()
       break;
     case 'loadrun' :
+
+      ycsbLoadRun()
       ycsbLoad()
-      ycsbRun()
       break;
     default :
     console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
@@ -52,37 +52,17 @@ module.exports.ycsb = (opt) => {
 
     function ycsbLoad(){
       if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
-        console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
+        console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-
         console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
-
         try {
-
           // execSync(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
-          let cmd = `cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`
+          let cmd = `cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s`
+          let losdcmd = exec(cmd)
+          loadcmd.stderr.on('data', function(data) {
+              console.log(data);
 
-          execSync(cmd, (err, stdout, stderr) => {
-            if (err) {
-
-              console.error(chalk.green.bold('[INFO]'), `exec error: ${err}`);
-              return;
-            }
-
-            console.log(chalk.green.bold('[INFO]'),`stdout: ${stdout}`);
-            console.log(chalk.green.bold('[stderr]'),`stderr: ${stderr}`);
           });
-
-          // if(shell.exec(cmd).code !== 0){
-          //   shell.echo('Error: command failed')
-          //   shell.exit(1)
-          // }
-
-          console.log('끗?');
-
-
-
-
 
         } catch (err) {
             err.stdout;
@@ -96,6 +76,8 @@ module.exports.ycsb = (opt) => {
     }
 
 
+
+
     function ycsbRun(){
       if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
@@ -105,75 +87,16 @@ module.exports.ycsb = (opt) => {
           try {
 
             // execSync(` cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
-            let cmd = `cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s`
-            let cmd2 = exec(cmd)
-            cmd2.stderr.on('data', function(data) {
-                console.log(data);
+            let cmd2 = `cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s`
+            let runcmd = exec(cmd2)
+            runcmd.stderr.on('data', function(data) {
+                console.log(data)
+
             });
 
-            // execSync(cmd, (err, stdout, stderr) => {
-            //   if (err) {
-            //     console.error(`exec error: ${err}`);
-            //     return;
-            //   }
-            //
-            //   console.log('stdout:', `stdout: ${stdout}`);
-            //   console.log(`stderr: ${stderr}`);
-            // });
-            // if(shell.exec(cmd).code !== 0){
-            //   shell.echo('Error: command failed')
-            //   shell.exit(1)
-            // }
-            // exec(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`)
 
-            // ls = spawn(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
-            //
-            // ls.stdout.on('data', function (data) {
-            //   console.log('stdout: ' + data.toString());
-            // });
-            //
-            // ls.stderr.on('data', function (data) {
-            //   console.log('stderr: ' + data.toString());
-            // });
-            //
-            // ls.on('exit', function (code) {
-            //   console.log('code ' + code.toString());
-            // });
-            // ls = spawn(`./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads}`, ['-s']);
-            //
-            // var spawn = require('child_process').spawn,
-            // ls.stdout.on('data', function(data) {
-            //     console.log('stdout: ' + data);
-            // });
-            //
-            // ls.stderr.on('data', function(data) {
-            //     console.log('stderr: ' + data);
-            // });
-            //
-            // ls.on('exit', function(code) {
-            //     console.log('exit: ' + code);
-            // });
 
-            // var spawn = require('child_process').spawn,
-            //     subprocess;
-            // function on_child_stdout(data) {
-            //   console.log(data.toString());
-            // };
-            // function on_child_exit(exit_code) {
-            //   console.log('the child is no more: ' + exit_code);
-            // };
-            //
-            // // 자식 프로세서 실행
-            // subprocess = spawn(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads}`, '-s');
-            // subprocess.stdout.setEncoding('utf8');
-            // subprocess.stdout.on('data', on_child_stdout);
-            // subprocess.on('exit', on_child_exit);
-
-            // const stdout = execSync(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`).stdout.pipe(process.stdout)
-            // console.log(`stdout: ${stdout}`);
-            console.log('끗;;');
-
-          }  catch (err) {
+          } catch (err) {
             err.stdout;
             err.stderr;
             err.pid;
@@ -183,6 +106,62 @@ module.exports.ycsb = (opt) => {
         }
       }
     }
+
+    function ycsbRun2(){
+      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
+        console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
+      }else{
+
+          console.log(`./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
+          try {
+
+            let cmd3 = `./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s`
+            let runcmd2 = exec(cmd3)
+            runcmd2.stderr.on('data', function(data) {
+                console.log(data)
+
+            });
+
+          } catch (err) {
+            err.stdout;
+            err.stderr;
+            err.pid;
+            err.signal;
+            err.status;
+            // etc
+        }
+      }
+    }
+
+
+    function ycsbLoadRun(){
+      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
+        console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.');
+      }else{
+
+          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
+          try {
+
+            let cmd3 = `cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s`
+            let loadruncmd = exec(cmd3)
+            loadruncmd.stderr.on('data', function(data) {
+                console.log(data)
+
+            });
+
+            ycsbRun2()
+
+          } catch (err) {
+            err.stdout;
+            err.stderr;
+            err.pid;
+            err.signal;
+            err.status;
+            // etc
+        }
+      }
+    }
+
   }
 
 
