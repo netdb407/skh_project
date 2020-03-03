@@ -12,8 +12,8 @@ const deleteCmd = 'rpm -e' //git, sshpass
 const yumDeleteCmd = 'yum remove -y'
 
 //dependencies걸려있는 애들은 yum remove 패키지명* 로 관련된거 다 지워버리기
-const java = 'java-11-openjdk'
-const maven = 'maven-local-5.3.0-1.el8.noarch'
+const java = 'java-1.8.0-openjdk'
+const maven = 'maven'
 const python = 'python2'
 const git = 'git-core'
 

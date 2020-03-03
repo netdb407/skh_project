@@ -98,11 +98,17 @@ function isInstalledPkg(i, package, installDir){
        return 0;
    }
    try{
-     stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
-     if(stdout!=null){
-       console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
-       console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
-       versionCheck(i, package, installDir);
+     if(package !== 'maven'){
+       stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
+       if(stdout!=null){
+         console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
+         console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
+         versionCheck(i, package, installDir);
+       }
+     }
+     else{
+       makeMavenHome(i)
+       return 0;
      }
    }
    catch(e){
@@ -118,15 +124,12 @@ function isInstalledPkg(i, package, installDir){
      console.log(chalk.green.bold('[INFO]'), 'Install', package);
      installPackage(i, package, installDir);
    }
-  if(package == 'maven'){
-    makeMavenHome(i)
-    return 0;
-  }
+
 })
 }
 
 // /etc/profile 에 추가
-// export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-2.el8_1.x86_64/jre/
+// export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-0.el8_1.x86_64/jre/
 // export MAVEN_HOME=/root/maven
 // export PATH=$PATH:$JAVA_HOME/bin
 // export PATH=$PATH:$MAVEN_HOME/bin
