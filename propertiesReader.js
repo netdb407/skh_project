@@ -1,6 +1,7 @@
 const PropertiesReader = require('properties-reader');
-// const properties = PropertiesReader('/home/skh/yh/skh_project/InstallConfig');
+
 const properties = PropertiesReader('./InstallConfig');
+
 module.exports = {
   //user정보
   get_hostname(){
@@ -11,11 +12,11 @@ module.exports = {
   },
 
 
-  get_rpm_dir_origin(){
-    return properties.get("rpm_dir_origin")
+  get_rpm_dir_in_skhproject(){
+    return properties.get("rpm_dir_in_skhproject")
   },
-  get_rpm_dir(){
-    return properties.get("rpm_dir");
+  get_rpm_dir_in_ServerAndNode(){
+    return properties.get("rpm_dir_in_ServerAndNode");
   },
 
 
