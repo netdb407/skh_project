@@ -166,8 +166,6 @@ module.exports.ycsb = (opt) => {
 
 
 
-
-
   function checkRuntype(runtype){
     if(runtype == 'load' || runtype == 'run' || runtype == 'loadrun'){
       runtypeLine = `runtype : ${runtype}`
