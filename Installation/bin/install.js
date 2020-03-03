@@ -13,8 +13,8 @@ const fs = require('fs');
 
 let ip;
 let installDir;
-let rpmDirOrigin = property.get_rpm_dir_origin(); //프로젝트 폴더 rpm
-let rpmDir       = property.get_rpm_dir(); //root/
+let rpm_dir_in_skhproject     = property.get_rpm_dir_in_skhproject(); //프로젝트 폴더 rpm
+//let rpm_dir_in_ServerAndNode  = property.get_rpm_dir_in_ServerAndNode(); //root/
 let packageName;
 let stdout;
 let packageAll;
@@ -33,11 +33,13 @@ program
     if(opt.package && (opt.server || opt.node )){
       if(opt.server){
         ip = [property.get_server_IP()]
+        installDir = property.get_server_install_dir(); // root/skh_project
       }else if(opt.node){
         ip = property.get_nodes_IP().split(',');
+        installDir = property.get_node_install_dir(); // root/ssdStorage
       }
-      installDir = property.get_server_install_dir(); //root/
-      P_option(ip, opt.package, installDir)
+
+      isInstalledPkg(ip, opt.package, installDir)
     }
 
     //case 2. -d(-n으로 디폴트)
@@ -46,21 +48,21 @@ program
       var node_arr = nodes.split(',');
       var password = property.get_password();
       ip = property.get_nodes_IP().split(',');
-      installDir = property.get_node_install_dir(); //root/
+      //installDir = property.get_node_install_dir(); // root/ssdStorage
+
       installDatabase(opt, nodes, node_arr, password);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
 
     //case 3. -a
-    if(opt.all == true){
-      installDir = rpmDir
+    if(opt.all){
       ip = property.get_nodes_IP().split(',');
       ip.push(property.get_server_IP());
-      ip = [ip.sort()];
-      packageAll = ['java', 'git', 'python', 'maven']
+      ip = ip.sort();
+      packageAll = ['git', 'java', 'python', 'maven']
       ip.forEach((i) => {
         packageAll.forEach((pck) => {
-          P_option(i, pck, installDir)
+          isInstalledPkg(i, pck, installDir)
         })
       })
     }
@@ -69,34 +71,59 @@ program.parse(process.argv)
 
 
 
+//java rpm 파일 바뀌었는데 테스트해보기 : 카산드라 돌릴 때 devel 버전이어야 하니까 지우고 다시 해보기
 
-
- function P_option (ip, package, installDir){
-    ip.forEach((i) => {
-     console.log('-----------------------------------');
-     console.log(chalk.green.bold('[INFO]'),'IP address is', i);
-     exec(`ssh root@${i}`)
-     let fstemp = fs.existsSync(`${rpmDir}${package}`) //boolean으로 리턴
-     // console.log(`${rpmDir}${package}`);
-     // console.log('fstemp:', fstemp);
+function isInstalledPkg(i, package, installDir){
+  ip.forEach((i) => {
+   console.log('-----------------------------------');
+   console.log(chalk.green.bold('[INFO]'),'IP address is', i);
+   installDir = i==property.get_server_IP()? property.get_server_install_dir() : property.get_node_install_dir();
+   exec(`ssh root@${i}`)
+   switch(package){
+     case 'git' :
+       packageName = cmds.git;
+       break;
+     case 'java' :
+       packageName = cmds.java;
+       break;
+     case 'python' :
+       packageName = cmds.python;
+       break;
+     case 'maven' :
+       packageName = cmds.maven;
+       break;
+     default :
+       console.log(chalk.red.bold('[ERROR]'), package,'is cannot be installed. Try again other package.');
+       exec(`exit`)
+       return 0;
+   }
+   try{
+     stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
+     if(stdout!=null){
+       console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
+       console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
+       versionCheck(i, package, installDir);
+     }
+   }
+   catch(e){
+     // console.log('[ERROR] isInstalledPkg_log :', e);
+     let fstemp = fs.existsSync(`${installDir}${package}`) //boolean으로 리턴
      if(fstemp){
        console.log(chalk.green.bold('[INFO]'), 'directory exists');
      }else{
        console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
-       // console.log('installDir:', installDir);
-       exec(`scp -r ${rpmDirOrigin}${package} root@${i}:${installDir}`)
-       // console.log(`${rpmDirOrigin}/${package}`,`${installDir}` );
-       console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to',i,'complete! Ready to install other package.');
+       exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
+       console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
      }
-    if(package == 'maven'){
-      makeMavenHome(i)
-      return 0;
-    }
-    isInstalledPkg(i, package, rpmDir);
-  })
+     console.log(chalk.green.bold('[INFO]'), 'Install', package);
+     installPackage(i, package, installDir);
+   }
+  if(package == 'maven'){
+    makeMavenHome(i)
+    return 0;
+  }
+})
 }
-
-
 
 // /etc/profile 에 추가
 // export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-2.el8_1.x86_64/jre/
@@ -107,6 +134,8 @@ program.parse(process.argv)
 
 
 function makeMavenHome(i){
+  //맨 처음에 profile 에 내용 추가하는 부분도 만들어야 하고
+  // 기존에 써있는거 체크하는 것도 만드는게 좋을 거 같음 !!!
   exec(`scp /etc/profile root@${i}:${installDir}`)
   console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
   exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
@@ -126,50 +155,10 @@ function makePythonLink(i){
 }
 
 
-function isInstalledPkg(i, package, rpmDir){
-  console.log('ip:', i);
-  switch(package){
-    case 'git' :
-      packageName = cmds.git;
-      break;
-    case 'java' :
-      packageName = cmds.java;
-      break;
-    case 'python' :
-      packageName = cmds.python;
-      break;
-    case 'maven' :
-      packageName = cmds.maven;
-      break;
-    default :
-      console.log(chalk.red.bold('[ERROR]'), package,'is cannot be installed. Try again other package.');
-      exec(`exit`)
-      return 0;
-  }
-  try{
-    // exec(`ssh root@${i}`)
-    // stdout = exec(`rpm -qa|grep ${packageName}`).toString();
-    stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
-    // console.log('first:',stdout);
-    if(stdout!=null){
-      console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
-      console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
-      // exec(`exit`)
-      versionCheck(i, package, rpmDir);
-    }
-  }
-  catch(e){
-    // console.log('[ERROR] isInstalledPkg_log :', e);
-    console.log(chalk.green.bold('[INFO]'), package, 'is not installed');
-    console.log(chalk.green.bold('[INFO]'), 'Install', package);
-    installPackage(i, package, rpmDir);
-  }
-}
 
 
 
-
-function versionCheck(i, package, rpmDir){
+function versionCheck(i, package, installDir){
   console.log(chalk.green.bold('[INFO]'), 'Start version check ...');
     switch(package){
       case 'git' :
@@ -196,18 +185,18 @@ function versionCheck(i, package, rpmDir){
       console.log(chalk.green.bold('[INFO]'), 'Version is not matched. Delete', package);
       deletePackage(i, package);
       console.log(chalk.green.bold('[INFO]'), 'Install new version of', package);
-      installPackage(i, package, rpmDir);
+      installPackage(i, package, installDir);
     }
   }
 
 
 
-  function installPackage(i, package, rpmDir){
-     exec(`ssh root@${i} ${cmds.installCmd} ${rpmDir}${package}/*`)
+  function installPackage(i, package, installDir){
+     exec(`ssh root@${i} ${cmds.installCmd} ${installDir}${package}/*`)
      console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
      if(package !== 'maven'){
-       exec(`rm -rf ${rpmDir}${package}`)
-       console.log('rpm 폴더 삭제');
+       exec(`rm -rf ${installDir}${package}`)
+       console.log(chalk.green.bold('[INFO]'), 'rpm 폴더 삭제');
      }
      if(package == 'python'){
         makePythonLink(i);
@@ -270,12 +259,4 @@ function versionCheck(i, package, rpmDir){
   	console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
         break;
      }
-  }
-
-
-
-
-
-  function installAll(){
-    console.log('install all package~');
   }
