@@ -1,6 +1,7 @@
 const PropertiesReader = require('properties-reader');
-// const properties = PropertiesReader('/home/skh/yh/skh_project/InstallConfig');
+
 const properties = PropertiesReader('./InstallConfig');
+
 module.exports = {
   //user정보
   get_hostname(){
