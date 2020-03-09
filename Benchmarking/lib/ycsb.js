@@ -254,7 +254,6 @@ module.exports.ycsb = (opt) => {
         }
       }
     }
-    function ycsbLoadRun(){
     //
     //
     // function ycsbLoadRun(){
