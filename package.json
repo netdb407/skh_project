@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "install": "./Installation/bin/install.js",
-    "benchmark": "./Benchmarking/bin/benchmark.js"
+    "installation": "./Installation/bin/install.js",
+    "benchmarking": "./Benchmarking/bin/benchmark.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
