@@ -11,7 +11,6 @@ const ycsb_timewindow = property.get_ycsb_timewindow()
 const fs = require('fs')
 const execSync = require('child_process').execSync
 const chalk = require('chalk')
-const async = require('async')
 let dbtypeLine = ''
 let runtypeLine = ''
 let wlfileLine = ''
