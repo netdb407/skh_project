@@ -1,7 +1,9 @@
+#!/usr/bin/env node
+
 const program = require('commander')
 const ycsbAction = require('../lib/ycsb.js')
 const graphbenchAction = require('../lib/graphbench.js')
-const chalk = require('chalk');
+const chalk = require('chalk')
 
 program
   .command('benchmark')
