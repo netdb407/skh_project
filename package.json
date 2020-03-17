@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "installation": "./Installation/bin/install.js",
-    "benchmarking": "./Benchmarking/bin/benchmark.js"
+    "install": "./Installation/bin/install.js",
+    "benchmark": "./Benchmarking/bin/benchmark.js",
+    "wlgenerating" : "./WorkloadGenerator/bin/WLgenerate_start.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
