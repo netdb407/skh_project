@@ -2,11 +2,11 @@ var inquirer = require('inquirer');
 var fs = require('fs');
 const program = require('commander');
 const property = require('../../propertiesReader.js')
-const ycsbDir = property.get_server_ycsb_dir()
-const wlfileDir = property.get_server_wlfile_dir()
 var updateFiles = require('./WLgenerate_update.js');
+const installDir = property.get_server_install_dir()
+const fileDir = property.get_server_file_dir()
 
-var dir = ycsbDir+"/"+wlfileDir+"/";
+var dir = installDir+fileDir;
 program
   .command('generate-wl')
 
