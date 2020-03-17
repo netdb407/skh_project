@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "install": "./Installation/bin/install.js",
-    "benchmark": "./Benchmarking/bin/benchmark.js"
+    "installation": "./Installation/bin/install.js",
+    "benchmarking": "./Benchmarking/bin/benchmark.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,25 +13,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "async": "^3.1.1",
+    "async": "^3.2.0",
     "author": "^1.0.0",
     "await": "^0.2.6",
-    "child_process": "^1.0.2",
-    "cli-progress": "^3.6.0",
-    "commander": "^4.1.0",
-    "dependencies": "0.0.1",
     "binary-search-bounds": "^2.0.4",
     "child_process": "^1.0.2",
     "cli-progress": "^3.6.0",
-    "commander": "^4.1.0",
+    "commander": "^4.1.1",
     "crypto": "^1.0.1",
     "dedent": "^0.7.0",
+    "dependencies": "0.0.1",
     "esm": "^3.2.25",
     "fs": "0.0.1-security",
-    "inquirer": "^7.0.3",
-    "license": "0.0.3",
     "git": "^0.1.5",
-    "inquirer": "^7.0.3",
+    "inquirer": "^7.0.6",
+    "license": "0.0.3",
     "loadsh": "0.0.4",
     "lodash.random": "^3.2.0",
     "p-queue": "^6.3.0",
