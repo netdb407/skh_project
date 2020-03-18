@@ -229,6 +229,7 @@ function versionCheck(i, package, installDir){
     }else{
       exec(`ssh root@${i} ${cmds.deleteCmd} ${packageName}`)
     }
+    //python은 delete아니지않나?symbolic인데
     console.log(chalk.green.bold('[INFO]'), package, 'Deletion complete!');
     exec(`exit`)
   }
