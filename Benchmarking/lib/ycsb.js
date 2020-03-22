@@ -8,6 +8,7 @@ const ycsb_exporter = property.get_ycsb_exporter()
 const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
 const ycsb_threadcount = property.get_ycsb_threadcount()
 const ycsb_timewindow = property.get_ycsb_timewindow()
+const cassandra_tracing_option = property.get_cassandra_tracing_option()
 const fs = require('fs')
 const execSync = require('child_process').execSync
 const chalk = require('chalk')
@@ -15,7 +16,9 @@ let dbtypeLine = ''
 let runtypeLine = ''
 let wlfileLine = ''
 let loadsizeLine = ''
-let loadsizecmd = ''
+let loadsizeCmd = ''
+let cassandraTracingLine = ''
+let cassandraTracingCmd = ''
 
 
 module.exports.ycsb = (opt) => {
@@ -30,6 +33,7 @@ module.exports.ycsb = (opt) => {
   benchmarkName(opt)
   checkTimewindow(opt)
   checkThreads(opt)
+  checkCassandraTracing(opt.dbtype, opt.casstracing)
 
   switch(opt.runtype){
     case 'load' :
@@ -47,13 +51,13 @@ module.exports.ycsb = (opt) => {
 
 
     function ycsbLoad(){
-      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
+      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)||(cassandraTracingLine.indexOf('error') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`)
+        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
         try {
-          // execSync(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
-          let cmd = `cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s`
+          // execSync(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
+          let cmd = `cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
           let loadcmd = exec(cmd)
 
           console.log('--------------------------------------')
@@ -82,12 +86,12 @@ module.exports.ycsb = (opt) => {
     }
 
     function ycsbRun(){
-      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
+      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)||(cassandraTracingLine.indexOf('error') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`)
+          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
           try {
-            let cmd = `cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s`
+            let cmd = `cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
             let runcmd = exec(cmd)
 
             console.log('--------------------------------------')
@@ -117,12 +121,12 @@ module.exports.ycsb = (opt) => {
 
 
     function ycsbLoadRun(){
-      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)){
+      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)||(cassandraTracingLine.indexOf('error') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
+        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`);
         try {
-          let cmd = `cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizecmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s`
+          let cmd = `cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
           let loadcmd = exec(cmd)
 
           console.log('--------------------------------------')
@@ -198,7 +202,7 @@ module.exports.ycsb = (opt) => {
       fieldlengthLine = `-p fieldlength=${fieldlength}`
       recordcountLine = `-p recordcount=${recordcount}`
 
-      loadsizecmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
+      loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
     }
   }
 
@@ -301,7 +305,6 @@ module.exports.ycsb = (opt) => {
         }
       }
     }
-
         try{
           execSync(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
         }catch (err) {
@@ -316,11 +319,11 @@ module.exports.ycsb = (opt) => {
         if(opt.timewindow == null) {
           opt.timewindow = `${ycsb_timewindow}`
           timewindowLine = `time window : ${opt.timewindow} (sec)`
-          timewindow=ycsb_timewindow*Math.pow(10,3)
+          timewindow = ycsb_timewindow*Math.pow(10,3)
           console.log(timewindowLine);
         }else {
           timewindowLine = `time window : ${opt.timewindow} (sec)`
-          timewindow= `${opt.timewindow}`*Math.pow(10,3)
+          timewindow = `${opt.timewindow}`*Math.pow(10,3)
           console.log(timewindowLine);
         }
       }
@@ -335,3 +338,32 @@ module.exports.ycsb = (opt) => {
           console.log(threadLine);
         }
       }
+
+    function checkCassandraTracing(dbtype, tracing){
+      if(!(dbtype == 'cassandra-cql')&&!(tracing == null)){
+        cassandraTracingLine = `error : 'cassandra tracing option' is only 'cassandra' option.`
+        console.log(cassandraTracingLine);
+      }else if(!(dbtype == 'cassandra-cql')&&(tracing == null)){
+        cassandraTracingCmd = ''
+      }else{
+        if(tracing == null){
+          cassandraTracing = `${cassandra_tracing_option}`
+          cassandraTracingLine = `cassandra tracing option : off`
+          cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+          console.log(cassandraTracingLine);
+        }else if(tracing == 'on'){
+          cassandraTracing = 'true'
+          cassandraTracingLine = `cassandra tracing option : ${tracing}`
+          cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+          console.log(cassandraTracingLine);
+        }else if(tracing == 'off'){
+          cassandraTracing = 'false'
+          cassandraTracingLine = `cassandra tracing option : ${tracing}`
+          cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+          console.log(cassandraTracingLine);
+        }else{
+          cassandraTracingLine = `error : invalid option '${tracing}', (choose from 'on', 'off')`
+          console.log(cassandraTracingLine);
+        }
+      }
+    }
