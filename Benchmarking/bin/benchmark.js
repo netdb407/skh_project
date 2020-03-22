@@ -16,6 +16,7 @@ program
   .option('-o, --output <output>', `assign output directory (server, node)`)
   .option('-s, --timewindow <timewindow>', `insert time window(sec)`)
   .option('-t, --threads <threads>',`insert number of threads`)
+  .option('-c, --casstracing <casstracing>',`set the cassandra tracing option to 'on', 'off'`)
   .action(function(opt){
 
     checkDBtype(opt)

@@ -89,7 +89,7 @@ module.exports = {
   },
 
 
-  //송희 추가
+  //송희 추가 - 카산드라 옵션
  get_cassandra_version(){
    return properties.get("cassandra_version");
  },
@@ -104,6 +104,11 @@ module.exports = {
  //update_configuration_path_server
  get_update_conf_path(){
    return properties.get("update_conf_path")
+ },
+
+ // 카산드라 tracing 옵션
+ get_cassandra_tracing_option(){
+   return properties.get("cassandra_tracing_option")
  }
 
 }
