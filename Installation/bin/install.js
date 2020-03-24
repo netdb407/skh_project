@@ -59,7 +59,7 @@ program
       ip = property.get_nodes_IP().split(',');
       ip.push(property.get_server_IP());
       ip = ip.sort();
-      packageAll = ['git', 'java', 'python', 'maven']
+      packageAll = ['git', 'python', 'java', 'maven']
       ip.forEach((i) => {
         packageAll.forEach((pck) => {
           isInstalledPkg(i, pck, installDir)
@@ -73,12 +73,12 @@ program.parse(process.argv)
 
 //java rpm 파일 바뀌었는데 테스트해보기 : 카산드라 돌릴 때 devel 버전이어야 하니까 지우고 다시 해보기
 
+
 function isInstalledPkg(i, package, installDir){
   ip.forEach((i) => {
    console.log('-----------------------------------');
    console.log(chalk.green.bold('[INFO]'),'IP address is', i);
    installDir = i==property.get_server_IP()? property.get_server_install_dir() : property.get_node_install_dir();
-   exec(`ssh root@${i}`)
    switch(package){
      case 'git' :
        packageName = cmds.git;
@@ -97,57 +97,41 @@ function isInstalledPkg(i, package, installDir){
        exec(`exit`)
        return 0;
    }
-   try{
-     if(package !== 'maven'){
-       stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
-       if(stdout!=null){
-         console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
-         console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
-         versionCheck(i, package, installDir);
-       }
-     }
-     else{
-       makeMavenHome(i)
-       return 0;
-     }
-   }
-   catch(e){
-     // console.log('[ERROR] isInstalledPkg_log :', e);
-     let fstemp = fs.existsSync(`${installDir}${package}`) //boolean으로 리턴
-     if(fstemp){
-       console.log(chalk.green.bold('[INFO]'), 'directory exists');
-     }else{
-       console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
-       exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
-       console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
-     }
-     console.log(chalk.green.bold('[INFO]'), 'Install', package);
-     installPackage(i, package, installDir);
-   }
 
-})
-}
+      try{
+        exec(`ssh root@${i} ls ${installDir}${package}`).toString();
+        console.log(chalk.green.bold('[INFO]'), 'directory exists');
+      }
+      catch(e){
+        console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
+        if(package == 'maven'||'java'){
+          exec(`scp ./sk_bench_tool root@${i}:${installDir}`)
+        }
+        exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
+        console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
+      }
 
-// /etc/profile 에 추가
-// export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-0.el8_1.x86_64/jre/
-// export MAVEN_HOME=/root/maven
-// export PATH=$PATH:$JAVA_HOME/bin
-// export PATH=$PATH:$MAVEN_HOME/bin
+
+      if(package == 'git'){
+        try{
+          stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
+          if(stdout!=null){
+            console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
+            console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
+            versionCheck(i, package, installDir);
+          }
+        }
+        catch(e){
+          installPackage(i, package, installDir);
+        }
+      }
+
+    })
+  }
 
 
 
-function makeMavenHome(i){
-  //맨 처음에 profile 에 내용 추가하는 부분도 만들어야 하고
-  // 기존에 써있는거 체크하는 것도 만드는게 좋을 거 같음 !!!
-  exec(`scp /etc/profile root@${i}:${installDir}`)
-  console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
-  exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
-  exec(`ssh root@${i} chmod +x /root/maven/bin/mvn`)
-  exec(`ssh root@${i} source /etc/profile`)
 
-  exec(`exit`)
-  console.log(chalk.green.bold('[INFO]'), 'Ready to use Maven.');
-}
 
 
 function makePythonLink(i){
@@ -195,18 +179,17 @@ function versionCheck(i, package, installDir){
 
 
   function installPackage(i, package, installDir){
+   if(package == 'git'|'python'){
      exec(`ssh root@${i} ${cmds.installCmd} ${installDir}${package}/*`)
      console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
-     if(package !== 'maven'){
-       exec(`rm -rf ${installDir}${package}`)
-       console.log(chalk.green.bold('[INFO]'), 'rpm 폴더 삭제');
-     }
+       // exec(`rm -rf ${installDir}${package}`)
+       // console.log(chalk.green.bold('[INFO]'), 'rpm 폴더 삭제');
      if(package == 'python'){
         makePythonLink(i);
      }
      exec(`exit`)
    }
-
+}
 
 
  function deletePackage(i, package){
@@ -229,6 +212,7 @@ function versionCheck(i, package, installDir){
     }else{
       exec(`ssh root@${i} ${cmds.deleteCmd} ${packageName}`)
     }
+    //python은 delete아니지않나?symbolic인데
     console.log(chalk.green.bold('[INFO]'), package, 'Deletion complete!');
     exec(`exit`)
   }
