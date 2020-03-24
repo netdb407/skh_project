@@ -28,6 +28,7 @@ class SeriesUnit {
   /**
    * @param time
    * @param average
+   * @param count
    */
   public SeriesUnit(long time, double average, double count) {
     this.time = time;
