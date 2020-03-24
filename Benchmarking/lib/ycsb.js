@@ -1,7 +1,7 @@
 const program = require('commander')
 const property = require('../../propertiesReader.js')
 const exec =  require('child_process').exec
-const wlfile_dir = property.get_server_wlfile_dir()
+const wlfile_dir = property.get_server_file_dir()
 const ycsb_dir = property.get_server_ycsb_dir()
 const nodes_IP = property.get_nodes_IP()
 const ycsb_exporter = property.get_ycsb_exporter()
@@ -12,6 +12,9 @@ const cassandra_tracing_option = property.get_cassandra_tracing_option()
 const fs = require('fs')
 const execSync = require('child_process').execSync
 const chalk = require('chalk')
+const async = require('async')
+const info = chalk.bold.green('[INFO]')
+const error = chalk.bold.red('ERR!')
 let dbtypeLine = ''
 let runtypeLine = ''
 let wlfileLine = ''
@@ -22,7 +25,8 @@ let cassandraTracingCmd = ''
 
 
 module.exports.ycsb = (opt) => {
-  const dbtypeLine = `dbtype : ${opt.dbtype}`
+  let dbtypeInfo = chalk.magenta('dbtype')
+  let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
   if(opt.dbtype == 'cassandra')
     opt.dbtype = 'cassandra-cql'
   console.log(dbtypeLine);
@@ -51,7 +55,7 @@ module.exports.ycsb = (opt) => {
 
 
     function ycsbLoad(){
-      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)||(cassandraTracingLine.indexOf('error') != -1)){
+      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
         console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
@@ -86,7 +90,7 @@ module.exports.ycsb = (opt) => {
     }
 
     function ycsbRun(){
-      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)||(cassandraTracingLine.indexOf('error') != -1)){
+      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('err') != -1)||(cassandraTracingLine.indexOf('err') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
           console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
@@ -121,7 +125,7 @@ module.exports.ycsb = (opt) => {
 
 
     function ycsbLoadRun(){
-      if((dbtypeLine.indexOf('error') != -1)||(runtypeLine.indexOf('error') != -1)||(wlfileLine.indexOf('error') != -1)||(loadsizeLine.indexOf('error') != -1)||(cassandraTracingLine.indexOf('error') != -1)){
+      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
         console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`);
@@ -158,43 +162,85 @@ module.exports.ycsb = (opt) => {
   }
 
   function checkRuntype(runtype){
+    let runtypeInfo = chalk.magenta('runtype')
     if(runtype == 'load' || runtype == 'run' || runtype == 'loadrun'){
-      runtypeLine = `runtype : ${runtype}`
+      runtypeLine = `${runtypeInfo} : ${runtype}`
       console.log(runtypeLine)
     }else {
-      runtypeLine = `error : invalid choice ${runtype}, (choose from 'load', 'run', 'loadrun')`
+      runtypeLine = `${error} ${runtypeInfo} : invalid choice ${runtype}, (choose from 'load', 'run', 'loadrun')`
       console.log(runtypeLine)
     }
   }
 
+
   function checkFile(wlfile){
+    let wlfileInfo = chalk.magenta('workload file')
       if(wlfile == null) {
-        wlfileLine = `error : enter workload filename or type(news, contents, facebook, log, recommendation ..)`
+        wlfileLine = `${error} ${wlfileInfo} : enter workload filename or type(news, contents, facebook, log, recommendation ..)`
         console.log(wlfileLine)
       }else{
-        let file = `${ycsb_dir}/${wlfile_dir}/${wlfile}`
+        let file = `${wlfile_dir}/${wlfile}`
         try {
           fs.statSync(file);
-          wlfileLine = `workload file : ${wlfile}`
+          wlfileLine = `${wlfileInfo} : ${wlfile}`
           console.log(wlfileLine)
         }catch (err) {
           if (err.code === 'ENOENT') {
             // console.log(err);
-          wlfileLine = `error : invalid workload file : workloads/${wlfile} (No such type or file)`
+          wlfileLine = `${error} ${wlfileInfo} : invalid workload file : workloads/${wlfile} (No such type or file)`
           console.log(wlfileLine)
         }
       }
     }
   }
 
+
+
   function checkLoadsize(runtype, loadsize){
     if((runtype == 'run') && (loadsize)){
-      loadsizeLine = `error : 'loadsize' is 'load', 'loadrun' option`
+      let loadsizeInfo = chalk.magenta('load size')
+      loadsizeLine = `${error} ${loadsizeInfo}: 'loadsize' is 'load', 'loadrun' option`
       console.log(loadsizeLine);
     }else if ((runtype == 'load'|| runtype == 'loadrun') && (loadsize)){ // load에 대한 loadsize 옵션
-
       // 10M -> 10
       transformLoadsize(loadsize)
+    }
+  }
+
+  function transformLoadsize(loadsize){
+    let loadsizeInfo = chalk.magenta('load size')
+    if (loadsize.match(/M/)){
+      splitSize = loadsize.split('M');
+      recordcount = splitSize[0]
+      loadsizeLine = `${loadsizeInfo} : ${loadsize}`
+
+      fieldcount = 10
+      fieldlength = Math.pow(10,6)/fieldcount
+      fieldcountLine = `-p fieldcount=${fieldcount}`
+      fieldlengthLine = `-p fieldlength=${fieldlength}`
+      recordcountLine = `-p recordcount=${recordcount}`
+
+      loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
+
+    }
+    else if (loadsize.match(/G/)){
+      splitSize = loadsize.split('G');
+      recordcount = splitSize[0]*Math.pow(10,3)
+      loadsizeLine = `${loadsizeInfo} : ${loadsize}`
+
+      fieldcount = 10
+      fieldlength = Math.pow(10,6)/fieldcount
+      fieldcountLine = `-p fieldcount=${fieldcount}`
+      fieldlengthLine = `-p fieldlength=${fieldlength}`
+      recordcountLine = `-p recordcount=${recordcount}`
+
+      loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
+
+    }
+    else if (loadsize.match(/T/)){
+      splitSize = loadsize.split('T');
+      recordcount = splitSize[0]*Math.pow(10,6)
+      loadsizeLine = `${loadsizeInfo} : ${loadsize}`
 
       fieldcount = 10
       fieldlength = Math.pow(10,6)/fieldcount
@@ -204,30 +250,12 @@ module.exports.ycsb = (opt) => {
 
       loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
     }
-  }
-
-  function transformLoadsize(loadsize){
-    if (loadsize.match(/M/)){
-      splitSize = loadsize.split('M');
-      recordcount = splitSize[0]
-      loadsizeLine = `load size : ${loadsize}`
-    }
-    else if (loadsize.match(/G/)){
-      splitSize = loadsize.split('G');
-      recordcount = splitSize[0]*Math.pow(10,3)
-      loadsizeLine = `load size : ${loadsize}`
-    }
-    else if (loadsize.match(/T/)){
-      splitSize = loadsize.split('T');
-      recordcount = splitSize[0]*Math.pow(10,6)
-      loadsizeLine = `load size : ${loadsize}`
-    }
     else{
-      loadsizeLine = `error : enter load size in (###M, ###G, ###T) format.`
+      loadsizeLine = `${error} ${loadsizeInfo} : enter load size in (###M, ###G, ###T) format.`
     }
+
     console.log(loadsizeLine)
   }
-
 
     function benchmarkName(opt){
       if((typeof opt.name) == 'function'){ // n 값이 없으면 디폴트값 만들어줌
@@ -316,53 +344,56 @@ module.exports.ycsb = (opt) => {
     }
 
     function checkTimewindow(opt){
+      let timewindowInfo = chalk.magenta('timewindow')
         if(opt.timewindow == null) {
           opt.timewindow = `${ycsb_timewindow}`
-          timewindowLine = `time window : ${opt.timewindow} (sec)`
+          timewindowLine = `${timewindowInfo} : ${opt.timewindow} (sec)`
           timewindow = ycsb_timewindow*Math.pow(10,3)
           console.log(timewindowLine);
         }else {
-          timewindowLine = `time window : ${opt.timewindow} (sec)`
+          timewindowLine = `timewindowInfo : ${opt.timewindow} (sec)`
           timewindow = `${opt.timewindow}`*Math.pow(10,3)
           console.log(timewindowLine);
         }
       }
 
     function checkThreads(opt){
+      let threadsInfo = chalk.magenta('threads')
         if(opt.threads == null) {
           opt.threads = `${ycsb_threadcount}`
-          threadLine = `threads : ${opt.threads}`
+          threadLine = `${threadsInfo} : ${opt.threads}`
           console.log(threadLine);
         }else {
-          threadLine = `threads : ${opt.threads}`
+          threadLine = `${threadsInfo} : ${opt.threads}`
           console.log(threadLine);
         }
       }
 
     function checkCassandraTracing(dbtype, tracing){
+      let cassandratracingInfo = chalk.magenta('cassandra tracing')
       if(!(dbtype == 'cassandra-cql')&&!(tracing == null)){
-        cassandraTracingLine = `error : 'cassandra tracing option' is only 'cassandra' option.`
+        cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
         console.log(cassandraTracingLine);
       }else if(!(dbtype == 'cassandra-cql')&&(tracing == null)){
         cassandraTracingCmd = ''
       }else{
         if(tracing == null){
           cassandraTracing = `${cassandra_tracing_option}`
-          cassandraTracingLine = `cassandra tracing option : off`
+          cassandraTracingLine = `${cassandratracingInfo} : off`
           cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
           console.log(cassandraTracingLine);
         }else if(tracing == 'on'){
           cassandraTracing = 'true'
-          cassandraTracingLine = `cassandra tracing option : ${tracing}`
+          cassandraTracingLine = `${cassandratracingInfo} : ${tracing}`
           cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
           console.log(cassandraTracingLine);
         }else if(tracing == 'off'){
           cassandraTracing = 'false'
-          cassandraTracingLine = `cassandra tracing option : ${tracing}`
+          cassandraTracingLine = `${cassandratracingInfo} : ${tracing}`
           cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
           console.log(cassandraTracingLine);
         }else{
-          cassandraTracingLine = `error : invalid option '${tracing}', (choose from 'on', 'off')`
+          cassandraTracingLine = `${error} ${cassandratracingInfo} : invalid option '${tracing}', (choose from 'on', 'off')`
           console.log(cassandraTracingLine);
         }
       }

@@ -4,6 +4,7 @@ const program = require('commander')
 const ycsbAction = require('../lib/ycsb.js')
 const graphbenchAction = require('../lib/graphbench.js')
 const chalk = require('chalk')
+const error = chalk.bold.red('ERR!')
 
 program
   .command('benchmark')
@@ -26,7 +27,7 @@ program.parse(process.argv);
 
 
 function checkDBtype(opt){
-  // console.log(opt);
+  let dbtypeInfo = chalk.magenta('dbtype')
   switch(opt.dbtype){
     case 'cassandra' :
       ycsbAction.ycsb(opt);
@@ -39,7 +40,8 @@ function checkDBtype(opt){
       ycsbAction.ycsb(opt);
       break;
     default :
-      console.log(`error : dbtype choose from 'cassandra', 'arangodb', 'orientdb'`)
+      let dbtypeLine = `${error} ${dbtypeInfo} : invalid choice ${opt.dbtype}, (choose from 'cassandra', 'arangodb', 'orientdb')`
+      console.log(dbtypeLine)
       break;
     }
 }
