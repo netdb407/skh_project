@@ -4,7 +4,7 @@ const program = require('commander')
 const ycsbAction = require('../lib/ycsb.js')
 const graphbenchAction = require('../lib/graphbench.js')
 const chalk = require('chalk')
-const error = chalk.bold.red('ERR!')
+const error = chalk.red('ERR!')
 
 program
   .command('benchmark')
