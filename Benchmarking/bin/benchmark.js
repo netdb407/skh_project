@@ -28,7 +28,7 @@ program.parse(process.argv);
 
 
 function checkDBtype(opt){
-  exec(`chmod -R +x . && mkdir YCSB_RESULT`)
+  exec(`chmod -R +x`)
   let dbtypeInfo = chalk.magenta('dbtype')
   switch(opt.dbtype){
     case 'cassandra' :

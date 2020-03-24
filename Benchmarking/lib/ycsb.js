@@ -22,8 +22,8 @@ let loadsizeCmd = ''
 let cassandraTracingLine = ''
 let cassandraTracingCmd = ''
 
-
 module.exports.ycsb = (opt) => {
+  exec(`mkdir YCSB_RESULT`)
   let dbtypeInfo = chalk.magenta('dbtype')
   let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
   if(opt.dbtype == 'cassandra')
