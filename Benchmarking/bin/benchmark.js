@@ -5,7 +5,7 @@ const ycsbAction = require('../lib/ycsb.js')
 const graphbenchAction = require('../lib/graphbench.js')
 const chalk = require('chalk')
 const error = chalk.red('ERR!')
-
+const exec =  require('child_process').exec
 program
   .command('benchmark')
   .option('-d, --dbtype <dbtype>', `insert dbtype, choose from 'cassandra', 'arangodb', 'orientdb'`)
@@ -20,6 +20,7 @@ program
   .option('-c, --casstracing <casstracing>',`set the cassandra tracing option to 'on', 'off'`)
   .action(function(opt){
 
+
     checkDBtype(opt)
 })
 
@@ -27,6 +28,7 @@ program.parse(process.argv);
 
 
 function checkDBtype(opt){
+  exec(`chmod -R +x . && mkdir YCSB_RESULT`)
   let dbtypeInfo = chalk.magenta('dbtype')
   switch(opt.dbtype){
     case 'cassandra' :
