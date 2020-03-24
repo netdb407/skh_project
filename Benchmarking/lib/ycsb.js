@@ -14,7 +14,7 @@ const execSync = require('child_process').execSync
 const chalk = require('chalk')
 const async = require('async')
 const info = chalk.bold.green('[INFO]')
-const error = chalk.bold.red('ERR!')
+const error = chalk.red('ERR!')
 let dbtypeLine = ''
 let runtypeLine = ''
 let wlfileLine = ''
@@ -264,6 +264,7 @@ module.exports.ycsb = (opt) => {
           while(1){
             let file = `${ycsb_exportfile_dir}/${opt.name}`
             // let file = `./YCSB_RESULT/${opt.name}`
+
             fs.statSync(file);
 
             let string = opt.name
