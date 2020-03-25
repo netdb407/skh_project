@@ -156,7 +156,7 @@ module.exports.ycsb = (opt) => {
   function checkCassandra(opt){
     let cassandratracingInfo = chalk.magenta('cassandra tracing')
     let dbtypeInfo = chalk.magenta('dbtype')
-    if(opt.dbtype == 'cassandra'){
+    if(opt.dbtype == 'cassandra'){ // 카산드라일때 tracinㅎ 옵션
       let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
       opt.dbtype = 'cassandra-cql'
       console.log(dbtypeLine);
@@ -172,9 +172,17 @@ module.exports.ycsb = (opt) => {
         cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
         console.log(cassandraTracingLine);
       }
-    }else{
-      cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
-      console.log(cassandraTracingLine);
+    }else{ // 카산드라가 아닐때
+      let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+      console.log(dbtypeLine);
+
+      if(opt.casstracing==true){
+        cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
+        console.log(cassandraTracingLine);
+      }else{
+        cassandraTracingLine = ''
+      }
+
     }
   }
 
@@ -215,7 +223,7 @@ module.exports.ycsb = (opt) => {
 
 
   function checkLoadsize(runtype, loadsize){
-    if((runtype == 'run') && (loadsize)){
+    if((runtype == 'run') && (loadsize)){ // run인데 load size가 있는 경우
       let loadsizeInfo = chalk.magenta('load size')
       loadsizeLine = `${error} ${loadsizeInfo}: 'loadsize' is 'load', 'loadrun' option`
       console.log(loadsizeLine);
@@ -260,10 +268,10 @@ module.exports.ycsb = (opt) => {
       loadsizeLine = `${loadsizeInfo} : ${loadsize}`
       loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
     }
-    else{
+    else{ // 형식이 안 맞으면 error
       loadsizeLine = `${error} ${loadsizeInfo} : enter load size in (###M, ###G, ###T) format.`
+      loadsizeCmd = ''
     }
-
     console.log(loadsizeLine)
   }
 
@@ -347,7 +355,7 @@ module.exports.ycsb = (opt) => {
       }
     }
 
-    function isNumber(s) {
+    function isNumber(s) { // 입력이 숫자인지 확인해주는 함수
       s += ''; // 문자열로 변환
       s = s.replace(/^\s*|\s*$/g, ''); // 좌우 공백 제거
       if (s == '' || isNaN(s)) return false;
@@ -356,12 +364,12 @@ module.exports.ycsb = (opt) => {
 
     function checkTimewindow(opt){
       let timewindowInfo = chalk.magenta('timewindow')
-        if(opt.timewindow == null) {
+        if(opt.timewindow == null) { // 값이 없으면 default
           opt.timewindow = 1
           timewindowLine = `${timewindowInfo} : ${opt.timewindow} (sec)`
           timewindow = `${opt.timewindow}`*Math.pow(10,3)
           console.log(timewindowLine);
-        }else {
+        }else { // 값이 있으면 숫자인지 확인
           if(isNumber(opt.timewindow)){
             timewindowLine = `${timewindowInfo} : ${opt.timewindow} (sec)`
             timewindow = `${opt.timewindow}`*Math.pow(10,3)
@@ -375,11 +383,11 @@ module.exports.ycsb = (opt) => {
 
     function checkThreads(opt){
       let threadsInfo = chalk.magenta('threads')
-        if(opt.threads == null) {
+        if(opt.threads == null) { // 값이 없으면 default
           opt.threads = 1
           threadLine = `${threadsInfo} : ${opt.threads}`
           console.log(threadLine);
-        }else {
+        }else { // 값이 있으면 숫자인지 확인
           if(isNumber(opt.threads)){
             threadLine = `${threadsInfo} : ${opt.threads}`
             console.log(threadLine);
