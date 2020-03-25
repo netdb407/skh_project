@@ -71,6 +71,9 @@ module.exports = {
   get_ycsb_timewindow(){
     return properties.get("ycsb_timewindow")
   },
+  get_home_exporter(){
+    return properties.get("home_exporter");
+  },
 
   //IO Tracer
   get_IO_output_dir(){
