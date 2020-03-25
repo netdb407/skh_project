@@ -104,9 +104,6 @@ function isInstalledPkg(i, package, installDir){
       }
       catch(e){
         console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
-        if(package == 'maven'||'java'){
-          exec(`scp ./sk_bench_tool root@${i}:${installDir}`)
-        }
         exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
         console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
       }
