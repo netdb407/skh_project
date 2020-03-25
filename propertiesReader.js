@@ -82,6 +82,9 @@ module.exports = {
   get_path_exporter(){
     return properties.get("path_exporter");
   },
+  get_home_exporter(){
+    return properties.get("home_exporter");
+  },
 
 
   //IO Tracer
