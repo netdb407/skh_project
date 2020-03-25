@@ -15,9 +15,9 @@ rpm_dir_in_skhproject = /root/skh_project/Installation/rpm/
 #server directory
 server_install_dir = /root/skh_project/package/
 server_wlfile_dir = workloads
-server_ycsb_dir = ./YCSB
+server_ycsb_dir = ./YCSB/
 server_WLgenerate_dir = WorkloadGenerator/bin/
-server_file_dir = YCSB/workloads/
+server_file_dir = workloads/
 
 #node directory
 node_install_dir = /root/ssdStorage/package/
@@ -59,3 +59,5 @@ node_cassandra_dir = /root/ssdStorage/skh_project/
 #update_configuration_path_server
 #update_conf_path = /home/skh/yh/skh_project/Update/
 update_conf_path = /root/ssdStorage/skh_project/Update/
+
+cassandra_tracing_option = false
