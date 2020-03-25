@@ -154,13 +154,13 @@ module.exports.ycsb = (opt) => {
   }
 
   function checkCassandra(opt){
+    let cassandratracingInfo = chalk.magenta('cassandra tracing')
+    let dbtypeInfo = chalk.magenta('dbtype')
     if(opt.dbtype == 'cassandra'){
-      let dbtypeInfo = chalk.magenta('dbtype')
       let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
       opt.dbtype = 'cassandra-cql'
       console.log(dbtypeLine);
 
-      let cassandratracingInfo = chalk.magenta('cassandra tracing')
       if(opt.casstracing==true){
         cassandraTracing = 'true'
         cassandraTracingLine = `${cassandratracingInfo} : on`

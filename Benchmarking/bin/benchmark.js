@@ -15,7 +15,7 @@ program
   .option('-w, --wlfile <wlfile>', `insert workload file type or name [type:news, contents, facebook, log, recommendation ..]`)
   // .option('-c --config <config>', `config 파일 입력`)
   .option('-n, --name <name>', `insert benchmark name`)
-  .option('-o, --output <output>', `assign output directory (server, node)`)
+  // .option('-o, --output <output>', `assign output directory (server, node)`)
   .option('-s, --timewindow <timewindow>', `insert time window (sec) (default : 1 sec)`)
   .option('-t, --threads <threads>',`insert number of threads (default : 1)`)
   .option('-c, --casstracing',` enable the cassandra tracing option (default : off)`)
