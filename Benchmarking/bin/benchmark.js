@@ -17,7 +17,7 @@ program
   .option('-o, --output <output>', `assign output directory (server, node)`)
   .option('-s, --timewindow <timewindow>', `insert time window(sec)`)
   .option('-t, --threads <threads>',`insert number of threads`)
-  .option('-c, --casstracing <casstracing>',`set the cassandra tracing option to 'on', 'off'`)
+  .option('-c, --casstracing',`set the cassandra tracing option to 'on', 'off'`)
   .action(function(opt){
 
 
@@ -28,7 +28,7 @@ program.parse(process.argv);
 
 
 function checkDBtype(opt){
-  exec(`chmod -R +x`)
+  exec('chmod -R +x .')
   let dbtypeInfo = chalk.magenta('dbtype')
   switch(opt.dbtype){
     case 'cassandra' :

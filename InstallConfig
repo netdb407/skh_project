@@ -63,4 +63,4 @@ node_cassandra_dir = /root/ssdStorage/skh_project/
 #update_conf_path = /home/skh/yh/skh_project/Update/
 update_conf_path = /root/ssdStorage/skh_project/Update/
 
-cassandra_tracing_option = false
+cassandra_tracing_option = true

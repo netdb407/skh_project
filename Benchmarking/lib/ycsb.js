@@ -2,13 +2,13 @@ const program = require('commander')
 const property = require('../../propertiesReader.js')
 const exec =  require('child_process').exec
 const fs = require('fs')
-const execSync = require('child_process').execSync
 const chalk = require('chalk')
-
+const java_exporter = property.get_java_exporter()
+const maven_exporter = property.get_maven_exporter()
+const path_exporter = property.get_path_exporter()
 const home_exporter = property.get_home_exporter()
-
 const wlfile_dir = property.get_server_file_dir()
-const ycsb_dir = property.get_server_ycsb_dir()
+const server_ycsb_dir = property.get_server_ycsb_dir()
 const nodes_IP = property.get_nodes_IP()
 const ycsb_exporter = property.get_ycsb_exporter()
 const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
@@ -34,7 +34,7 @@ module.exports.ycsb = (opt) => {
   benchmarkName(opt)
   checkTimewindow(opt)
   checkThreads(opt)
-  checkCassandraTracing(opt.dbtype, opt.casstracing)
+  checkCassandraTracing(opt)
 
   switch(opt.runtype){
     case 'load' :
@@ -55,13 +55,13 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-        console.log(`${home_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
+        console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
         try {
           // execSync(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
 
           //let cmd = `./sk_bench_tool cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
           // let cmd = `export JAVA_HOME=/root/skh_project/package/java && export MAVEN_HOME=/root/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-          let cmd = `${home_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+          let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
           let loadcmd = exec(cmd)
 
           console.log('--------------------------------------')
@@ -93,9 +93,9 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('err') != -1)||(cassandraTracingLine.indexOf('err') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-          console.log(`${home_exporter} && cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
+          console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
           try {
-            let cmd = `${home_exporter} && cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+            let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
             let runcmd = exec(cmd)
 
             console.log('--------------------------------------')
@@ -128,9 +128,9 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-        console.log(`${home_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`);
+        console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`);
         try {
-          let cmd = `${home_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+          let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
           let loadcmd = exec(cmd)
 
           console.log('--------------------------------------')
@@ -179,7 +179,7 @@ module.exports.ycsb = (opt) => {
         wlfileLine = `${error} ${wlfileInfo} : enter workload filename or type(news, contents, facebook, log, recommendation ..)`
         console.log(wlfileLine)
       }else{
-        let file = `${ycsb_dir}${wlfile_dir}${wlfile}`
+        let file = `${server_ycsb_dir}${wlfile_dir}${wlfile}`
         try {
           fs.statSync(file);
           wlfileLine = `${wlfileInfo} : ${wlfile}`
@@ -209,45 +209,37 @@ module.exports.ycsb = (opt) => {
 
   function transformLoadsize(loadsize){
     let loadsizeInfo = chalk.magenta('load size')
-    if (loadsize.match(/M/)){
-      splitSize = loadsize.split('M');
-      recordcount = splitSize[0]
-      loadsizeLine = `${loadsizeInfo} : ${loadsize}`
+    let fieldcount = 10
+    let fieldlength = Math.pow(10,6)/fieldcount
 
-      fieldcount = 10
-      fieldlength = Math.pow(10,6)/fieldcount
+    if (loadsize.match(/M/)){
+      recordcount = loadsize.split('M')[0]
+
       fieldcountLine = `-p fieldcount=${fieldcount}`
       fieldlengthLine = `-p fieldlength=${fieldlength}`
       recordcountLine = `-p recordcount=${recordcount}`
 
+      loadsizeLine = `${loadsizeInfo} : ${loadsize}`
       loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
-
     }
     else if (loadsize.match(/G/)){
-      splitSize = loadsize.split('G');
-      recordcount = splitSize[0]*Math.pow(10,3)
-      loadsizeLine = `${loadsizeInfo} : ${loadsize}`
+      recordcount = loadsize.split('G')[0]*Math.pow(10,3)
 
-      fieldcount = 10
-      fieldlength = Math.pow(10,6)/fieldcount
       fieldcountLine = `-p fieldcount=${fieldcount}`
       fieldlengthLine = `-p fieldlength=${fieldlength}`
       recordcountLine = `-p recordcount=${recordcount}`
 
+      loadsizeLine = `${loadsizeInfo} : ${loadsize}`
       loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
-
     }
     else if (loadsize.match(/T/)){
-      splitSize = loadsize.split('T');
-      recordcount = splitSize[0]*Math.pow(10,6)
-      loadsizeLine = `${loadsizeInfo} : ${loadsize}`
+      recordcount = loadsize.split('T')[0]*Math.pow(10,6)
 
-      fieldcount = 10
-      fieldlength = Math.pow(10,6)/fieldcount
       fieldcountLine = `-p fieldcount=${fieldcount}`
       fieldlengthLine = `-p fieldlength=${fieldlength}`
       recordcountLine = `-p recordcount=${recordcount}`
 
+      loadsizeLine = `${loadsizeInfo} : ${loadsize}`
       loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
     }
     else{
@@ -263,14 +255,11 @@ module.exports.ycsb = (opt) => {
         try{
           while(1){
             let file = `${ycsb_exportfile_dir}/${opt.name}`
-            // let file = `./YCSB_RESULT/${opt.name}`
-
-            fs.statSync(file);
+            fs.statSync(file); // 파일 존재 확인
 
             let string = opt.name
-            // 마지막 sequence 자르기
-            let strArray=string.split('_')
-            let seqString=strArray[strArray.length-1] // 마지막 인자 => 0000 시퀀스
+            let strArray=string.split('_') // 마지막 sequence 자르기
+            let seqString=strArray[strArray.length-1] // 마지막 인자 (숫자 저장)
 
             // 배열에 담기 (스트링->각 요소들을 숫자로)
             let seqArray = new Array();
@@ -292,50 +281,46 @@ module.exports.ycsb = (opt) => {
             // console.log(err);
         }
       }
+    }else { //n 값이 있으면 else if((typeof opt.name) == 'string')
+      try{
+        while(1){
+          let file = `${ycsb_exportfile_dir}/${opt.name}`
+          fs.statSync(file);
+          let string = opt.name
 
-      }else { //n 값이 있으면 else if((typeof opt.name) == 'string')
-        try{
-          while(1){
-            let file = `${ycsb_exportfile_dir}/${opt.name}`
-            // let file = `./YCSB_RESULT/${opt.name}`
-            fs.statSync(file);
+          let substring = string.substring(string.length, string.length-2)
+          let newstring = string.substring(0, string.length-2)
 
-            let string = opt.name
+          let strArray=string.split('_')
+          let seqString=strArray[strArray.length-1] // 마지막 인자
 
-            let substring = string.substring(string.length, string.length-2)
-            let newstring = string.substring(0, string.length-2)
-
-            let strArray=string.split('_')
-            let seqString=strArray[strArray.length-1] // 마지막 인자 => 0000 시퀀스
-
-            if(!(isNaN(seqString))){
+          if(!(isNaN(seqString))){
 
               // 배열에 담기 (스트링->각 요소들을 숫자로)
-              let seqArray = new Array();
-              let newArray = new Array();
-              seqArray = seqString.split("");
+            let seqArray = new Array();
+            let newArray = new Array();
+            seqArray = seqString.split("");
 
-              let seqNum = 0
+            let seqNum = 0
               // 각 요소들을 더해서 숫자로 계산
-              for(let i = 0; i < seqArray.length; i++){
-                newArray[i]=seqArray[i]*Math.pow(10,seqArray.length-1-i)
-                newArray[seqArray.length-1] = newArray[seqArray.length-1]+1
-                seqNum += newArray[i]
-              }
-              opt.name = `${strArray[0]}_${seqNum}` // strArray 첫번째 인자
-            }else{
-              opt.name = `${opt.name}_2`
+            for(let i = 0; i < seqArray.length; i++){
+              newArray[i]=seqArray[i]*Math.pow(10,seqArray.length-1-i)
+              newArray[seqArray.length-1] = newArray[seqArray.length-1]+1
+              seqNum += newArray[i]
             }
+            opt.name = `${strArray[0]}_${seqNum}` // strArray 첫번째 인자
+          }else{
+            opt.name = `${opt.name}_2`
           }
-        }catch (err) {
-          if (err.code === 'ENOENT') {
-            // console.log(chalk.red.bold('[ERROR]'),'There was an error.')
-            // console.log(err);
+        }
+      }catch (err) {
+        if (err.code === 'ENOENT') {
+
         }
       }
     }
-        try{
-          execSync(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
+    try{
+      exec(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
         }catch (err) {
           if (err.code === 'ENOENT') {
             // console.log(chalk.red.bold('[ERROR]'),'There was an error.')
@@ -370,32 +355,20 @@ module.exports.ycsb = (opt) => {
         }
       }
 
-    function checkCassandraTracing(dbtype, tracing){
+    function checkCassandraTracing(opt){
       let cassandratracingInfo = chalk.magenta('cassandra tracing')
-      if(!(dbtype == 'cassandra-cql')&&!(tracing == null)){
-        cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
-        console.log(cassandraTracingLine);
-      }else if(!(dbtype == 'cassandra-cql')&&(tracing == null)){
-        cassandraTracingCmd = ''
-      }else{
-        if(tracing == null){
+
+      if(opt.casstracing==true){
+        if(opt.dbtype == 'cassandra-cql'){
           cassandraTracing = `${cassandra_tracing_option}`
-          cassandraTracingLine = `${cassandratracingInfo} : off`
-          cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
-          console.log(cassandraTracingLine);
-        }else if(tracing == 'on'){
-          cassandraTracing = 'true'
-          cassandraTracingLine = `${cassandratracingInfo} : ${tracing}`
-          cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
-          console.log(cassandraTracingLine);
-        }else if(tracing == 'off'){
-          cassandraTracing = 'false'
-          cassandraTracingLine = `${cassandratracingInfo} : ${tracing}`
+          cassandraTracingLine = `${cassandratracingInfo} : on`
           cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
           console.log(cassandraTracingLine);
         }else{
-          cassandraTracingLine = `${error} ${cassandratracingInfo} : invalid option '${tracing}', (choose from 'on', 'off')`
+          cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
           console.log(cassandraTracingLine);
         }
+      }else {
+        cassandraTracingCmd = ''
       }
     }
