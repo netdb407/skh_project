@@ -60,11 +60,12 @@ program
       ip.push(property.get_server_IP());
       ip = ip.sort();
       packageAll = ['git', 'python', 'java', 'maven']
-      ip.forEach((i) => {
-        packageAll.forEach((pck) => {
-          isInstalledPkg(i, pck, installDir)
-        })
-      })
+      for(var i of ip){
+        for(var pck of packageAll){
+            isInstalledPkg(i, pck, installDir)
+        }
+        break;
+      }
     }
  })
 program.parse(process.argv)
@@ -76,8 +77,8 @@ program.parse(process.argv)
 
 function isInstalledPkg(i, package, installDir){
   ip.forEach((i) => {
-   console.log('-----------------------------------');
-   console.log(chalk.green.bold('[INFO]'),'IP address is', i);
+   console.log('----------------------------------------------------------');
+   console.log(chalk.green.bold('[INFO]'), 'Installation', chalk.blue.bold(package), 'into IP address', chalk.blue.bold(i));
    installDir = i==property.get_server_IP()? property.get_server_install_dir() : property.get_node_install_dir();
    switch(package){
      case 'git' :
@@ -94,10 +95,9 @@ function isInstalledPkg(i, package, installDir){
        break;
      default :
        console.log(chalk.red.bold('[ERROR]'), package,'is cannot be installed. Try again other package.');
-       exec(`exit`)
-       return 0;
+       // exec(`exit`)
+       // return 0;
    }
-
       try{
         exec(`ssh root@${i} ls ${installDir}${package}`).toString();
         console.log(chalk.green.bold('[INFO]'), 'directory exists');
