@@ -12,29 +12,21 @@ const server_ycsb_dir = property.get_server_ycsb_dir()
 const nodes_IP = property.get_nodes_IP()
 const ycsb_exporter = property.get_ycsb_exporter()
 const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
-const ycsb_threadcount = property.get_ycsb_threadcount()
-const ycsb_timewindow = property.get_ycsb_timewindow()
-const cassandra_tracing_option = property.get_cassandra_tracing_option()
 
 const info = chalk.bold.green('[INFO]')
 const error = chalk.red('ERR!')
-let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loadsizeCmd = '', cassandraTracingLine = '', cassandraTracingCmd = ''
+let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loadsizeCmd = '', threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracingCmd = ''
 
 module.exports.ycsb = (opt) => {
   exec(`mkdir YCSB_RESULT`)
-  let dbtypeInfo = chalk.magenta('dbtype')
-  let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
-  if(opt.dbtype == 'cassandra')
-    opt.dbtype = 'cassandra-cql'
-  console.log(dbtypeLine);
 
+  checkCassandra(opt)
   checkRuntype(opt.runtype)
   checkFile(opt.wlfile)
   checkLoadsize(opt.runtype, opt.loadsize)
   benchmarkName(opt)
   checkTimewindow(opt)
   checkThreads(opt)
-  checkCassandraTracing(opt)
 
   switch(opt.runtype){
     case 'load' :
@@ -52,7 +44,7 @@ module.exports.ycsb = (opt) => {
 
 
     function ycsbLoad(){
-      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
+      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
         console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
@@ -90,7 +82,7 @@ module.exports.ycsb = (opt) => {
     }
 
     function ycsbRun(){
-      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('err') != -1)||(cassandraTracingLine.indexOf('err') != -1)){
+      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('err') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('err') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
           console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
@@ -125,7 +117,7 @@ module.exports.ycsb = (opt) => {
 
 
     function ycsbLoadRun(){
-      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
+      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
         console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`);
@@ -160,6 +152,32 @@ module.exports.ycsb = (opt) => {
       }
     }
   }
+
+  function checkCassandra(opt){
+    if(opt.dbtype == 'cassandra'){
+      let dbtypeInfo = chalk.magenta('dbtype')
+      let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+      opt.dbtype = 'cassandra-cql'
+      console.log(dbtypeLine);
+
+      let cassandratracingInfo = chalk.magenta('cassandra tracing')
+      if(opt.casstracing==true){
+        cassandraTracing = 'true'
+        cassandraTracingLine = `${cassandratracingInfo} : on`
+        cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+        console.log(cassandraTracingLine);
+      }else{
+        cassandraTracing = 'false'
+        cassandraTracingLine = `${cassandratracingInfo} : off`
+        cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+        console.log(cassandraTracingLine);
+      }
+    }else{
+      cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
+      console.log(cassandraTracingLine);
+    }
+  }
+
 
   function checkRuntype(runtype){
     let runtypeInfo = chalk.magenta('runtype')
@@ -329,46 +347,45 @@ module.exports.ycsb = (opt) => {
       }
     }
 
+    function isNumber(s) {
+      s += ''; // 문자열로 변환
+      s = s.replace(/^\s*|\s*$/g, ''); // 좌우 공백 제거
+      if (s == '' || isNaN(s)) return false;
+      return true;
+    }
+
     function checkTimewindow(opt){
       let timewindowInfo = chalk.magenta('timewindow')
         if(opt.timewindow == null) {
-          opt.timewindow = `${ycsb_timewindow}`
+          opt.timewindow = 1
           timewindowLine = `${timewindowInfo} : ${opt.timewindow} (sec)`
-          timewindow = ycsb_timewindow*Math.pow(10,3)
-          console.log(timewindowLine);
-        }else {
-          timewindowLine = `timewindowInfo : ${opt.timewindow} (sec)`
           timewindow = `${opt.timewindow}`*Math.pow(10,3)
           console.log(timewindowLine);
+        }else {
+          if(isNumber(opt.timewindow)){
+            timewindowLine = `${timewindowInfo} : ${opt.timewindow} (sec)`
+            timewindow = `${opt.timewindow}`*Math.pow(10,3)
+            console.log(timewindowLine);
+          }else{
+            timewindowLine = `${error} ${timewindowInfo} : enter timewindow as number type.`
+            console.log(timewindowLine);
+          }
         }
       }
 
     function checkThreads(opt){
       let threadsInfo = chalk.magenta('threads')
         if(opt.threads == null) {
-          opt.threads = `${ycsb_threadcount}`
+          opt.threads = 1
           threadLine = `${threadsInfo} : ${opt.threads}`
           console.log(threadLine);
         }else {
-          threadLine = `${threadsInfo} : ${opt.threads}`
-          console.log(threadLine);
+          if(isNumber(opt.threads)){
+            threadLine = `${threadsInfo} : ${opt.threads}`
+            console.log(threadLine);
+          }else{
+            threadLine = `${error} ${threadsInfo} : enter threads as number type.`
+            console.log(threadLine);
+          }
         }
       }
-
-    function checkCassandraTracing(opt){
-      let cassandratracingInfo = chalk.magenta('cassandra tracing')
-
-      if(opt.casstracing==true){
-        if(opt.dbtype == 'cassandra-cql'){
-          cassandraTracing = `${cassandra_tracing_option}`
-          cassandraTracingLine = `${cassandratracingInfo} : on`
-          cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
-          console.log(cassandraTracingLine);
-        }else{
-          cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
-          console.log(cassandraTracingLine);
-        }
-      }else {
-        cassandraTracingCmd = ''
-      }
-    }

@@ -6,6 +6,7 @@ const graphbenchAction = require('../lib/graphbench.js')
 const chalk = require('chalk')
 const error = chalk.red('ERR!')
 const exec =  require('child_process').exec
+
 program
   .command('benchmark')
   .option('-d, --dbtype <dbtype>', `insert dbtype, choose from 'cassandra', 'arangodb', 'orientdb'`)
@@ -15,11 +16,10 @@ program
   // .option('-c --config <config>', `config 파일 입력`)
   .option('-n, --name <name>', `insert benchmark name`)
   .option('-o, --output <output>', `assign output directory (server, node)`)
-  .option('-s, --timewindow <timewindow>', `insert time window(sec)`)
-  .option('-t, --threads <threads>',`insert number of threads`)
-  .option('-c, --casstracing',`set the cassandra tracing option to 'on', 'off'`)
+  .option('-s, --timewindow <timewindow>', `insert time window (sec) (default : 1 sec)`)
+  .option('-t, --threads <threads>',`insert number of threads (default : 1)`)
+  .option('-c, --casstracing',` enable the cassandra tracing option (default : off)`)
   .action(function(opt){
-
 
     checkDBtype(opt)
 })

@@ -27,8 +27,6 @@ node_data_dir =
 #ycsb(192 서버컴에만 있음)
 ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
 ycsb_exportfile_dir = /root/skh_project/YCSB_RESULT
-ycsb_threadcount = 1
-ycsb_timewindow = 1
 
 #home_exporter
 java_exporter = export JAVA_HOME=/root/skh_project/package/java
@@ -62,5 +60,3 @@ node_cassandra_dir = /root/ssdStorage/skh_project/
 #update_configuration_path_server
 #update_conf_path = /home/skh/yh/skh_project/Update/
 update_conf_path = /root/ssdStorage/skh_project/Update/
-
-cassandra_tracing_option = true

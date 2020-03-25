@@ -65,12 +65,7 @@ module.exports = {
   get_ycsb_exportfile_dir(){
     return properties.get("ycsb_exportfile_dir")
   },
-  get_ycsb_threadcount(){
-    return properties.get("ycsb_threadcount")
-  },
-  get_ycsb_timewindow(){
-    return properties.get("ycsb_timewindow")
-  },
+
 
   //home exporter
   get_java_exporter(){
@@ -126,10 +121,5 @@ module.exports = {
  get_update_conf_path(){
    return properties.get("update_conf_path")
  },
-
- // 카산드라 tracing 옵션
- get_cassandra_tracing_option(){
-   return properties.get("cassandra_tracing_option")
- }
 
 }
