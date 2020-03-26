@@ -32,25 +32,8 @@ module.exports.ycsb = (opt) => {
   checkTimewindow(opt)
   checkThreads(opt)
 
-  runIOtracer()
-
-    if(opt.runtype == 'load' || opt.runtype == 'run'){
-      runYCSB(opt, opt.runtype)
-    }else if(opt.runtype == 'loadrun'){
-      let runtype1 = opt.runtype.substring(0,4)
-      let runtype2 = opt.runtype.substring(4,7)
-
-      runYCSB(opt, runtype1)
-      .then( (data) => runYCSB(opt, runtype2))
-
-    }else {
-      console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
-    }
-
-  }
 
 
-  function runIOtracer(){
     let ip;
     ip = property.get_nodes_IP().split(',');
 
@@ -67,9 +50,25 @@ module.exports.ycsb = (opt) => {
         err.status;
       }
     })
+
+    if(opt.runtype == 'load' || opt.runtype == 'run'){
+      runYCSB(opt, opt.runtype)
+    }else if(opt.runtype == 'loadrun'){
+      let runtype1 = opt.runtype.substring(0,4)
+      let runtype2 = opt.runtype.substring(4,7)
+
+      runYCSB(opt, runtype1)
+      .then( (data) => runYCSB(opt, runtype2))
+
+    }else {
+      console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
+    }
   }
 
-  function getIOresults(){
+
+
+
+  function getIOresults(opt, runtype){
     let ip;
     ip = property.get_nodes_IP().split(',');
     ip.forEach((i) => {
@@ -87,8 +86,9 @@ module.exports.ycsb = (opt) => {
         console.log(`stdout: ${stdout2}`);
         console.log('parse end');
 
+
         execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}`)
-        execSync(`mv ${ycsb_exportfile_dir}/${opt.name}/output ${ycsb_exportfile_dir}/${opt.name}/${i}_output`)
+        execSync(`mv ${ycsb_exportfile_dir}/${opt.name}/output ${ycsb_exportfile_dir}/${opt.name}/${i}_${runtype}_output`)
         console.log('result end');
         // console.log(`stdout: ${std`out3}`);
 
@@ -133,7 +133,7 @@ module.exports.ycsb = (opt) => {
               console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} completed.`)
               console.log('--------------------------------------')
               console.log('start');
-              getIOresults()
+              getIOresults(opt, runtype)
               console.log('end');
               resolve(opt, runtype2)
             })
@@ -266,7 +266,7 @@ module.exports.ycsb = (opt) => {
       wlfileLine = `${error} ${wlfileInfo} : enter workload filename or type(news, contents, facebook, log, recommendation ..)`
       console.log(wlfileLine)
     }else{
-      let file = `${server_ycsb_dir}${server_wlfile_dir}/${wlfile}`
+      let file = `${server_ycsb_dir}/${server_wlfile_dir}/${wlfile}`
       try {
         fs.statSync(file);
         wlfileLine = `${wlfileInfo} : ${wlfile}`
