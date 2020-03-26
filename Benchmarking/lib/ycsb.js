@@ -10,6 +10,7 @@ const path_exporter = property.get_path_exporter()
 const home_exporter = property.get_home_exporter()
 const wlfile_dir = property.get_server_file_dir()
 const server_ycsb_dir = property.get_server_ycsb_dir()
+const server_IP = property.get_server_IP()
 const nodes_IP = property.get_nodes_IP()
 const ycsb_exporter = property.get_ycsb_exporter()
 const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
@@ -20,7 +21,7 @@ let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loads
 
 module.exports.ycsb = (opt) => {
   exec(`mkdir YCSB_RESULT`)
-  runCassandra(nodes_IP)
+  // runCassandra(nodes_IP)
   checkCassandra(opt)
   checkRuntype(opt.runtype)
   checkFile(opt.wlfile)
@@ -49,33 +50,57 @@ module.exports.ycsb = (opt) => {
     }
   })
 
-
+function getIOresults(){
+  let ip;
+  ip = property.get_nodes_IP().split(',');
   ip.forEach((i) => {
+
+    console.log(i);
     try{
       const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
       console.log(`stdout: ${stdout}`);
 
+    }catch(err){
+      console.log('kill end');
+    }
+    console.log('parse start');
+    try{
       const stdout2 = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser output ${IO_output_dir}`)
       console.log(`stdout: ${stdout2}`);
+      console.log('parse end');
+
+
+      console.log('result start');
+      console.log(`${opt.name}`);
+      console.log(`${server_IP}`);
+      console.log(`${ycsb_exportfile_dir}`);
+
+      console.log(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}`)
+      execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}`)
+      execSync(`mv ${ycsb_exportfile_dir}/${opt.name}/output ${ycsb_exportfile_dir}/${opt.name}/${i}_output`)
+      console.log('result end');
+      // console.log(`stdout: ${std`out3}`);
 
     }catch(err){
-      console.log(err.stdout)
-      console.log(err.stderr)
+      console.log('err');
+
     }
 
   })
+}
+
 
 
 
   switch(opt.runtype){
     case 'load' :
-    ycsbLoad()
+      ycsbLoad()
     break;
     case 'run' :
-    ycsbRun()
+      ycsbRun()
     break;
     case 'loadrun' :
-    ycsbLoadRun()
+      ycsbLoadRun()
     break;
     default :
     console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
@@ -111,12 +136,19 @@ module.exports.ycsb = (opt) => {
           })
 
           loadcmd.on('exit', function(code){
+
             console.log('--------------------------------------')
-            console.log(chalk.green.bold('[INFO]'),'ycsb load completed.')
+            console.log(chalk.green.bold('[INFO]'),'ycsb load completed.jh')
             console.log('--------------------------------------')
+
+            console.log('start');
+            getIOresults()
+            console.log('end');
+
           })
 
         } catch (err) {
+          console.log('catch!');
           err.stdout;
           err.stderr;
           err.pid;
@@ -148,6 +180,9 @@ module.exports.ycsb = (opt) => {
             console.log('--------------------------------------')
             console.log(chalk.green.bold('[INFO]'),'ycsb run completed.')
             console.log('--------------------------------------')
+
+            getIOresults()
+
           })
 
         } catch (err) {
@@ -183,7 +218,6 @@ module.exports.ycsb = (opt) => {
             console.log('--------------------------------------')
             console.log(chalk.green.bold('[INFO]'),'ycsb load completed.')
             console.log('--------------------------------------')
-
             ycsbRun()
           })
 
@@ -193,6 +227,51 @@ module.exports.ycsb = (opt) => {
       }
     }
   }
+
+
+
+
+  function runYCSB(opt){
+    if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
+      console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
+    }else{
+      console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
+        ./bin/ycsb ${opt.runtype} ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
+        -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result \
+        -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
+        try {
+          let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
+          ./bin/ycsb ${opt.runtype} ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
+          -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result \
+          -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+          let loadcmd = exec(cmd)
+
+          console.log('--------------------------------------')
+          console.log(chalk.green.bold('[INFO]'),'ycsb load started.')
+          console.log('--------------------------------------')
+
+          loadcmd.stderr.on('data', function(data) {
+            console.log(data)
+          })
+
+          loadcmd.on('exit', function(code){
+            console.log('--------------------------------------')
+            console.log(chalk.green.bold('[INFO]'),'ycsb load completed.')
+            console.log('--------------------------------------')
+          })
+
+        } catch (err) {
+          err.stdout;
+          err.stderr;
+          err.pid;
+          err.signal;
+          err.status;
+          // etc
+        }
+      }
+    }
+
+
 
   function runCassandra(i){
     ip = property.get_nodes_IP().split(',');
