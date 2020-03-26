@@ -89,6 +89,13 @@ module.exports = {
   get_IO_driverManager_dir(){
     return properties.get("IO_driverManager_dir");
   },
+  get_IO_tracer_dir(){
+    return properties.get("IO_tracer_dir");
+  },
+  get_IO_watch_dir(){
+    return properties.get("IO_watch_dir");
+  },
+
 
   //version
   get_javaVersion(){

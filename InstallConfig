@@ -38,7 +38,8 @@ home_exporter = export JAVA_HOME=/root/skh_project/package/java && export MAVEN_
 #IO Tracer
 IO_output_dir =
 IO_driverManager_dir =
-
+IO_tracer_dir = /root/iotracer/bin/iotracer
+IO_watch_dir = /root/ssdStorage
 
 #version
 java_version = 1.8.0
