@@ -1,7 +1,12 @@
 const program = require('commander')
 const property = require('../../propertiesReader.js')
 const exec =  require('child_process').exec
+const fs = require('fs')
+const execSync = require('child_process').execSync
+const chalk = require('chalk')
+
 const home_exporter = property.get_home_exporter()
+
 const wlfile_dir = property.get_server_file_dir()
 const ycsb_dir = property.get_server_ycsb_dir()
 const nodes_IP = property.get_nodes_IP()
@@ -10,18 +15,10 @@ const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
 const ycsb_threadcount = property.get_ycsb_threadcount()
 const ycsb_timewindow = property.get_ycsb_timewindow()
 const cassandra_tracing_option = property.get_cassandra_tracing_option()
-const fs = require('fs')
-const execSync = require('child_process').execSync
-const chalk = require('chalk')
+
 const info = chalk.bold.green('[INFO]')
 const error = chalk.red('ERR!')
-let dbtypeLine = ''
-let runtypeLine = ''
-let wlfileLine = ''
-let loadsizeLine = ''
-let loadsizeCmd = ''
-let cassandraTracingLine = ''
-let cassandraTracingCmd = ''
+let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loadsizeCmd = '', cassandraTracingLine = '', cassandraTracingCmd = ''
 
 module.exports.ycsb = (opt) => {
   exec(`mkdir YCSB_RESULT`)

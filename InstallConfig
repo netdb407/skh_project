@@ -24,16 +24,19 @@ node_install_dir = /root/ssdStorage/package/
 node_data_dir =
 
 
-
-
-
 #ycsb(192 서버컴에만 있음)
 ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
-#ycsb_exportfile_dir = /home/skh/sm/skh_project/YCSB_RESULT
 ycsb_exportfile_dir = /root/skh_project/YCSB_RESULT
 ycsb_threadcount = 1
 ycsb_timewindow = 1
+
+#home_exporter
+java_exporter = export JAVA_HOME=/root/skh_project/package/java
+maven_exporter = export MAVEN_HOME=/root/skh_project/package/maven
+path_exporter = PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
 home_exporter = export JAVA_HOME=/root/skh_project/package/java && export MAVEN_HOME=/root/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
+
+
 #IO Tracer
 IO_output_dir =
 IO_driverManager_dir =
