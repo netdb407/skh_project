@@ -1,27 +1,74 @@
 const program = require('commander')
 const property = require('../../propertiesReader.js')
 const exec =  require('child_process').exec
-const fs = require('fs')
-const execSync = require('child_process').execSync
-const chalk = require('chalk')
-
-const home_exporter = property.get_home_exporter()
-
 const wlfile_dir = property.get_server_file_dir()
 const ycsb_dir = property.get_server_ycsb_dir()
-const nodes_IP = property.get_nodes_IP()
 const ycsb_exporter = property.get_ycsb_exporter()
 const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
 const ycsb_threadcount = property.get_ycsb_threadcount()
 const ycsb_timewindow = property.get_ycsb_timewindow()
 const cassandra_tracing_option = property.get_cassandra_tracing_option()
-
+const fs = require('fs')
+const execSync = require('child_process').execSync
+const chalk = require('chalk')
 const info = chalk.bold.green('[INFO]')
 const error = chalk.red('ERR!')
-let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loadsizeCmd = '', cassandraTracingLine = '', cassandraTracingCmd = ''
+let dbtypeLine = ''
+let runtypeLine = ''
+let wlfileLine = ''
+let loadsizeLine = ''
+let loadsizeCmd = ''
+let cassandraTracingLine = ''
+let cassandraTracingCmd = ''
+
+let ip //split array
+let node_ip = property.get_nodes_IP(); //193,194,195
+let nodetool_ip = property.get_nodetool_IP(); //193
+
+
+
+//193,194,195
+function stopfirewalld(ip){
+  exec(`ssh root@${ip} systemctl stop firewalld`)
+}
+
+function runCassandra(ip){
+  exec(`ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/cassandra -fR`)
+}
+
+//193
+function checkNodeStatus(ip){
+  let cmd = `ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/nodetool status`
+  let checkcmd = exec(cmd)
+  checkcmd.stdout.on('data', function(data){
+    console.log(data);
+    console.log(typeof data);
+    console.log(includes(data)=="UN");
+  })
+}
+
 
 module.exports.ycsb = (opt) => {
-  //cassandra 상태확인함수 최초로 하고
+  ip = node_ip.split(',');
+
+  for(var i of ip){
+    console.log('----------------------------------------------------------');
+    console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(i));
+    console.log(chalk.green.bold('[INFO]'), 'stop firewall');
+    stopfirewalld(i);
+    console.log(chalk.green.bold('[INFO]'), 'run Cassandra');
+    runCassandra(i);
+  }
+  console.log('----------------------------------------------------------');
+  console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
+  console.log(chalk.green.bold('[INFO]'), 'check Node Status');
+  checkNodeStatus(nodetool_ip);
+
+
+
+
+
+
 
   exec(`mkdir YCSB_RESULT`)
   let dbtypeInfo = chalk.magenta('dbtype')
@@ -57,13 +104,11 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-        console.log(`${home_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
+        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
         try {
           // execSync(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
 
-          //let cmd = `./sk_bench_tool cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-          // let cmd = `export JAVA_HOME=/root/skh_project/package/java && export MAVEN_HOME=/root/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-          let cmd = `${home_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+          let cmd = `cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
           let loadcmd = exec(cmd)
 
           console.log('--------------------------------------')
@@ -95,9 +140,9 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('err') != -1)||(cassandraTracingLine.indexOf('err') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-          console.log(`${home_exporter} && cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
+          console.log(`cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
           try {
-            let cmd = `${home_exporter} && cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+            let cmd = `cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
             let runcmd = exec(cmd)
 
             console.log('--------------------------------------')
@@ -130,9 +175,9 @@ module.exports.ycsb = (opt) => {
       if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-        console.log(`${home_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`);
+        console.log(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`);
         try {
-          let cmd = `${home_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+          let cmd = `cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
           let loadcmd = exec(cmd)
 
           console.log('--------------------------------------')

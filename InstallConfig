@@ -5,6 +5,7 @@ server_password = netdb3230
 #cluster 정보 (,뒤에 띄어쓰기 안함)
 server_IP = 203.255.92.192
 nodes_IP = 203.255.92.193,203.255.92.194,203.255.92.195
+nodetool_IP = 203.255.92.193
 nodes_hostname = skh,skh,skh
 nodes_password = netdb3230,netdb3230,netdb3230
 

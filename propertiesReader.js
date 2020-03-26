@@ -28,6 +28,9 @@ module.exports = {
   get_nodes_IP(){
     return properties.get("nodes_IP");
   },
+  get_nodetool_IP(){
+    return properties.get("nodetool_IP");
+  },
   get_nodes_hostname(){
     return properties.get("nodes_hostname");
   },
