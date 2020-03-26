@@ -14,8 +14,8 @@ rpm_dir_in_skhproject = /root/skh_project/Installation/rpm/
 
 #server directory
 server_install_dir = /root/skh_project/
-server_wlfile_dir = workloads
-server_ycsb_dir = ./YCSB/
+server_ycsb_dir = ./YCSB
+server_wlfile_dir = /workloads
 server_WLgenerate_dir = WorkloadGenerator/bin/
 server_file_dir = workloads/
 

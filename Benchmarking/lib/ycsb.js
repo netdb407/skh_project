@@ -8,16 +8,18 @@ const java_exporter = property.get_java_exporter()
 const maven_exporter = property.get_maven_exporter()
 const path_exporter = property.get_path_exporter()
 const home_exporter = property.get_home_exporter()
-const wlfile_dir = property.get_server_file_dir()
 const server_ycsb_dir = property.get_server_ycsb_dir()
+const server_wlfile_dir = property.get_server_wlfile_dir()
 const server_IP = property.get_server_IP()
 const nodes_IP = property.get_nodes_IP()
 const ycsb_exporter = property.get_ycsb_exporter()
 const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
-
-const info = chalk.bold.green('[INFO]')
+const IO_tracer_dir = property.get_IO_tracer_dir()
+const IO_watch_dir = property.get_IO_watch_dir()
+const IO_output_dir = property.get_IO_output_dir()
 const error = chalk.red('ERR!')
-let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loadsizeCmd = '', threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracingCmd = ''
+let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loadsizeCmd = '',
+threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracingCmd = ''
 
 module.exports.ycsb = (opt) => {
   exec(`mkdir YCSB_RESULT`)
@@ -30,246 +32,162 @@ module.exports.ycsb = (opt) => {
   checkTimewindow(opt)
   checkThreads(opt)
 
-  const IO_tracer_dir = property.get_IO_tracer_dir()
-  const IO_watch_dir = property.get_IO_watch_dir()
-  const IO_output_dir = property.get_IO_output_dir()
-  let ip;
-  ip = property.get_nodes_IP().split(',');
+  runIOtracer()
 
-  ip.forEach((i) => {
-    // exec(`ssh root@${i} ${IO_tracer_dir} -d ${IO_watch_dir}`)
-    try{
-      const stdout = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -D -d ${IO_watch_dir}`)
-      console.log(`stdout: ${stdout}`);
-    }catch (err){
-      console.log(err.stdout)
-      console.log(err.stderr)
-      err.pid;
-      err.signal;
-      err.status;
-    }
-  })
+    if(opt.runtype == 'load' || opt.runtype == 'run'){
+      runYCSB(opt, opt.runtype)
+    }else if(opt.runtype == 'loadrun'){
+      let runtype1 = opt.runtype.substring(0,4)
+      let runtype2 = opt.runtype.substring(4,7)
 
-function getIOresults(){
-  let ip;
-  ip = property.get_nodes_IP().split(',');
-  ip.forEach((i) => {
+      runYCSB(opt, runtype1)
+      .then( (data) => runYCSB(opt, runtype2))
 
-    console.log(i);
-    try{
-      const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
-      console.log(`stdout: ${stdout}`);
-
-    }catch(err){
-      console.log('kill end');
-    }
-    console.log('parse start');
-    try{
-      const stdout2 = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser output ${IO_output_dir}`)
-      console.log(`stdout: ${stdout2}`);
-      console.log('parse end');
-
-
-      console.log('result start');
-      console.log(`${opt.name}`);
-      console.log(`${server_IP}`);
-      console.log(`${ycsb_exportfile_dir}`);
-
-      console.log(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}`)
-      execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}`)
-      execSync(`mv ${ycsb_exportfile_dir}/${opt.name}/output ${ycsb_exportfile_dir}/${opt.name}/${i}_output`)
-      console.log('result end');
-      // console.log(`stdout: ${std`out3}`);
-
-    }catch(err){
-      console.log('err');
-
+    }else {
+      console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
     }
 
-  })
-}
-
-
-
-
-  switch(opt.runtype){
-    case 'load' :
-      ycsbLoad()
-    break;
-    case 'run' :
-      ycsbRun()
-    break;
-    case 'loadrun' :
-      ycsbLoadRun()
-    break;
-    default :
-    console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
   }
 
 
-  function ycsbLoad(){
-    if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
-      console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
-    }else{
-      console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
-        ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
-        -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result \
-        -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
-        try {
-          // execSync(`cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} -s -t`);
+  function runIOtracer(){
+    let ip;
+    ip = property.get_nodes_IP().split(',');
 
-          //let cmd = `./sk_bench_tool cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-          // let cmd = `export JAVA_HOME=/root/skh_project/package/java && export MAVEN_HOME=/root/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-
-          let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
-          ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
-          -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result \
-          -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-          let loadcmd = exec(cmd)
-
-          console.log('--------------------------------------')
-          console.log(chalk.green.bold('[INFO]'),'ycsb load started.')
-          console.log('--------------------------------------')
-
-          loadcmd.stderr.on('data', function(data) {
-            console.log(data)
-          })
-
-          loadcmd.on('exit', function(code){
-
-            console.log('--------------------------------------')
-            console.log(chalk.green.bold('[INFO]'),'ycsb load completed.jh')
-            console.log('--------------------------------------')
-
-            console.log('start');
-            getIOresults()
-            console.log('end');
-
-          })
-
-        } catch (err) {
-          console.log('catch!');
-          err.stdout;
-          err.stderr;
-          err.pid;
-          err.signal;
-          err.status;
-          // etc
-        }
+    ip.forEach((i) => {
+      // exec(`ssh root@${i} ${IO_tracer_dir} -d ${IO_watch_dir}`)
+      try{
+        const stdout = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -D -d ${IO_watch_dir}`)
+        console.log(`stdout: ${stdout}`);
+      }catch (err){
+        console.log(err.stdout)
+        console.log(err.stderr)
+        err.pid;
+        err.signal;
+        err.status;
       }
-    }
+    })
+  }
 
-    function ycsbRun(){
-      if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('err') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('err') != -1)){
-        console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
-      }else{
-        console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
-        try {
-          let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb run ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_run_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-          let runcmd = exec(cmd)
-
-          console.log('--------------------------------------')
-          console.log(chalk.green.bold('[INFO]'),'ycsb run started.')
-          console.log('--------------------------------------')
-
-          runcmd.stderr.on('data', function(data) {
-            console.log(data)
-          })
-
-          runcmd.on('exit', function(code){
-            console.log('--------------------------------------')
-            console.log(chalk.green.bold('[INFO]'),'ycsb run completed.')
-            console.log('--------------------------------------')
-
-            getIOresults()
-
-          })
-
-        } catch (err) {
-          err.stdout;
-          err.stderr;
-          err.pid;
-          err.signal;
-          err.status;
-          // etc
-        }
+  function getIOresults(){
+    let ip;
+    ip = property.get_nodes_IP().split(',');
+    ip.forEach((i) => {
+      console.log(i);
+      try{
+        const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
+        console.log(`stdout: ${stdout}`);
+      }catch(err){
+        console.log('kill end');
       }
-    }
+
+      console.log('parse start');
+      try{
+        const stdout2 = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser output ${IO_output_dir}`)
+        console.log(`stdout: ${stdout2}`);
+        console.log('parse end');
+
+        execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}`)
+        execSync(`mv ${ycsb_exportfile_dir}/${opt.name}/output ${ycsb_exportfile_dir}/${opt.name}/${i}_output`)
+        console.log('result end');
+        // console.log(`stdout: ${std`out3}`);
+
+      }catch(err){
+        console.log('err');
+
+      }
+
+    })
+  }
 
 
-    function ycsbLoadRun(){
+    let Promise = require('promise');
+    const runYCSB = (opt, runtype) => new Promise( resolve => {
+      let runtype1 = opt.runtype.substring(0,4)
+      let runtype2 = opt.runtype.substring(4,7)
+
       if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
       }else{
-        console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`);
-        try {
-          let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-          let loadcmd = exec(cmd)
+        console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
+          ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
+          -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${runtype}_result \
+          -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
+          try {
+            let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
+            ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
+            -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${runtype}_result \
+            -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+            let cmdexec = exec(cmd)
 
-          console.log('--------------------------------------')
-          console.log(chalk.green.bold('[INFO]'),'ycsb load started.')
-          console.log('--------------------------------------')
-
-          loadcmd.stderr.on('data', function(data) {
-            console.log(data)
-          })
-
-          loadcmd.on('exit', function(code){
             console.log('--------------------------------------')
-            console.log(chalk.green.bold('[INFO]'),'ycsb load completed.')
+            console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} started.`)
             console.log('--------------------------------------')
-            ycsbRun()
-          })
 
-        } catch (err) {
-          // etc
+            cmdexec.stderr.on('data', function(data) {
+              console.log(data)
+            })
+
+            cmdexec.on('exit', function(code){
+              console.log('--------------------------------------')
+              console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} completed.`)
+              console.log('--------------------------------------')
+              console.log('start');
+              getIOresults()
+              console.log('end');
+              resolve(opt, runtype2)
+            })
+
+          } catch (err) {
+            err.stdout;
+            err.stderr;
+            err.pid;
+            err.signal;
+            err.status;
+            // etc
+          }
         }
-      }
-    }
-  }
-
-
-
-
-  function runYCSB(opt){
-    if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
-      console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
-    }else{
-      console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
-        ./bin/ycsb ${opt.runtype} ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
-        -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result \
-        -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
-        try {
-          let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
-          ./bin/ycsb ${opt.runtype} ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
-          -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_load_result \
-          -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-          let loadcmd = exec(cmd)
-
-          console.log('--------------------------------------')
-          console.log(chalk.green.bold('[INFO]'),'ycsb load started.')
-          console.log('--------------------------------------')
-
-          loadcmd.stderr.on('data', function(data) {
-            console.log(data)
-          })
-
-          loadcmd.on('exit', function(code){
-            console.log('--------------------------------------')
-            console.log(chalk.green.bold('[INFO]'),'ycsb load completed.')
-            console.log('--------------------------------------')
-          })
-
-        } catch (err) {
-          err.stdout;
-          err.stderr;
-          err.pid;
-          err.signal;
-          err.status;
-          // etc
-        }
-      }
-    }
+    })
+  //
+  // function runYCSB(opt, runtype){
+  //   if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
+  //     console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
+  //   }else{
+  //     console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
+  //       ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
+  //       -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${opt.runtype}_result \
+  //       -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
+  //       try {
+  //         let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
+  //         ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
+  //         -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${opt.runtype}_result \
+  //         -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+  //         let cmdexec = exec(cmd)
+  //
+  //         console.log('--------------------------------------')
+  //         console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} started.`)
+  //         console.log('--------------------------------------')
+  //
+  //         cmdexec.stderr.on('data', function(data) {
+  //           console.log(data)
+  //         })
+  //
+  //         cmdexec.on('exit', function(code){
+  //           console.log('--------------------------------------')
+  //           console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} completed.`)
+  //           console.log('--------------------------------------')
+  //         })
+  //
+  //       } catch (err) {
+  //         err.stdout;
+  //         err.stderr;
+  //         err.pid;
+  //         err.signal;
+  //         err.status;
+  //         // etc
+  //       }
+  //     }
+  //   }
 
 
 
@@ -348,7 +266,7 @@ function getIOresults(){
       wlfileLine = `${error} ${wlfileInfo} : enter workload filename or type(news, contents, facebook, log, recommendation ..)`
       console.log(wlfileLine)
     }else{
-      let file = `${server_ycsb_dir}${wlfile_dir}${wlfile}`
+      let file = `${server_ycsb_dir}${server_wlfile_dir}/${wlfile}`
       try {
         fs.statSync(file);
         wlfileLine = `${wlfileInfo} : ${wlfile}`
