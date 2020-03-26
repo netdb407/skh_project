@@ -30,40 +30,29 @@ function stopfirewalld(ip){
 }
 
 function runCassandra(ip){
-  exec(`ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/cassandra -fR`)
+  exec(`ssh root@${ip} /home/skh/cassandra/bin/cassandra -fR`)
 }
 
 //193
-// var temp
+var temp
 var countNum=0
 var count
 function checkNodeStatus(ip){
   // exec(`ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/nodetool status`)
-  let cmd = `ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/nodetool status`
+  let cmd = `ssh root@${ip} /home/skh/cassandra/bin/nodetool status`
   let checkcmd = exec(cmd)
   checkcmd.stdout.on('data', function(data){
     console.log(data);
-
-    // temp = data
-
-    // console.log('temp is', temp);
     count = data.match(/UN/g);
     if(count!=null){
-      // console.log(count.length);
-      countNum += count.length
       countNum++
-      // countNum +=1
-
-
     }
-
-
   })
-
-  console.log(countNum);
+  checkcmd.on('exit', function(code){
+    console.log('countnum:',countNum);
+  })
 }
 
-//UN 갯수 세어주는 함수를 만들어야 하나? 밖에서 count ++ 하면 될거같은데 for문 돌려서
 
 
 for(var i of ip){
