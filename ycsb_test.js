@@ -26,59 +26,44 @@ ip = node_ip.split(',');
 
 //193,194,195
 function stopfirewalld(ip){
-  // exec(`ssh root@${ip} cd /home/sk/skh_project/apache-cassandra-3.11.5`)
   exec(`ssh root@${ip} systemctl stop firewalld`)
-  //console.log(`ssh root@${ip} cd /home/sk/skh_project/apache-cassandra-3.11.5`);
-  // console.log(`ssh root@${ip} systemctl stop firewalld`);
 }
 
-//193,194,195
 function runCassandra(ip){
-  // exec(`ssh root@${ip} cd /home/sk/skh_project/apache-cassandra-3.11.5`)
-  // exec(`ssh root@${ip} bin/cassandra -fR`)
-  // console.log(`ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/cassandra -fR`);
   exec(`ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/cassandra -fR`)
 }
 
 //193
+// var temp
+var countNum=0
+var count
 function checkNodeStatus(ip){
-  // exec(`ssh root@${ip} cd /home/sk/skh_project/apache-cassandra-3.11.5`)
-  // exec(`ssh root@${ip} bin/cassandra nodetool status`)
-
-
-
-
-  exec(`ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/nodetool status`) //된다!
-
-
-  // console.log(`ssh root@${ip} cd /home/sk/skh_project/apache-cassandra-3.11.5`);
-  // console.log(`ssh root@${ip} bin/cassandra nodetool status`);
-  //
-  // ssh root@203.255.92.194 touch /home/skh/skh_project/apache-cassandra-3.11.5/test.js //됨
-  //
-  // ssh root@203.255.92.194 cd /home/skh/skh_project/apache-cassandra-3.11.5 && touch test2.js //안됨
-  //
-  // cd YCSB && ./bin/ycsb load ${opt.dbtype} -P ${wlfile_dir}${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} //됨?!
-  //
-
+  // exec(`ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/nodetool status`)
   let cmd = `ssh root@${ip} /home/skh/skh_project/apache-cassandra-3.11.5/bin/nodetool status`
   let checkcmd = exec(cmd)
-
-  // checkcmd.stderr.on('data', function(data){
-  //   console.log('stderr');
-  //   console.log(data);
-  // })
   checkcmd.stdout.on('data', function(data){
     console.log(data);
-    console.log(typeof data);
-    console.log(includes(data)=="UN");
+
+    // temp = data
+
+    // console.log('temp is', temp);
+    count = data.match(/UN/g);
+    if(count!=null){
+      // console.log(count.length);
+      countNum += count.length
+      countNum++
+      // countNum +=1
+
+
+    }
+
+
   })
-  // checkcmd.stdin.on('data', function(data){
-  //   console.log('stdin');
-  //   console.log(data);
-  // })
+
+  console.log(countNum);
 }
 
+//UN 갯수 세어주는 함수를 만들어야 하나? 밖에서 count ++ 하면 될거같은데 for문 돌려서
 
 
 for(var i of ip){
@@ -93,3 +78,6 @@ console.log('----------------------------------------------------------');
 console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
 console.log(chalk.green.bold('[INFO]'), 'check Node Status');
 checkNodeStatus(nodetool_ip);
+
+
+console.log('countNum is', countNum);

@@ -43,7 +43,9 @@ function checkNodeStatus(ip){
   checkcmd.stdout.on('data', function(data){
     console.log(data);
     console.log(typeof data);
-    console.log(includes(data)=="UN");
+    console.log(data.includes("UN"));
+
+    console.log(data.count("UN"));
   })
 }
 
