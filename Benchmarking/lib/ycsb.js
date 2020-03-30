@@ -172,48 +172,6 @@ module.exports.ycsb = (opt) => {
           }
         }
     })
-  //
-  // function runYCSB(opt, runtype){
-  //   if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
-  //     console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
-  //   }else{
-  //     console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
-  //       ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
-  //       -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${opt.runtype}_result \
-  //       -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
-  //       try {
-  //         let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
-  //         ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
-  //         -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${opt.runtype}_result \
-  //         -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
-  //         let cmdexec = exec(cmd)
-  //
-  //         console.log('--------------------------------------')
-  //         console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} started.`)
-  //         console.log('--------------------------------------')
-  //
-  //         cmdexec.stderr.on('data', function(data) {
-  //           console.log(data)
-  //         })
-  //
-  //         cmdexec.on('exit', function(code){
-  //           console.log('--------------------------------------')
-  //           console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} completed.`)
-  //           console.log('--------------------------------------')
-  //         })
-  //
-  //       } catch (err) {
-  //         err.stdout;
-  //         err.stderr;
-  //         err.pid;
-  //         err.signal;
-  //         err.status;
-  //         // etc
-  //       }
-  //     }
-  //   }
-
-
 
   function runCassandra(i){
     ip = property.get_nodes_IP().split(',');
