@@ -33,24 +33,6 @@ module.exports.ycsb = (opt) => {
   checkThreads(opt)
 
 
-
-    let ip;
-    ip = property.get_nodes_IP().split(',');
-
-    ip.forEach((i) => {
-      // exec(`ssh root@${i} ${IO_tracer_dir} -d ${IO_watch_dir}`)
-      try{
-        const stdout = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -D -d ${IO_watch_dir}`)
-        console.log(`stdout: ${stdout}`);
-      }catch (err){
-        console.log(err.stdout)
-        console.log(err.stderr)
-        err.pid;
-        err.signal;
-        err.status;
-      }
-    })
-
     if(opt.runtype == 'load' || opt.runtype == 'run'){
       runYCSB(opt, opt.runtype)
     }else if(opt.runtype == 'loadrun'){
@@ -64,8 +46,6 @@ module.exports.ycsb = (opt) => {
       console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
     }
   }
-
-
 
 
   function getIOresults(opt, runtype){
@@ -103,11 +83,41 @@ module.exports.ycsb = (opt) => {
 
     let Promise = require('promise');
     const runYCSB = (opt, runtype) => new Promise( resolve => {
+        let ip;
+        ip = property.get_nodes_IP().split(',');
+        console.log('iotracer run');
+        ip.forEach((i) => {
+          // exec(`ssh root@${i} ${IO_tracer_dir} -d ${IO_watch_dir}`)
+          try{
+            const stdout = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -D -d ${IO_watch_dir}`)
+            console.log(`stdout: ${stdout}`);
+          }catch (err){
+            console.log(err.stdout)
+            console.log(err.stderr)
+            err.pid;
+            err.signal;
+            err.status;
+          }
+        })
+
       let runtype1 = opt.runtype.substring(0,4)
       let runtype2 = opt.runtype.substring(4,7)
 
       if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
+
+        let ip;
+        ip = property.get_nodes_IP().split(',');
+        ip.forEach((i) => {
+          console.log(i);
+          try{
+            const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
+            console.log(`stdout: ${stdout}`);
+          }catch(err){
+            console.log('kill end');
+          }
+        })
+
       }else{
         console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
           ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
@@ -133,7 +143,21 @@ module.exports.ycsb = (opt) => {
               console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} completed.`)
               console.log('--------------------------------------')
               console.log('start');
-              getIOresults(opt, runtype)
+              if(opt.casstracing == true){
+                getIOresults(opt, runtype)
+              }else{
+                let ip;
+                ip = property.get_nodes_IP().split(',');
+                ip.forEach((i) => {
+                  console.log(i);
+                  try{
+                    const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
+                    console.log(`stdout: ${stdout}`);
+                  }catch(err){
+                    console.log('kill end');
+                  }
+                })
+              }
               console.log('end');
               resolve(opt, runtype2)
             })
