@@ -7,6 +7,10 @@ let ip //split array
 let node_ip = property.get_nodes_IP();
 let nodetool_ip = property.get_nodetool_IP();
 ip = node_ip.split(',');
+let countNum=0
+let count
+let isOnCassandra = false
+let test
 
 
 
@@ -20,6 +24,7 @@ console.log('----------------------------------------------------------');
 console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
 console.log(chalk.green.bold('[INFO]'), 'check Node Status');
 checkNodeStatus(nodetool_ip);
+
 
 
 
@@ -47,12 +52,10 @@ function runCassandra(ip){
 }
 
 
-function checkNodeStatus(ip){
 
-  setInterval(function(){
-    let isOnCassandra = false
-    let countNum=0
-    let count
+
+function checkNodeStatus(ip){
+  test=setInterval(function(){
     let cmd = `ssh root@${ip} /home/skh/cassandra/bin/nodetool status`
     let checkcmd = exec(cmd)
 
@@ -73,11 +76,18 @@ function checkNodeStatus(ip){
         console.log('isOnCassandra : ', isOnCassandra, '\n\n\n');
       }
     })
-  }, 3000)
-
-  // if(isOnCassandra == true){
-  //   clearInterval(setInterval);
-  // }
+    if(isOnCassandra){
+      clearInterval(test);
+    }
+  }, 3000);
 }
 
-//isOncassandra가 true가 되면 clear timeout
+
+// var count =0
+// var repeat = setInterval(function(){
+//   console.log('setInterval');
+//   count++;
+//   if(count==5){
+//     clearInterval(repeat);
+//   }
+// }, 3000)
