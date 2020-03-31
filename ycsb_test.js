@@ -78,8 +78,6 @@ function checkNodeStatus(ip){
       clearInterval(setIntervalFunc);
       console.log('isOnCassandra : ', isOnCassandra);
       console.log('Now you can use cassandra from cluster nodes');
-
     })
-
   }, 3000);
 }
