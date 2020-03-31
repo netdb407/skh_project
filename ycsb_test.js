@@ -11,7 +11,7 @@ let countNum=0
 let count
 let isOnCassandra = false
 let test
-
+let datatemp
 
 
 for(var i of ip){
@@ -55,32 +55,63 @@ function runCassandra(ip){
 
 
 function checkNodeStatus(ip){
-  test=setInterval(function(){
+  test = setInterval(function(){
     let cmd = `ssh root@${ip} /home/skh/cassandra/bin/nodetool status`
     let checkcmd = exec(cmd)
 
     checkcmd.stdout.on('data', function(data){
-      console.log(data);
-      count = data.match(/UN/g);
-      if(count!=null){
-        countNum++
-      }
+      datatemp = data
+      console.log(datatemp);
     })
+
     checkcmd.on('exit', function(code){
-      if(countNum == 0){
-        console.log('waiting for cassandra on...');
-        console.log('isOnCassandra : ', isOnCassandra);
-      }else if(countNum == 3){
+
+     // count = datatemp.search(/UN/g);
+     count = datatemp.match(/UN/g);
+     // let tempVar = datatemp.includes("UN")
+     // console.log('tempVar:', tempVar);
+
+
+
+      //match보다 split이 빠르데!
+      //includes함수도 있음
+      //exec() vs match() vs test() vs search() vs indexOf()
+      //search, match
+      //!!! 뭘 쓰든 존나 느리다 !
+      //그치만 계속 로그를 찍으면서 count 하는 건 불필요해 보임
+
+
+      console.log('count : ', count);
+
+
+
+      if(count!==null){
+        countNum++
+        console.log(count.length);
+      }
+
+      // if(count!=-1){
+      //   countNum++
+      // }
+      //
+
+
+
+
+      console.log('isOnCassandra : ', isOnCassandra);
+      console.log('countNum :', countNum, '\n\n\n');
+
+      if(countNum === 3){
         isOnCassandra = true
+        clearInterval(test);
         console.log('Now you can use cassandra from cluster nodes');
-        console.log('isOnCassandra : ', isOnCassandra, '\n\n\n');
       }
     })
-    if(isOnCassandra){
-      clearInterval(test);
-    }
+
   }, 3000);
 }
+
+
 
 
 // var count =0
