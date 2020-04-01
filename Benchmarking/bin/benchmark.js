@@ -39,7 +39,7 @@ function checkDBtype(opt){
       break;
     case 'orientdb' :
       // graphbenchAction.graphbench(opt)
-      ycsbAction.ycsb(opt);
+      graphbenchAction.graphbench(opt);
       break;
     default :
       let dbtypeLine = `${error} ${dbtypeInfo} : invalid choice ${opt.dbtype}, (choose from 'cassandra', 'arangodb', 'orientdb')`

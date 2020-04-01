@@ -32,6 +32,15 @@ module.exports.ycsb = (opt) => {
   checkTimewindow(opt)
   checkThreads(opt)
 
+console.log('orientdb');
+  try{
+    console.log('run');
+    const stdout = execSync(`ssh root@203.255.92.193 /opt/orientdb193/bin/console.sh`)
+    console.log(`stdout: ${stdout}`);
+  }catch(err){
+    console.log('error');
+  }
+
 
     if(opt.runtype == 'load' || opt.runtype == 'run'){
       runYCSB(opt, opt.runtype)
@@ -81,12 +90,46 @@ module.exports.ycsb = (opt) => {
   }
 
 
+  function getIOresults(opt, runtype){
+    let ip;
+    ip = property.get_nodes_IP().split(',');
+    ip.forEach((i) => {
+      console.log(i);
+      try{
+        const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
+        console.log(`stdout: ${stdout}`);
+      }catch(err){
+        console.log('kill end');
+      }
+
+      console.log('parse start');
+      try{
+        const stdout2 = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser output ${IO_output_dir}`)
+        console.log(`stdout: ${stdout2}`);
+        console.log('parse end');
+
+
+        execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}`)
+        execSync(`mv ${ycsb_exportfile_dir}/${opt.name}/output ${ycsb_exportfile_dir}/${opt.name}/${i}_${runtype}_output`)
+        console.log('result end');
+        // console.log(`stdout: ${std`out3}`);
+
+      }catch(err){
+        console.log('err');
+
+      }
+
+    })
+  }
+
+
     let Promise = require('promise');
     const runYCSB = (opt, runtype) => new Promise( resolve => {
         let ip;
         ip = property.get_nodes_IP().split(',');
         console.log('iotracer run');
         ip.forEach((i) => {
+          console.log(i);
           // exec(`ssh root@${i} ${IO_tracer_dir} -d ${IO_watch_dir}`)
           try{
             const stdout = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -D -d ${IO_watch_dir}`)
