@@ -18,7 +18,8 @@ program
   // .option('-o, --output <output>', `assign output directory (server, node)`)
   .option('-s, --timewindow <timewindow>', `insert time window (sec) (default : 1 sec)`)
   .option('-t, --threads <threads>',`insert number of threads (default : 1)`)
-  .option('-c, --casstracing',` enable the cassandra tracing option (default : off)`)
+  .option('-c, --casstracing',`enable the cassandra tracing option (default : off)`)
+  .option('-i, --iotracer',`run iotracing option (default : off)`)
   .action(function(opt){
 
     checkDBtype(opt)

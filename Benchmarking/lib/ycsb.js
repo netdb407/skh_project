@@ -31,15 +31,7 @@ module.exports.ycsb = (opt) => {
   benchmarkName(opt)
   checkTimewindow(opt)
   checkThreads(opt)
-
-console.log('orientdb');
-  try{
-    console.log('run');
-    const stdout = execSync(`ssh root@203.255.92.193 /opt/orientdb193/bin/console.sh`)
-    console.log(`stdout: ${stdout}`);
-  }catch(err){
-    console.log('error');
-  }
+  checkiotracer(opt)
 
 
     if(opt.runtype == 'load' || opt.runtype == 'run'){
@@ -57,37 +49,54 @@ console.log('orientdb');
   }
 
 
-  function getIOresults(opt, runtype){
-    let ip;
-    ip = property.get_nodes_IP().split(',');
-    ip.forEach((i) => {
-      console.log(i);
-      try{
-        const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
-        console.log(`stdout: ${stdout}`);
-      }catch(err){
-        console.log('kill end');
-      }
+  function checkiotracer(opt){
+    let iotracerInfo = chalk.magenta('iotracer')
+    if(opt.iotracer==true){
+      let iotracerLine = `${iotracerInfo} : ${opt.iotracer}`
+      console.log(iotracerLine);
 
-      console.log('parse start');
-      try{
-        const stdout2 = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser output ${IO_output_dir}`)
-        console.log(`stdout: ${stdout2}`);
-        console.log('parse end');
-
-
-        execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}`)
-        execSync(`mv ${ycsb_exportfile_dir}/${opt.name}/output ${ycsb_exportfile_dir}/${opt.name}/${i}_${runtype}_output`)
-        console.log('result end');
-        // console.log(`stdout: ${std`out3}`);
-
-      }catch(err){
-        console.log('err');
-
-      }
-
-    })
+    }else{
+      opt.iotracer = 'false'
+      let iotracerLine = `${iotracerInfo} : ${opt.iotracer}`
+      console.log(iotracerLine);
+    }
   }
+
+
+
+
+    function checkCassandra(opt){
+      let cassandratracingInfo = chalk.magenta('cassandra tracing')
+      let dbtypeInfo = chalk.magenta('dbtype')
+      if(opt.dbtype == 'cassandra'){ // 카산드라일때 tracinㅎ 옵션
+        let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+        opt.dbtype = 'cassandra-cql'
+        console.log(dbtypeLine);
+
+        if(opt.casstracing==true){
+          cassandraTracing = 'true'
+          cassandraTracingLine = `${cassandratracingInfo} : on`
+          cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+          console.log(cassandraTracingLine);
+        }else{
+          cassandraTracing = 'false'
+          cassandraTracingLine = `${cassandratracingInfo} : off`
+          cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+          console.log(cassandraTracingLine);
+        }
+      }else{ // 카산드라가 아닐때
+        let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+        console.log(dbtypeLine);
+
+        if(opt.casstracing==true){
+          cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
+          console.log(cassandraTracingLine);
+        }else{
+          cassandraTracingLine = ''
+        }
+
+      }
+    }
 
 
   function getIOresults(opt, runtype){
@@ -125,6 +134,8 @@ console.log('orientdb');
 
     let Promise = require('promise');
     const runYCSB = (opt, runtype) => new Promise( resolve => {
+
+      if(opt.iotracer == true){
         let ip;
         ip = property.get_nodes_IP().split(',');
         console.log('iotracer run');
@@ -142,6 +153,7 @@ console.log('orientdb');
             err.status;
           }
         })
+      }
 
       let runtype1 = opt.runtype.substring(0,4)
       let runtype2 = opt.runtype.substring(4,7)
@@ -149,17 +161,19 @@ console.log('orientdb');
       if((dbtypeLine.indexOf('ERR') != -1)||(runtypeLine.indexOf('ERR') != -1)||(wlfileLine.indexOf('ERR') != -1)||(loadsizeLine.indexOf('ERR') != -1)||(threadLine.indexOf('ERR') != -1)||(timewindowLine.indexOf('ERR') != -1)||(cassandraTracingLine.indexOf('ERR') != -1)){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
 
-        let ip;
-        ip = property.get_nodes_IP().split(',');
-        ip.forEach((i) => {
-          console.log(i);
-          try{
-            const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
-            console.log(`stdout: ${stdout}`);
-          }catch(err){
-            console.log('kill end');
-          }
-        })
+        if(opt.iotracer == true){
+          let ip;
+          ip = property.get_nodes_IP().split(',');
+          ip.forEach((i) => {
+            console.log(i);
+            try{
+              const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
+              console.log(`stdout: ${stdout}`);
+            }catch(err){
+              console.log('kill end');
+            }
+          })
+        }
 
       }else{
         console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
@@ -186,21 +200,10 @@ console.log('orientdb');
               console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} completed.`)
               console.log('--------------------------------------')
               console.log('start');
-              if(opt.casstracing == true){
+              if(opt.iotracer == true){
                 getIOresults(opt, runtype)
-              }else{
-                let ip;
-                ip = property.get_nodes_IP().split(',');
-                ip.forEach((i) => {
-                  console.log(i);
-                  try{
-                    const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
-                    console.log(`stdout: ${stdout}`);
-                  }catch(err){
-                    console.log('kill end');
-                  }
-                })
-              }
+                }
+
               console.log('end');
               resolve(opt, runtype2)
             })
@@ -238,6 +241,7 @@ console.log('orientdb');
       // })
     })
   }
+
 
   function checkCassandra(opt){
     let cassandratracingInfo = chalk.magenta('cassandra tracing')

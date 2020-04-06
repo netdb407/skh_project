@@ -23,40 +23,88 @@ threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracin
 
 
 module.exports.graphbench = (opt) => {
+  var Client = require('ssh2').Client;
 
-      var node_ssh = require('node-ssh');
-      var ssh = new node_ssh();
-      var conn = ssh.connect({
-        host: "203.255.92.193",
-        username: "root",
-        port: 2480,
-        password : "netdb3230",
-        readyTimeout : 300000
+  var conn = new Client();
+  conn.on('ready', function() {
+    console.log('Client :: ready');
+    conn.exec('uptime', function(err, stream) {
+      if (err) throw err;
+      stream.on('close', function(code, signal) {
+        console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
+        conn.end();
+      }).on('data', function(data) {
+        console.log('STDOUT: ' + data);
+      }).stderr.on('data', function(data) {
+        console.log('STDERR: ' + data);
       });
+    });
+  }).connect({
+    host: '203.255.92.193',
+    port: 22,
+    username: 'netddb',
+    password: 'netdb3230'
+    // privateKey: require('fs').readFileSync('/home/skh/.ssh/known_hosts')
+  });
 
-          //명령어 보내기
-      ssh.execCommand('/opt/orientdb193/bin/console.sh', {}).then(function(result) {
-        try{
+//   var node_ssh = require('node-ssh');
+//   var ssh = new node_ssh();
+//
+//
+//   const password = 'netdb3230'
+//
+//   ssh.connect({
+//     host: '203.255.92.193',
+//     username: 'root',
+//     port: 22,
+//     password,
+//     tryKeyboard: true,
+//     onKeyboardInteractive: (name, instructions, instructionsLang, prompts, finish) => {
+//         if (prompts.length > 0 && prompts[0].prompt.toLowerCase().includes('password')) {
+//           finish([password])
+//         }
+//       }
+//   })
+//
+//
+//   ssh.putFiles([{ local: '/root/nodetest', remote: '/root/' }]).then(function() {
+// 	   console.log("DONE");
+//   }, function(error) {
+//   	console.log(error);
+//   }).then(function(){
+// 	   ssh.dispose();  //커넥션 종료
+// })
+//
 
-          console.log('결과: ' + result.stdout);
-          console.log('에러: ' + result.stderr);
-          ssh.dispose();//커넥션 종료
-      } catch(err){
-        console.error(err);
-
-        })
 
 
 
+      // var node_ssh = require('node-ssh');
+      // var ssh = new node_ssh();
+      // var conn = ssh.connect({
+      //   host: '203.255.92.193',
+      //   username: 'root',
+      //   password : 'netdb3230'
+      // })
+      //
+  //     console.log('123');
+  //
+  //         //명령어 보내기
+  //   ssh.execCommand('/opt/orientdb193/bin/console.sh', { }).then(function(result) {
+  //   	console.log('결과: ' + result.stdout);
+  //   	console.log('에러: ' + result.stderr);
+  //       ssh.dispose();//커넥션 종료
+  //   });
+  // console.log('123');
   //
   // console.log('orientdb');
-  //   try{
-  //     console.log('run');
-  //     const stdout = execSync(`ssh root@203.255.92.193 /opt/orientdb193/bin/console.sh`)
-  //     console.log(`stdout: ${stdout}`);
-  //   }catch(err){
-  //     console.log('error');
-  //   }
+    // try{
+    //   console.log('run');
+    //   const stdout = execSync(`ssh root@203.255.92.193 /opt/orientdb193/bin/console.sh`)
+    //   console.log(`stdout: ${stdout}`);
+    // }catch(err){
+    //   console.log('error');
+    // }
 
 
 }
