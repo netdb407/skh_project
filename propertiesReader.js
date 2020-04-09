@@ -54,8 +54,11 @@ module.exports = {
   get_server_WLgenerate_dir(){
     return properties.get("server_WLgenerate_dir")
   },
-  get_server_file_dir(){
-    return properties.get("server_file_dir")
+  get_server_file1_dir(){
+    return properties.get("server_file1_dir")
+  },
+  get_server_file2_dir(){
+    return properties.get("server_file2_dir")
   },
 
   //ycsb
