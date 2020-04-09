@@ -13,8 +13,6 @@ program
   .command('generate-wl')
 
 
-
-
 program.parse(process.argv)
 
   const q1 = [
@@ -49,7 +47,7 @@ program.parse(process.argv)
 
   async function main3(){
   const answers = await inquirer.prompt(q1);
-  if(answers.type === 'YCSB'){
+  if(answers.dft === 'YCSB'){
     inquirer.prompt(questions1).then(answer =>{
       if(answer){
         fs.readFile(dir1+answer.dfn,'utf-8',(err,data)=>{
