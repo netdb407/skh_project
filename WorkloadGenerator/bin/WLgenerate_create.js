@@ -3,9 +3,11 @@ var fs = require('fs');
 const program = require('commander');
 const property = require('../../propertiesReader.js')
 const installDir = property.get_server_install_dir()
-const fileDir = property.get_server_file_dir()
+const fileDir1 = property.get_server_file1_dir()
+const fileDir2 = property.get_server_file2_dir()
 
-var dir = installDir+fileDir;
+var dir1 = installDir+fileDir1;
+var dir2 = installDir+fileDir2;
 
 program
   .command('generate-wl')
@@ -267,8 +269,103 @@ var q1 = [
 var q2 = [
   {
     type : 'input',
-    name : 'Graph_benchmark',
-    message : 'Graph benchmark properties',
+    name : 'Create_vertex',
+    message : 'Create_vertex properties',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 8.3
+  },
+  {
+    type : 'input',
+    name : 'Update_vertex',
+    message : 'Update_vertex properties',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 23.8
+  },
+  {
+    type : 'input',
+    name : 'Delete_vertex',
+    message : 'Delete_vertex properties',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 3.2
+  },
+  {
+    type : 'input',
+    name : 'Create_edge',
+    message : 'Create_edge properties',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 29.0
+  },
+  {
+    type : 'input',
+    name : 'Update_edge',
+    message : 'Update_edge properties',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 25.8
+  },
+  {
+    type : 'input',
+    name : 'Delete_edge',
+    message : 'Delete_edge properties',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 9.6
+  },
+  {
+    type : 'input',
+    name : 'SSSP',
+    message : 'SSSP',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 10
+  },
+  {
+    type : 'input',
+    name : 'Hard_Path',
+    message : 'Hard_Path',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 10
+  },
+  {
+    type : 'input',
+    name : 'Aggregation',
+    message : 'Aggregation',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 10
+  },
+  {
+    type : 'input',
+    name : 'Neighbor2',
+    message : 'Neighbor2',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 10
   }
 ];
 
@@ -278,7 +375,7 @@ inquirer.prompt(question).then(answers => {
         q3[0].default = answers1.Record_count;
       inquirer.prompt(q3).then(answers1_2=>{
         console.log("********************************");
-        console.log('type :' +answers.type);
+        console.log('type =' +answers.type);
         console.log('File name '+answers.name);
         console.log("----properties----");
         console.log("record count = %s",answers1.Record_count);
@@ -333,17 +430,17 @@ inquirer.prompt(question).then(answers => {
         'histogram = '+answers1_2.histogram+'\n'+
         'timeseries_granularity = '+answers1_2.timeseries+'\n'
       ];
-          fs.readdir(dir,function(err,filelist){
+          fs.readdir(dir1,function(err,filelist){
             for(i=0;i<filelist.length;i++){
               if(filelist[i]===answers.name){
                 answers.name = answers.name+'0';
               }
             }
-            fs.writeFile(dir + answers.name,aa,'utf-8',(err) => {
+            fs.writeFile(dir1 + answers.name,aa,'utf-8',(err) => {
               if(err){
                 console.log(err);
               }else {
-                console.log('file name : '+answers.name);
+                console.log('file name = '+answers.name);
               }
             });
           });
@@ -352,24 +449,44 @@ inquirer.prompt(question).then(answers => {
   } else {
     inquirer.prompt(q2).then(answers2 => {
       console.log("********************************");
-      console.log("type :"+answers.type);
-      console.log("File name :"+answers.name);
+      console.log("type ="+answers.type);
+      console.log("File name ="+answers.name);
       console.log("----properties----");
-      console.log("Graph benchmark :"+answers2.Graph_benchmark);
+      console.log("Create_vertex ="+answers2.Create_vertex);
+      console.log("Update_vertex ="+answers2.Update_vertex);
+      console.log("Delete_vertex ="+answers2.Delete_vertex);
+      console.log("Create_edge ="+answers2.Create_edge);
+      console.log("Update_edge ="+answers2.Update_edge);
+      console.log("Delete_edge ="+answers2.Delete_edge);
+      console.log("SSSP ="+answers2.SSSP);
+      console.log("Hard_Path ="+answers2.Hard_Path);
+      console.log("Aggregation ="+answers2.Aggregation);
+      console.log("Neighbor2 ="+answers2.Neighbor2);
       console.log("********************************");
 
-      var bb = ['type = ' + answers.type+'\n'+'Graph benchmark = '+answers2.Graph_benchmark];
-      fs.readdir(dir,function(err,filelist){
+      var bb = ["type ="+answers.type+'\n'+
+      "File name ="+answers.name+'\n'+
+      "Create_vertex ="+answers2.Create_vertex+'\n'+
+      "Update_vertex ="+answers2.Update_vertex+'\n'+
+      "Delete_vertex ="+answers2.Delete_vertex+'\n'+
+      "Create_edge ="+answers2.Create_edge+'\n'+
+      "Update_edge ="+answers2.Update_edge+'\n'+
+      "Delete_edge ="+answers2.Delete_edge+'\n'+
+      "SSSP ="+answers2.SSSP+'\n'+
+      "Hard_Path ="+answers2.Hard_Path+'\n'+
+      "Aggregation ="+answers2.Aggregation+'\n'+
+      "Neighbor2 ="+answers2.Neighbor2];
+      fs.readdir(dir2,function(err,filelist){
         for(i=0;i<filelist.length;i++){
           if(filelist[i]===answers.name){
             answers.name = answers.name+'0';
           }
         }
-        fs.writeFile(dir + answers.name,bb,(err) => {
+        fs.writeFile(dir2 + answers.name,bb,(err) => {
           if(err){
             console.log(err);
           }else {
-            console.log('file name : '+answers.name);
+            console.log('file name = '+answers.name);
           }
         });
       });

@@ -1,12 +1,6 @@
 #!/usr/bin/env node
 var inquirer = require('inquirer');
-var fs = require('fs');
 const program = require('commander');
-const property = require('../../propertiesReader.js')
-const installDir = property.get_server_install_dir()
-const fileDir = property.get_server_file_dir()
-
-var dir = installDir+fileDir;
 
 var question = [
   {
