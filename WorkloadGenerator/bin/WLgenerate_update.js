@@ -407,7 +407,6 @@ var q3 = [
 async function main2(){
   const answers = await inquirer.prompt(qu1);
   if(answers.filetype === 'YCSB'){
-    console.log(answers);
     const answer = await inquirer.prompt(qu2);
       var fileproperties = PropertiesReader(dir1+answer.original_name);
       q1[0].default = fileproperties.path().Recordcount;
@@ -459,7 +458,7 @@ async function main2(){
           q2[0].default = answer2_1.Record_count;
           inquirer.prompt(q2).then(answer2_1_1 => {
             if(answer2_1){
-              var aa = ['type = '+answer2.type+'\n'+
+              var aa = ['type = '+answers.filetype+'\n'+
               'Recordcount = '+answer2_1.Record_count+'\n'+
               'Fieldcount = '+answer2_1.Field_count+'\n'+
               'fieldlength = '+answer2_1.fieldlength+'\n'+
@@ -485,9 +484,9 @@ async function main2(){
               'histogram = '+answer2_1_1.histogram+'\n'+
               'timeseries_granularity = '+answer2_1_1.timeseries+'\n'
             ];
-              fs.readFile(dir+answer.original_name,'utf8',function(err,data){
+              fs.readFile(dir1+answer.original_name,'utf8',function(err,data){
                 if(err) throw err;
-                fs.writeFile(dir+answer.original_name,aa,function(err,data){
+                fs.writeFile(dir1+answer.original_name,aa,function(err,data){
                   if(err) throw err;
                   console.log('The file has been modified successfully.');
                 });
@@ -533,8 +532,7 @@ async function main2(){
       } else {
         inquirer.prompt(q3).then(answer2_2 => {
           if(answer2_2){
-            var bb = ["type ="+answers.type+'\n'+
-            "File name ="+answers.name+'\n'+
+            var bb = ["type ="+answers.filetype+'\n'+
             "Create_vertex ="+answer2_2.Create_vertex+'\n'+
             "Update_vertex ="+answer2_2.Update_vertex+'\n'+
             "Delete_vertex ="+answer2_2.Delete_vertex+'\n'+
