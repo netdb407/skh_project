@@ -5,6 +5,7 @@ server_password = netdb3230
 #cluster 정보 (,뒤에 띄어쓰기 안함)
 server_IP = 203.255.92.192
 nodes_IP = 203.255.92.193,203.255.92.194,203.255.92.195
+nodetool_IP = 203.255.92.193
 nodes_hostname = skh,skh,skh
 nodes_password = netdb3230,netdb3230,netdb3230
 
@@ -13,14 +14,14 @@ rpm_dir_in_skhproject = /root/skh_project/Installation/rpm/
 
 
 #server directory
-server_install_dir = /root/skh_project/
+server_install_dir = /root/skh_project/package/
 server_ycsb_dir = ./YCSB
 server_wlfile_dir = workloads
 server_WLgenerate_dir = WorkloadGenerator/bin/
 server_file_dir = workloads/
 
 #node directory
-node_install_dir = /root/ssdStorage/
+node_install_dir = /root/ssdStorage/package/
 node_data_dir =
 
 

@@ -22,6 +22,8 @@ let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loads
 threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracingCmd = ''
 
 module.exports.ycsb = (opt) => {
+  //cassandra 상태확인함수 최초로 하고
+
   exec(`mkdir YCSB_RESULT`)
   // runCassandra(nodes_IP)
   checkCassandra(opt)
