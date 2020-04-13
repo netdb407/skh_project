@@ -109,7 +109,7 @@ function isInstalledPkg(i, package, installDir){
       }
 
 
-      if(package == 'git'){
+      // if(package == 'git'||'java'||'maven'){
         try{
           stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
           if(stdout!=null){
@@ -117,17 +117,35 @@ function isInstalledPkg(i, package, installDir){
             console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
             versionCheck(i, package, installDir);
           }
+          if(package == 'maven'){
+            makeMavenHome(i)
+          }
         }
         catch(e){
           installPackage(i, package, installDir);
         }
-      }
+      // }
 
     })
   }
 
+  // /etc/profile 에 추가
+  // export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-2.el8_1.x86_64/jre/
+  // export MAVEN_HOME=/root/maven
+  // export PATH=$PATH:$JAVA_HOME/bin
+  // export PATH=$PATH:$MAVEN_HOME/bin
 
 
+  function makeMavenHome(i){
+    exec(`scp /etc/profile root@${i}:${installDir}`)
+    console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
+    exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
+    exec(`ssh root@${i} chmod +x /root/maven/bin/mvn`)
+    exec(`ssh root@${i} source /etc/profile`)
+
+    exec(`exit`)
+    console.log(chalk.green.bold('[INFO]'), 'Ready to use Maven.');
+  }
 
 
 
