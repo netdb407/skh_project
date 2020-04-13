@@ -22,8 +22,6 @@ let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loads
 threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracingCmd = ''
 
 module.exports.ycsb = (opt) => {
-  //cassandra 상태확인함수 최초로 하고
-
   exec(`mkdir YCSB_RESULT`)
   // runCassandra(nodes_IP)
   checkCassandra(opt)
@@ -115,7 +113,7 @@ module.exports.ycsb = (opt) => {
 
       console.log('parse start');
       try{
-        const stdout2 = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser output ${IO_output_dir}`)
+        const stdout2 = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser ${IO_tracer_dir}/output ${IO_output_dir}`)
         console.log(`stdout: ${stdout2}`);
         console.log('parse end');
 
