@@ -49,7 +49,7 @@ program
       var password = property.get_password();
       ip = property.get_nodes_IP().split(',');
       //installDir = property.get_node_install_dir(); // root/ssdStorage
-
+      console.log('opt ===>', opt);
       installDatabase(opt, nodes, node_arr, password);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
@@ -59,13 +59,22 @@ program
       ip = property.get_nodes_IP().split(',');
       ip.push(property.get_server_IP());
       ip = ip.sort();
-      packageAll = ['git', 'python', 'java', 'maven']
+      // packageAll = ['git', 'python', 'java', 'maven']
+      packageAll = ['git', 'python', 'java']
       for(var i of ip){
         for(var pck of packageAll){
             isInstalledPkg(i, pck, installDir)
         }
         break;
       }
+
+      var nodes = property.get_nodes_IP();
+      var node_arr = nodes.split(',');
+      var password = property.get_password();
+      ip = property.get_nodes_IP().split(',');
+      //installDir = property.get_node_install_dir(); // root/ssdStorage
+      console.log('opt ===>', opt);
+      installDatabase(opt, nodes, node_arr, password);
     }
  })
 program.parse(process.argv)
@@ -107,24 +116,22 @@ function isInstalledPkg(i, package, installDir){
         exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
         console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
       }
-
-
       // if(package == 'git'||'java'||'maven'){
-        try{
-          stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
-          if(stdout!=null){
-            console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
-            console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
-            versionCheck(i, package, installDir);
-          }
-          if(package == 'maven'){
-            makeMavenHome(i)
-          }
+      try{
+        stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
+        if(stdout!=null){
+          console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
+          console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
+          versionCheck(i, package, installDir);
         }
-        catch(e){
-          installPackage(i, package, installDir);
-        }
-      // }
+      }
+      catch(e){
+        installPackage(i, package, installDir);
+      }
+      if(package == 'maven'){
+        makeMavenHome(i)
+      }
+    // }
 
     })
   }
@@ -139,7 +146,7 @@ function isInstalledPkg(i, package, installDir){
   function makeMavenHome(i){
     exec(`scp /etc/profile root@${i}:${installDir}`)
     console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
-    exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
+    //exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
     exec(`ssh root@${i} chmod +x /root/maven/bin/mvn`)
     exec(`ssh root@${i} source /etc/profile`)
 
