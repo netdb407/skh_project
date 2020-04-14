@@ -100,14 +100,13 @@ function isInstalledPkg(i, package, installDir){
       try{
         exec(`ssh root@${i} ls ${installDir}${package}`).toString();
         console.log(chalk.green.bold('[INFO]'), 'directory exists');
+        exec(`ssh root@${i} mkdir -p skh_project/package/maven`)
+        exec(`ssh root@${i} mkdir -p skh_project/package/java`)
+        exec(`ssh root@${i} mkdir -p skh_project/package/python`)
       }
       catch(e){
         //노드와 서버에 /root/ssdStorage/skh_project/package/*가 있어야 함.
-        exec(`ssh root@${i} mkdir skh_project`)
-        exec(`ssh root@${i} mkdir skh_project/package`)
-        exec(`ssh root@${i} mkdir skh_project/package/java`)
-        exec(`ssh root@${i} mkdir skh_project/package/maven`)
-        exec(`ssh root@${i} mkdir skh_project/package/python`)
+
 
         console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
         exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
