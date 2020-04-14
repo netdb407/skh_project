@@ -21,13 +21,13 @@ node_data_dir =
 
 # [ycsb(192 서버컴에만 있음) 관련 설정]
 ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
-ycsb_exportfile_dir = /root/skh_project/YCSB_RESULT
+ycsb_exportfile_dir = /root/ssdStorage/skh_project/YCSB_RESULT
 
 # [PATH 관련 설정 home_exporter]
-java_exporter = export JAVA_HOME=/root/skh_project/package/java
-maven_exporter = export MAVEN_HOME=/root/skh_project/package/maven
+java_exporter = export JAVA_HOME=/root/ssdStorage/skh_project/package/java
+maven_exporter = export MAVEN_HOME=/root/ssdStorage/skh_project/package/maven
 path_exporter = PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
-home_exporter = export JAVA_HOME=/root/skh_project/package/java && export MAVEN_HOME=/root/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
+home_exporter = export JAVA_HOME=/root/ssdStorage/skh_project/package/java && export MAVEN_HOME=/root/ssdStorage/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
 
 
 # [IO Tracer 관련 설정]
@@ -45,13 +45,13 @@ maven_version = 5.3.0
 cassandra_version = apache-cassandra-3.11.5
 
 #directory_server
-server_cassandra_dir = /root/skh_project/
+server_cassandra_dir = /root/ssdStorage/skh_project/
 
 #directory_node
 #node_cassandra_dir = /root/ssdStorage/skh_project/dk
 node_cassandra_dir = /root/ssdStorage/cassandra
 
 #update_configuration_path_server
-update_conf_path = /root/skh_project/Update/
+update_conf_path = /root/ssdStorage/skh_project/Update/
 
 cassandra_tracing_option = false
