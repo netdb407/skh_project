@@ -38,7 +38,6 @@ program
         ip = property.get_nodes_IP().split(',');
         installDir = property.get_node_install_dir(); // root/ssdStorage
       }
-
       isInstalledPkg(ip, opt.package, installDir)
     }
 
@@ -78,10 +77,6 @@ program
 program.parse(process.argv)
 
 
-
-//java rpm 파일 바뀌었는데 테스트해보기 : 카산드라 돌릴 때 devel 버전이어야 하니까 지우고 다시 해보기
-
-
 function isInstalledPkg(i, package, installDir){
   ip.forEach((i) => {
    console.log('----------------------------------------------------------');
@@ -107,6 +102,13 @@ function isInstalledPkg(i, package, installDir){
         console.log(chalk.green.bold('[INFO]'), 'directory exists');
       }
       catch(e){
+        //노드와 서버에 /root/ssdStorage/skh_project/package/*가 있어야 함.
+        exec(`ssh root@${i} mkdir skh_project`)
+        exec(`ssh root@${i} mkdir skh_project/package`)
+        exec(`ssh root@${i} mkdir skh_project/package/java`)
+        exec(`ssh root@${i} mkdir skh_project/package/maven`)
+        exec(`ssh root@${i} mkdir skh_project/package/python`)
+
         console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
         exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
         console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
@@ -122,9 +124,6 @@ function isInstalledPkg(i, package, installDir){
       }
       catch(e){
         installPackage(i, package, installDir);
-      }
-      if(package == 'maven'){
-        makeMavenHome(i)
       }
     // }
 
@@ -193,16 +192,21 @@ function versionCheck(i, package, installDir){
 
 
   function installPackage(i, package, installDir){
-   if(package == 'python'){
-     exec(`ssh root@${i} ${cmds.installCmd} ${installDir}${package}/*`)
-     console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
-       // exec(`rm -rf ${installDir}${package}`)
-       // console.log(chalk.green.bold('[INFO]'), 'rpm 폴더 삭제');
-     if(package == 'python'){
-        makePythonLink(i);
+   switch(package){
+     case 'java' :
+     console.log(chalk.green.bold('[INFO]'), 'waiting for download java build ... It takes about 20 min');
+       exec(`ssh root@${i} wget https://download.java.net/openjdk/jdk8u41/ri/openjdk-8u41-b04-linux-x64-14_jan_2020.tar.gz ${installDir}${package}`)
+      console.log(chalk.green.bold('[INFO]'), 'complete');
+      //tar파일 압축 해제 해야 함..
+       exec(`ssh root@${i} `)
+       break;
+     case 'python' :
+       makePythonLink(i);
+       break;
+     case 'maven' :
+       makeMavenHome(i)
+       break;
      }
-     exec(`exit`)
-   }
 }
 
 
@@ -241,8 +245,6 @@ function versionCheck(i, package, installDir){
   	var cassandraHome = `${dir}${version}`
   	var conf = `${cassandraHome}/conf/cassandra.yaml`
     	var update_conf = property.get_update_conf_path()
-  	var fs = require('fs');
-
 
   	var exists = fs.existsSync(`${conf}`);
           if(exists==true){
