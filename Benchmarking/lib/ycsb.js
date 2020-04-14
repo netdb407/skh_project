@@ -140,7 +140,7 @@ module.exports.ycsb = (opt) => {
             const stdout = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -D -d ${IO_watch_dir}`)
             // console.log(`stdout: ${stdout}`);
           }catch (err){
-            console.log(err);
+            // console.log(err);
             // console.log(err.stdout)
             // console.log(err.stderr)
             // err.pid;
