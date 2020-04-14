@@ -98,16 +98,20 @@ function isInstalledPkg(i, package, installDir){
        // return 0;
    }
       try{
-        exec(`ssh root@${i} ls ${installDir}${package}`).toString();
+        // var res = exec(`ssh root@${i} ls ${installDir}${package}`).toString();
+        // res.contain("File exists")
+        // if(res) //디렉토리 있음
+        // else //없음
+
+
         console.log(chalk.green.bold('[INFO]'), 'directory exists');
+        exec(`ssh root@${i} mkdir -p skh_project/package/maven`)
+        exec(`ssh root@${i} mkdir -p skh_project/package/java`)
+        exec(`ssh root@${i} mkdir -p skh_project/package/python`)
+        // `scp <JDK PATH> root@${i}:/PATH/TO/TARGET`
       }
       catch(e){
         //노드와 서버에 /root/ssdStorage/skh_project/package/*가 있어야 함.
-        exec(`ssh root@${i} mkdir skh_project`)
-        exec(`ssh root@${i} mkdir skh_project/package`)
-        exec(`ssh root@${i} mkdir skh_project/package/java`)
-        exec(`ssh root@${i} mkdir skh_project/package/maven`)
-        exec(`ssh root@${i} mkdir skh_project/package/python`)
 
         console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
         exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
@@ -194,11 +198,31 @@ function versionCheck(i, package, installDir){
   function installPackage(i, package, installDir){
    switch(package){
      case 'java' :
-     console.log(chalk.green.bold('[INFO]'), 'waiting for download java build ... It takes about 20 min');
-       exec(`ssh root@${i} wget https://download.java.net/openjdk/jdk8u41/ri/openjdk-8u41-b04-linux-x64-14_jan_2020.tar.gz ${installDir}${package}`)
-      console.log(chalk.green.bold('[INFO]'), 'complete');
-      //tar파일 압축 해제 해야 함..
-       exec(`ssh root@${i} `)
+     exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}${package}`)
+     console.log('1 -->', `${rpm_dir_in_skhproject}${package}`);
+     console.log('2 ==>', `${installDir}${package}`);
+
+
+     console.log('3 ==>', `${installDir}${package}`);
+     exec(`ssh root@${i} ${cmds.installCmd} ${installDir}${package}/*`)
+
+     console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
+
+     // console.log('ip---------->', ip(0));
+     // var mirror1 = 'https://files-cdn.liferay.com/mirrors/download.oracle.com/otn-pub/java/jdk/8u121-b13/jdk-8u121-linux-x64.tar.gz'
+     // console.log(chalk.green.bold('[INFO]'), 'waiting for download java build ... It takes about 20 min');
+       // exec(`ssh root@${i} wget https://download.java.net/openjdk/jdk8u41/ri/openjdk-8u41-b04-linux-x64-14_jan_2020.tar.gz ${installDir}${package}`)
+
+
+      // if(i == arr(0)) {
+      //   exec(`ssh root@${i} wget ${mirror1} ${installDir}${package}`)
+      // }
+      // else if( i > 1) {
+      //   exec(`scp ${installDir}${package}/openjdk-8u41-b04-linux-x64-14_jan_2020.tar.gz root@${i}:${installDir}${package}/`)
+      // }
+      // console.log(chalk.green.bold('[INFO]'), 'complete');
+      // //tar파일 압축 해제 해야 함..
+      //  exec(`ssh root@${i} `)
        break;
      case 'python' :
        makePythonLink(i);
