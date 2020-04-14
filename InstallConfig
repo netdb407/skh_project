@@ -4,7 +4,7 @@ nodes_IP = 203.255.92.193,203.255.92.194,203.255.92.195
 #nodetool_IP = 203.255.92.193
 
 # ! 192 서버컴에 mkdir ssdStorage한 다음에 설치하기
-rpm_dir_in_skhproject = /root/skh_project/Installation/rpm/
+rpm_dir_in_skhproject = /root/ssdStorage/skh_project/Installation/rpm/
 
 
 # [server directory]
