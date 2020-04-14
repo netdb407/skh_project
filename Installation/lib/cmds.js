@@ -16,7 +16,6 @@ const yumDeleteCmd = 'yum remove -y'
 const java = 'java'
 const maven = 'maven'
 const python = 'python2'
-const git = 'git-core'
 
 
 //송희 추가
@@ -32,7 +31,6 @@ module.exports = {
   yumDeleteCmd,
 
   java,
-  git,
   maven,
   python,
 

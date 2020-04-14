@@ -23,7 +23,7 @@ let version;
 
 program
   .command('install')
-  .option('-p, --package <pkgname>', `Install Package (Git, Java, Python, Maven)`)
+  .option('-p, --package <pkgname>', `Install Package (Java, Python, Maven)`)
   .option('-d, --database <dbname>', `Install Database (Cassandra, Orient, Arango)`)
   .option('-s, --server', `Install into server, only can use with -p option`)
   .option('-n, --node', `Install into node, only can use with -p option`)
@@ -38,7 +38,6 @@ program
         ip = property.get_nodes_IP().split(',');
         installDir = property.get_node_install_dir(); // root/ssdStorage
       }
-
       isInstalledPkg(ip, opt.package, installDir)
     }
 
@@ -46,11 +45,9 @@ program
     if(opt.database){
       var nodes = property.get_nodes_IP();
       var node_arr = nodes.split(',');
-      var password = property.get_password();
-      ip = property.get_nodes_IP().split(',');
       //installDir = property.get_node_install_dir(); // root/ssdStorage
-      console.log('opt ===>', opt);
-      installDatabase(opt, nodes, node_arr, password);
+      var db = opt.database
+      installDatabase(db, nodes, node_arr);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
 
@@ -59,29 +56,25 @@ program
       ip = property.get_nodes_IP().split(',');
       ip.push(property.get_server_IP());
       ip = ip.sort();
-      // packageAll = ['git', 'python', 'java', 'maven']
-      packageAll = ['git', 'python', 'java']
+      packageAll = ['python', 'java', 'maven']
       for(var i of ip){
         for(var pck of packageAll){
             isInstalledPkg(i, pck, installDir)
         }
         break;
       }
-
+      //아예 -a옵션은 패키지만 설치하는거로 설명을 바꿀까...
       var nodes = property.get_nodes_IP();
       var node_arr = nodes.split(',');
-      var password = property.get_password();
       ip = property.get_nodes_IP().split(',');
       //installDir = property.get_node_install_dir(); // root/ssdStorage
-      console.log('opt ===>', opt);
-      installDatabase(opt, nodes, node_arr, password);
+      databaseAll = ['cassandra']
+      for(var db of databaseAll){
+        installDatabase(db, nodes, node_arr);
+      }
     }
  })
 program.parse(process.argv)
-
-
-
-//java rpm 파일 바뀌었는데 테스트해보기 : 카산드라 돌릴 때 devel 버전이어야 하니까 지우고 다시 해보기
 
 
 function isInstalledPkg(i, package, installDir){
@@ -90,9 +83,6 @@ function isInstalledPkg(i, package, installDir){
    console.log(chalk.green.bold('[INFO]'), 'Installation', chalk.blue.bold(package), 'into IP address', chalk.blue.bold(i));
    installDir = i==property.get_server_IP()? property.get_server_install_dir() : property.get_node_install_dir();
    switch(package){
-     case 'git' :
-       packageName = cmds.git;
-       break;
      case 'java' :
        packageName = cmds.java;
        break;
@@ -112,11 +102,18 @@ function isInstalledPkg(i, package, installDir){
         console.log(chalk.green.bold('[INFO]'), 'directory exists');
       }
       catch(e){
+        //노드와 서버에 /root/ssdStorage/skh_project/package/*가 있어야 함.
+        exec(`ssh root@${i} mkdir skh_project`)
+        exec(`ssh root@${i} mkdir skh_project/package`)
+        exec(`ssh root@${i} mkdir skh_project/package/java`)
+        exec(`ssh root@${i} mkdir skh_project/package/maven`)
+        exec(`ssh root@${i} mkdir skh_project/package/python`)
+
         console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
         exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
         console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
       }
-      // if(package == 'git'||'java'||'maven'){
+      // if(package == 'java'||'maven'){
       try{
         stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
         if(stdout!=null){
@@ -127,9 +124,6 @@ function isInstalledPkg(i, package, installDir){
       }
       catch(e){
         installPackage(i, package, installDir);
-      }
-      if(package == 'maven'){
-        makeMavenHome(i)
       }
     // }
 
@@ -170,9 +164,6 @@ function makePythonLink(i){
 function versionCheck(i, package, installDir){
   console.log(chalk.green.bold('[INFO]'), 'Start version check ...');
     switch(package){
-      case 'git' :
-        version = property.get_gitVersion()
-        break;
       case 'maven' :
         version = property.get_mavenVersion()
         break;
@@ -201,16 +192,21 @@ function versionCheck(i, package, installDir){
 
 
   function installPackage(i, package, installDir){
-   if(package == 'git'|'python'){
-     exec(`ssh root@${i} ${cmds.installCmd} ${installDir}${package}/*`)
-     console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
-       // exec(`rm -rf ${installDir}${package}`)
-       // console.log(chalk.green.bold('[INFO]'), 'rpm 폴더 삭제');
-     if(package == 'python'){
-        makePythonLink(i);
+   switch(package){
+     case 'java' :
+     console.log(chalk.green.bold('[INFO]'), 'waiting for download java build ... It takes about 20 min');
+       exec(`ssh root@${i} wget https://download.java.net/openjdk/jdk8u41/ri/openjdk-8u41-b04-linux-x64-14_jan_2020.tar.gz ${installDir}${package}`)
+      console.log(chalk.green.bold('[INFO]'), 'complete');
+      //tar파일 압축 해제 해야 함..
+       exec(`ssh root@${i} `)
+       break;
+     case 'python' :
+       makePythonLink(i);
+       break;
+     case 'maven' :
+       makeMavenHome(i)
+       break;
      }
-     exec(`exit`)
-   }
 }
 
 
@@ -221,9 +217,6 @@ function versionCheck(i, package, installDir){
        break;
      case 'python' :
        packageName = cmds.python
-       break;
-     case 'git' :
-       packageName = cmds.git
        break;
      case 'maven' :
        packageName = cmds.maven
@@ -242,9 +235,9 @@ function versionCheck(i, package, installDir){
 
 
 
-  function installDatabase(opt, nodes, node_arr, password){
+  function installDatabase(db, nodes, node_arr){
     console.log('node정보 : ', node_arr);
-    switch(opt.database){
+    switch(db){
         case 'cassandra' :
   	var dir = property.get_server_cassandra_dir()
   	var node_dir = property.get_node_cassandra_dir()
@@ -252,8 +245,6 @@ function versionCheck(i, package, installDir){
   	var cassandraHome = `${dir}${version}`
   	var conf = `${cassandraHome}/conf/cassandra.yaml`
     	var update_conf = property.get_update_conf_path()
-  	var fs = require('fs');
-
 
   	var exists = fs.existsSync(`${conf}`);
           if(exists==true){
@@ -264,7 +255,7 @@ function versionCheck(i, package, installDir){
            break;
           }
 
-        cassandraAction.cassandraCopy(nodes, node_arr, password, cassandraHome, node_dir, conf, update_conf);
+        cassandraAction.cassandraCopy(nodes, node_arr, cassandraHome, node_dir, conf, update_conf);
   	console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
         break;
      }
