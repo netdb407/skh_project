@@ -9,8 +9,8 @@ rpm_dir_in_skhproject = /root/skh_project/Installation/rpm/
 
 # [server directory]
 server_install_dir = /root/ssdStorage/skh_project/package/
+server_ycsb_dir = ./YCSB
 server_wlfile_dir = workloads
-server_ycsb_dir = ./YCSB/
 server_WLgenerate_dir = WorkloadGenerator/bin/
 server_file_dir = workloads/
 
@@ -22,8 +22,6 @@ node_data_dir =
 # [ycsb(192 서버컴에만 있음) 관련 설정]
 ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
 ycsb_exportfile_dir = /root/skh_project/YCSB_RESULT
-ycsb_threadcount = 1
-ycsb_timewindow = 1
 
 # [PATH 관련 설정 home_exporter]
 java_exporter = export JAVA_HOME=/root/skh_project/package/java
@@ -33,9 +31,10 @@ home_exporter = export JAVA_HOME=/root/skh_project/package/java && export MAVEN_
 
 
 # [IO Tracer 관련 설정]
-IO_output_dir =
+IO_output_dir = /root/ssdStorage/output
 IO_driverManager_dir =
-
+IO_tracer_dir = /root/iotracer
+IO_watch_dir = /root/ssdStorage
 
 # [패키지 version]
 java_version = 1.8.0
@@ -49,7 +48,8 @@ cassandra_version = apache-cassandra-3.11.5
 server_cassandra_dir = /root/skh_project/
 
 #directory_node
-node_cassandra_dir = /root/ssdStorage/skh_project/
+#node_cassandra_dir = /root/ssdStorage/skh_project/
+node_cassandra_dir = /root/ssdStorage/cassandra
 
 #update_configuration_path_server
 update_conf_path = /root/skh_project/Update/
