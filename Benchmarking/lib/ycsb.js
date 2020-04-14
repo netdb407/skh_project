@@ -24,7 +24,7 @@ threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracin
 module.exports.ycsb = (opt) => {
   exec(`mkdir YCSB_RESULT`)
   // runCassandra(nodes_IP)
-  checkCassandra(opt)
+  checkCassandra(opt.dbtype, opt.casstracing)
   checkRuntype(opt.runtype)
   checkFile(opt.wlfile)
   checkLoadsize(opt.runtype, opt.loadsize)
@@ -63,17 +63,15 @@ module.exports.ycsb = (opt) => {
   }
 
 
-
-
-    function checkCassandra(opt){
+    function checkCassandra(dbtype, casstracing){
       let cassandratracingInfo = chalk.magenta('cassandra tracing')
       let dbtypeInfo = chalk.magenta('dbtype')
-      if(opt.dbtype == 'cassandra'){ // 카산드라일때 tracinㅎ 옵션
-        let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
-        opt.dbtype = 'cassandra-cql'
+      if(dbtype== 'cassandra'){ // 카산드라일때 tracinㅎ 옵션
+        let dbtypeLine = `${dbtypeInfo} : ${dbtype}`
+        dbtype = 'cassandra-cql'
         console.log(dbtypeLine);
 
-        if(opt.casstracing==true){
+        if(casstracing==true){
           cassandraTracing = 'true'
           cassandraTracingLine = `${cassandratracingInfo} : on`
           cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
@@ -85,10 +83,10 @@ module.exports.ycsb = (opt) => {
           console.log(cassandraTracingLine);
         }
       }else{ // 카산드라가 아닐때
-        let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+        let dbtypeLine = `${dbtypeInfo} : ${dbtype}`
         console.log(dbtypeLine);
 
-        if(opt.casstracing==true){
+        if(casstracing==true){
           cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
           console.log(cassandraTracingLine);
         }else{
@@ -110,7 +108,7 @@ module.exports.ycsb = (opt) => {
         const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
         // console.log(`stdout: ${stdout}`);
       }catch(err){
-        // console.log('kill end');
+        console.log(err);
       }
 
       // console.log('parse start');
@@ -126,7 +124,6 @@ module.exports.ycsb = (opt) => {
 
       }catch(err){
         console.log(err);
-
       }
 
     })
@@ -204,12 +201,12 @@ module.exports.ycsb = (opt) => {
               console.log('--------------------------------------')
               console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} completed.`)
               console.log('--------------------------------------')
-              console.log('start');
+              // console.log('start');
               if(opt.iotracer == true){
                 getIOresults(opt, runtype)
                 }
 
-              console.log('end');
+              // console.log('end');
               resolve(opt, runtype2)
             })
 
