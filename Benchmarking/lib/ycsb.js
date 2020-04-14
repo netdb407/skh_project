@@ -24,7 +24,7 @@ threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracin
 module.exports.ycsb = (opt) => {
   exec(`mkdir YCSB_RESULT`)
   // runCassandra(nodes_IP)
-  checkCassandra(opt.dbtype, opt.casstracing)
+  checkCassandra(opt)
   checkRuntype(opt.runtype)
   checkFile(opt.wlfile)
   checkLoadsize(opt.runtype, opt.loadsize)
@@ -63,15 +63,15 @@ module.exports.ycsb = (opt) => {
   }
 
 
-    function checkCassandra(dbtype, casstracing){
+    function checkCassandra(opt){
       let cassandratracingInfo = chalk.magenta('cassandra tracing')
       let dbtypeInfo = chalk.magenta('dbtype')
-      if(dbtype== 'cassandra'){ // 카산드라일때 tracinㅎ 옵션
-        let dbtypeLine = `${dbtypeInfo} : ${dbtype}`
-        dbtype = 'cassandra-cql'
+      if(opt.dbtype == 'cassandra'){ // 카산드라일때 tracinㅎ 옵션
+        let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+        opt.dbtype = 'cassandra-cql'
         console.log(dbtypeLine);
 
-        if(casstracing==true){
+        if(opt.casstracing==true){
           cassandraTracing = 'true'
           cassandraTracingLine = `${cassandratracingInfo} : on`
           cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
@@ -83,10 +83,10 @@ module.exports.ycsb = (opt) => {
           console.log(cassandraTracingLine);
         }
       }else{ // 카산드라가 아닐때
-        let dbtypeLine = `${dbtypeInfo} : ${dbtype}`
+        let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
         console.log(dbtypeLine);
 
-        if(casstracing==true){
+        if(opt.casstracing==true){
           cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
           console.log(cassandraTracingLine);
         }else{
@@ -377,6 +377,45 @@ module.exports.ycsb = (opt) => {
         }
       }
     }else { //n 값이 있으면 else if((typeof opt.name) == 'string')
+        // const path = `${ycsb_exportfile_dir}`
+        // var file = opt.name
+        // console.log(file);
+        // //console.log(file.split("_")[1])
+        // //split 하면 배열로 반환됨
+        //
+        // while(1){
+        //   console.log(file)
+        //   var array = file.split("_")//som, som
+        //   try{
+        //     if (fs.existsSync(path+'/'+file)&&array.length>=2){
+        //       let num = Number(array[array.length-1]); //NaN
+        //       console.log('exists')
+        //       if(typeof(num)==typeof(10)){
+        //         num += 1; //4
+        //         //for문
+        //         for(i=0;i<array.length-1;i++){ //length = 2
+        //           file = array[i] //i = 0 (test2)
+        //         }
+        //         file = file+'_'+num
+        //         fs.mkdirSync(path+'/'+file)
+        //         opt.name = file
+        //       }else{
+        //         file = file+'_'+1//som_som_1
+        //         fs.mkdirSync(path+'/'+file)
+        //         opt.name = file
+        //       }
+        //     }else if(array.length==1){
+        //       file = array[0]+'_'+1
+        //       fs.mkdirSync(path+'/'+file)
+        //
+        //       opt.name = file
+        //     }
+        //     break;
+        //   }catch(err){
+        //     continue;
+        //   }
+        // }
+
       try{
         while(1){
           let file = `${ycsb_exportfile_dir}/${opt.name}`
@@ -404,7 +443,10 @@ module.exports.ycsb = (opt) => {
               newArray[seqArray.length-1] = newArray[seqArray.length-1]+1
               seqNum += newArray[i]
             }
-            opt.name = `${strArray[0]}_${seqNum}` // strArray 첫번째 인자
+            if(strArray.length>1){
+              opt.name = `${strArray[0]}_${strArray[1]}_${seqNum}`
+            }
+            // opt.name = `${strArray[0]}_${seqNum}` // strArray 첫번째 인자
           }else{
             opt.name = `${opt.name}_2`
           }
