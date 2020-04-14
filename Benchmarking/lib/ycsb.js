@@ -103,34 +103,34 @@ module.exports.ycsb = (opt) => {
     let ip;
     ip = property.get_nodes_IP().split(',');
     ip.forEach((i) => {
-      console.log(i);
+      console.log('--------------------------------------')
+      console.log(chalk.green.bold('[INFO]'), 'iotracer kill : ', chalk.blue.bold(i));
+      console.log('--------------------------------------')
       try{
         const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
-        console.log(`stdout: ${stdout}`);
+        // console.log(`stdout: ${stdout}`);
       }catch(err){
-        console.log('kill end');
+        // console.log('kill end');
       }
 
-      console.log('parse start');
+      // console.log('parse start');
       try{
         const stdout2 = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser ${IO_tracer_dir}/output ${IO_output_dir}`)
-        console.log(`stdout: ${stdout2}`);
-        console.log('parse end');
-
+        // console.log(`stdout: ${stdout2}`);
+        // console.log('parse end');
 
         execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}`)
         execSync(`mv ${ycsb_exportfile_dir}/${opt.name}/output ${ycsb_exportfile_dir}/${opt.name}/${i}_${runtype}_output`)
-        console.log('result end');
+        // console.log('result end');
         // console.log(`stdout: ${std`out3}`);
 
       }catch(err){
-        console.log('err');
+        console.log(err);
 
       }
 
     })
   }
-
 
     let Promise = require('promise');
     const runYCSB = (opt, runtype) => new Promise( resolve => {
@@ -138,19 +138,21 @@ module.exports.ycsb = (opt) => {
       if(opt.iotracer == true){
         let ip;
         ip = property.get_nodes_IP().split(',');
-        console.log('iotracer run');
         ip.forEach((i) => {
-          console.log(i);
+          console.log('--------------------------------------')
+          console.log(chalk.green.bold('[INFO]'), 'iotracer run : ', chalk.blue.bold(i));
+          console.log('--------------------------------------')
           // exec(`ssh root@${i} ${IO_tracer_dir} -d ${IO_watch_dir}`)
           try{
             const stdout = execSync(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -D -d ${IO_watch_dir}`)
-            console.log(`stdout: ${stdout}`);
+            // console.log(`stdout: ${stdout}`);
           }catch (err){
-            console.log(err.stdout)
-            console.log(err.stderr)
-            err.pid;
-            err.signal;
-            err.status;
+            console.log(err);
+            // console.log(err.stdout)
+            // console.log(err.stderr)
+            // err.pid;
+            // err.signal;
+            // err.status;
           }
         })
       }
@@ -164,13 +166,16 @@ module.exports.ycsb = (opt) => {
         if(opt.iotracer == true){
           let ip;
           ip = property.get_nodes_IP().split(',');
+
           ip.forEach((i) => {
-            console.log(i);
+            console.log('--------------------------------------')
+            console.log(chalk.green.bold('[INFO]'), 'iotracer kill : ', chalk.blue.bold(i));
+            console.log('--------------------------------------')
             try{
               const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
-              console.log(`stdout: ${stdout}`);
+              // console.log(`stdout: ${stdout}`);
             }catch(err){
-              console.log('kill end');
+              // console.log('kill end');
             }
           })
         }
@@ -218,30 +223,6 @@ module.exports.ycsb = (opt) => {
           }
         }
     })
-
-  function runCassandra(i){
-    ip = property.get_nodes_IP().split(',');
-    ip.forEach((i) =>{
-      console.log('-----------------------------------');
-      console.log(chalk.green.bold('[INFO]'),'IP address is', i);
-
-      // var options = {
-      //   timeout : 10000,
-      //   killSignal : 'SIGKILL'
-      // };
-      // exec(`ssh root@${i} ps -ef|grep cass`, function(err, stdout, stderr){
-      //   if(err){
-      //   console.log('error code', err.code);
-      //
-      // }
-      // console.log(stdout);
-      // console.log(stderr);
-      // // exec(`ssh root@${i} cd /home/skh/cassandra`)
-      // // exec(`ssh root@${i} bin/cassandra -fR`)
-      // })
-    })
-  }
-
 
   function checkCassandra(opt){
     let cassandratracingInfo = chalk.magenta('cassandra tracing')
@@ -368,6 +349,7 @@ module.exports.ycsb = (opt) => {
   function benchmarkName(opt){
     if((typeof opt.name) == 'function'){ // n 값이 없으면 디폴트값 만들어줌
       opt.name = 'ycsb_result_1'
+      // console.log(opt);
       try{
         while(1){
           let file = `${ycsb_exportfile_dir}/${opt.name}`
@@ -403,6 +385,7 @@ module.exports.ycsb = (opt) => {
           let file = `${ycsb_exportfile_dir}/${opt.name}`
           fs.statSync(file);
           let string = opt.name
+          console.log(string);
 
           let substring = string.substring(string.length, string.length-2)
           let newstring = string.substring(0, string.length-2)

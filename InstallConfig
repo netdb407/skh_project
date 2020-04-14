@@ -1,8 +1,8 @@
-#user정보
+# [user정보]
 server_hostname = skh
 server_password = netdb3230
 
-#cluster 정보 (,뒤에 띄어쓰기 안함)
+# [cluster 정보 (,뒤에 띄어쓰기 안함)]
 server_IP = 203.255.92.192
 nodes_IP = 203.255.92.193,203.255.92.194,203.255.92.195
 nodetool_IP = 203.255.92.193
@@ -13,55 +13,52 @@ nodes_password = netdb3230,netdb3230,netdb3230
 rpm_dir_in_skhproject = /root/skh_project/Installation/rpm/
 
 
-#server directory
+# [server directory]
 server_install_dir = /root/skh_project/package/
 server_ycsb_dir = ./YCSB
 server_wlfile_dir = workloads
 server_WLgenerate_dir = WorkloadGenerator/bin/
-server_file1_dir = YCSB/workloads/
-server_file2_dir = Graph/workloads/
+server_file_dir = workloads/
 
-#node directory
+# [node directory]
 node_install_dir = /root/ssdStorage/package/
 node_data_dir =
 
 
-#ycsb(192 서버컴에만 있음)
+# [ycsb(192 서버컴에만 있음) 관련 설정]
 ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
 ycsb_exportfile_dir = /root/skh_project/YCSB_RESULT
 
-#home_exporter
+# [PATH 관련 설정 home_exporter]
 java_exporter = export JAVA_HOME=/root/skh_project/package/java
 maven_exporter = export MAVEN_HOME=/root/skh_project/package/maven
 path_exporter = PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
 home_exporter = export JAVA_HOME=/root/skh_project/package/java && export MAVEN_HOME=/root/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
 
 
-#IO Tracer
+# [IO Tracer 관련 설정]
 IO_output_dir = /root/ssdStorage/output
 IO_driverManager_dir =
 IO_tracer_dir = /root/iotracer
 IO_watch_dir = /root/ssdStorage
 
-
-
-#version
+# [패키지 version]
 java_version = 1.8.0
 python_version = 2.7
 git_version = 2.18
 maven_version = 5.3.0
 
-############################################
+# [cassandra 관련 설정]
 cassandra_version = apache-cassandra-3.11.5
 
 #directory_server
-#server_cassandra_dir = /home/skh/yh/skh_project/
 server_cassandra_dir = /root/skh_project/
 
 #directory_node
-#node_cassandra_dir = /home/skh/skh_project/
-node_cassandra_dir = /root/ssdStorage/skh_project/
+#node_cassandra_dir = /root/ssdStorage/skh_project/dk
+node_cassandra_dir = /root/ssdStorage/cassandra
 
 #update_configuration_path_server
-#update_conf_path = /home/skh/yh/skh_project/Update/
-update_conf_path = /root/ssdStorage/skh_project/Update/
+update_conf_path = /root/skh_project/Update/
+
+cassandra_tracing_option = false
