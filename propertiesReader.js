@@ -105,9 +105,6 @@ module.exports = {
   get_pythonVersion(){
     return properties.get("python_version");
   },
-  get_gitVersion(){
-    return properties.get("git_version");
-  },
   get_mavenVersion(){
     return properties.get("maven_version");
   },

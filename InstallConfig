@@ -1,7 +1,7 @@
 # [cluster 정보 (,뒤에 띄어쓰기 안함)]
 server_IP = 203.255.92.192
 nodes_IP = 203.255.92.193,203.255.92.194,203.255.92.195
-nodetool_IP = 203.255.92.193
+#nodetool_IP = 203.255.92.193
 
 # ! 192 서버컴에 mkdir ssdStorage한 다음에 설치하기
 rpm_dir_in_skhproject = /root/skh_project/Installation/rpm/
@@ -40,7 +40,6 @@ IO_driverManager_dir =
 # [패키지 version]
 java_version = 1.8.0
 python_version = 2.7
-git_version = 2.18
 maven_version = 5.3.0
 
 # [cassandra 관련 설정]

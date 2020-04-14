@@ -23,7 +23,7 @@ let version;
 
 program
   .command('install')
-  .option('-p, --package <pkgname>', `Install Package (Git, Java, Python, Maven)`)
+  .option('-p, --package <pkgname>', `Install Package (Java, Python, Maven)`)
   .option('-d, --database <dbname>', `Install Database (Cassandra, Orient, Arango)`)
   .option('-s, --server', `Install into server, only can use with -p option`)
   .option('-n, --node', `Install into node, only can use with -p option`)
@@ -57,8 +57,7 @@ program
       ip = property.get_nodes_IP().split(',');
       ip.push(property.get_server_IP());
       ip = ip.sort();
-      packageAll = ['git', 'python', 'java', 'maven']
-      // packageAll = ['git', 'python', 'java']
+      packageAll = ['python', 'java', 'maven']
       for(var i of ip){
         for(var pck of packageAll){
             isInstalledPkg(i, pck, installDir)
@@ -89,9 +88,6 @@ function isInstalledPkg(i, package, installDir){
    console.log(chalk.green.bold('[INFO]'), 'Installation', chalk.blue.bold(package), 'into IP address', chalk.blue.bold(i));
    installDir = i==property.get_server_IP()? property.get_server_install_dir() : property.get_node_install_dir();
    switch(package){
-     case 'git' :
-       packageName = cmds.git;
-       break;
      case 'java' :
        packageName = cmds.java;
        break;
@@ -115,7 +111,7 @@ function isInstalledPkg(i, package, installDir){
         exec(`scp -r ${rpm_dir_in_skhproject}${package} root@${i}:${installDir}`)
         console.log(chalk.green.bold('[INFO]'), 'Sending rpm file to', i,'complete! Ready to install other package.');
       }
-      // if(package == 'git'||'java'||'maven'){
+      // if(package == 'java'||'maven'){
       try{
         stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
         if(stdout!=null){
@@ -169,9 +165,6 @@ function makePythonLink(i){
 function versionCheck(i, package, installDir){
   console.log(chalk.green.bold('[INFO]'), 'Start version check ...');
     switch(package){
-      case 'git' :
-        version = property.get_gitVersion()
-        break;
       case 'maven' :
         version = property.get_mavenVersion()
         break;
@@ -200,7 +193,7 @@ function versionCheck(i, package, installDir){
 
 
   function installPackage(i, package, installDir){
-   if(package == 'git'|'python'){
+   if(package == 'python'){
      exec(`ssh root@${i} ${cmds.installCmd} ${installDir}${package}/*`)
      console.log(chalk.green.bold('[INFO]'), package, 'Installation complete!');
        // exec(`rm -rf ${installDir}${package}`)
@@ -220,9 +213,6 @@ function versionCheck(i, package, installDir){
        break;
      case 'python' :
        packageName = cmds.python
-       break;
-     case 'git' :
-       packageName = cmds.git
        break;
      case 'maven' :
        packageName = cmds.maven
