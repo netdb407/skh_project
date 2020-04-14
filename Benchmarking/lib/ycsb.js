@@ -377,86 +377,110 @@ module.exports.ycsb = (opt) => {
         }
       }
     }else { //n 값이 있으면 else if((typeof opt.name) == 'string')
-        // const path = `${ycsb_exportfile_dir}`
-        // var file = opt.name
-        // console.log(file);
-        // //console.log(file.split("_")[1])
-        // //split 하면 배열로 반환됨
-        //
-        // while(1){
-        //   console.log(file)
-        //   var array = file.split("_")//som, som
-        //   try{
-        //     if (fs.existsSync(path+'/'+file)&&array.length>=2){
-        //       let num = Number(array[array.length-1]); //NaN
-        //       console.log('exists')
-        //       if(typeof(num)==typeof(10)){
-        //         num += 1; //4
-        //         //for문
-        //         for(i=0;i<array.length-1;i++){ //length = 2
-        //           file = array[i] //i = 0 (test2)
-        //         }
-        //         file = file+'_'+num
-        //         fs.mkdirSync(path+'/'+file)
-        //         opt.name = file
-        //       }else{
-        //         file = file+'_'+1//som_som_1
-        //         fs.mkdirSync(path+'/'+file)
-        //         opt.name = file
-        //       }
-        //     }else if(array.length==1){
-        //       file = array[0]+'_'+1
-        //       fs.mkdirSync(path+'/'+file)
-        //
-        //       opt.name = file
-        //     }
-        //     break;
-        //   }catch(err){
-        //     continue;
-        //   }
-        // }
+        const path = `${ycsb_exportfile_dir}`
+        var file = opt.name
+        console.log(file);
+        //console.log(file.split("_")[1])
+        //split 하면 배열로 반환됨
+        const fs = require('fs')
 
-      try{
         while(1){
-          let file = `${ycsb_exportfile_dir}/${opt.name}`
-          fs.statSync(file);
-          let string = opt.name
-          console.log(string);
-
-          let substring = string.substring(string.length, string.length-2)
-          let newstring = string.substring(0, string.length-2)
-
-          let strArray=string.split('_')
-          let seqString=strArray[strArray.length-1] // 마지막 인자
-
-          if(!(isNaN(seqString))){
-
-            // 배열에 담기 (스트링->각 요소들을 숫자로)
-            let seqArray = new Array();
-            let newArray = new Array();
-            seqArray = seqString.split("");
-
-            let seqNum = 0
-            // 각 요소들을 더해서 숫자로 계산
-            for(let i = 0; i < seqArray.length; i++){
-              newArray[i]=seqArray[i]*Math.pow(10,seqArray.length-1-i)
-              newArray[seqArray.length-1] = newArray[seqArray.length-1]+1
-              seqNum += newArray[i]
+          console.log(file)
+          var array = file.split("_")//som, som, 1
+          try{
+            if(!fs.existsSync(path+'/'+file)){
+              fs.mkdirSync(path+'/'+file)
             }
-            if(strArray.length>1){
-              opt.name = `${strArray[0]}_${strArray[1]}_${seqNum}`
+            else if (fs.existsSync(path+'/'+file)&&array.length>=2){
+              let num = Number(array[array.length-1]); //
+              console.log('exists')
+              if(isNaN(num)){
+                file = file+'_'+1
+                fs.mkdirSync(path+'/'+file)
+
+                opt.name = file
+              }
+              else if(typeof(num)==typeof(10)){
+                num += 1; //2
+                //for문
+                file = ''
+                for(i=0;i<array.length-1;i++){ //length = 3
+                  file += array[i]+'_' //i = 0, 1 (som, som)
+                }
+                file = file+num
+                fs.mkdirSync(path+'/'+file)
+                //opt.name = file
+                opt.name = file
+              }else{
+                file = file+'_'+1//som_som_1
+                fs.mkdirSync(path+'/'+file)
+                //opt.name = file
+                opt.name = file
+              }
+              break;
+            }else if(array.length==1){
+              file = array[0]+'_'+1
+              fs.mkdirSync(path+'/'+file)
+
+              opt.name = file
             }
-            // opt.name = `${strArray[0]}_${seqNum}` // strArray 첫번째 인자
-          }else{
-            opt.name = `${opt.name}_2`
+            break;
+          }catch(err){
+            continue;
           }
         }
-      }catch (err) {
-        if (err.code === 'ENOENT') {
 
-        }
-      }
+      // try{
+      //   while(1){
+      //     let file = `${ycsb_exportfile_dir}/${opt.name}`
+      //     fs.statSync(file);
+      //     let string = opt.name
+      //     // console.log(string);
+      //
+      //     let substring = string.substring(string.length, string.length-2)
+      //     let newstring = string.substring(0, string.length-2)
+      //
+      //     let strArray=string.split('_')
+      //     let seqString=strArray[strArray.length-1] // 마지막 인자
+      //
+      //     if(!(isNaN(seqString))){
+      //
+      //       // 배열에 담기 (스트링->각 요소들을 숫자로)
+      //       let seqArray = new Array();
+      //       let newArray = new Array();
+      //       seqArray = seqString.split("");
+      //
+      //       let seqNum = 0
+      //       // 각 요소들을 더해서 숫자로 계산
+      //       for(let i = 0; i < seqArray.length; i++){
+      //         newArray[i]=seqArray[i]*Math.pow(10,seqArray.length-1-i)
+      //         newArray[seqArray.length-1] = newArray[seqArray.length-1]+1
+      //         seqNum += newArray[i]
+      //       }
+      //       if(strArray.length=1){
+      //         opt.name = `${strArray[0]}_${seqNum}`
+      //       }
+      //       if(strArray.length=2){
+      //         opt.name = `${strArray[0]}_${strArray[1]}_${seqNum}`
+      //       }
+      //       if(strArray.length=3){
+      //         opt.name = `${strArray[0]}_${strArray[1]}_${strArray[2]}_${seqNum}`
+      //       }
+      //
+      //
+      //       // opt.name = `${strArray[0]}_${seqNum}` // strArray 첫번째 인자
+      //     }else{
+      //       opt.name = `${opt.name}_2`
+      //     }
+      //   }
+      // }catch (err) {
+      //   if (err.code === 'ENOENT') {
+      //
+      //   }
+      // }
     }
+
+
     try{
       exec(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
     }catch (err) {
