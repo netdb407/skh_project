@@ -162,12 +162,12 @@ function isInstalledPkg(i, package, installDir, ip){
     // exec(`scp /etc/profile root@${i}:${installDir}`)
     // console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
     //exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
-    exec(`echo export MAVEN_HOME=/root/ssdStorage/skh_project/Installation/rpm/maven >> /etc/profile`)
+    exec(`./envSet.sh MAVEN_HOME ${rpm_dir_in_skhproject}maven`)
     // exec(`echo 'export PATH=$PATH:/root/ssdStorage/skh_project/Installation/rpm/maven/bin' >> /etc/profile`)
-    exec(`echo 'export PATH=$PATH:$MAVEN_HOME/bin' >> /etc/profile`)
+    // exec(`echo 'export PATH=$PATH:$MAVEN_HOME/bin' >> /etc/profile`)
     //exec("echo export PATH=$PATH:/root/ssdStorage/skh_project/Installation/rpm/maven/bin >> /etc/profile")
-    exec(`source /etc/profile`)
-    exec(`chmod +x /root/ssdStorage/skh_project/Installation/rpm/maven/bin/mvn`)
+    // exec(`source /etc/profile`)
+    // exec(`chmod +x /root/ssdStorage/skh_project/Installation/rpm/maven/bin/mvn`)
 
     // exec(`whoami > /root/ssdStorage/skh_project/xxxtmp 2>&1`)
     // exec(`mvn`)
@@ -240,11 +240,12 @@ function versionCheck(i, package, installDir, ip){
 
       if(i == property.get_server_IP()) {
         // console.log('???1');
-        // exec(`wget ${mirror1} -P ${installDir}${package}`)
-        // exec(`tar -xvf ${installDir}${package}/jdk-8u121-linux-x64.tar.gz -C ${installDir}${package}`)
-        exec(`echo 'export JAVA_HOME=${installDir}${package}/jdk1.8.0_121' >> /etc/profile`)
-        exec(`echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile`)
-        exec(`source /etc/profile`)
+      //  exec(`wget ${mirror1} -P ${installDir}${package}`)
+      //  exec(`tar -xvf ${installDir}${package}/jdk-8u121-linux-x64.tar.gz -C ${installDir}${package}`)
+        exec(`./envSet.sh JAVA_HOME ${installDir}${package}/jdk1.8.0_121`)
+        //exec(`echo 'export JAVA_HOME=${installDir}${package}/jdk1.8.0_121' >> /etc/profile`)
+        //exec(`echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile`)
+        //exec(`source /etc/profile`)
       }
 
       else{
