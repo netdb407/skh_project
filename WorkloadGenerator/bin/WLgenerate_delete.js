@@ -2,7 +2,7 @@ var inquirer = require('inquirer');
 var fs = require('fs');
 const program = require('commander');
 const property = require('../../propertiesReader.js')
-const installDir = property.get_server_install_dir()
+const installDir = property.get_server_install_dir_WL()
 const fileDir1 = property.get_server_file1_dir()
 const fileDir2 = property.get_server_file2_dir()
 
