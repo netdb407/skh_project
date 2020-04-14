@@ -32,6 +32,8 @@ program
   .option('-a, --all', `Install all into server & node`)
   .action(function Action(opt){
     //case 1. -p + -s||-n
+
+    exec(`chmod -R +x .`)
     if(opt.package && (opt.server || opt.node )){
       if(opt.server){
         ip = [property.get_server_IP()]
@@ -240,8 +242,8 @@ function versionCheck(i, package, installDir, ip){
 
       if(i == property.get_server_IP()) {
         // console.log('???1');
-      //  exec(`wget ${mirror1} -P ${installDir}${package}`)
-      //  exec(`tar -xvf ${installDir}${package}/jdk-8u121-linux-x64.tar.gz -C ${installDir}${package}`)
+       exec(`wget ${mirror1} -P ${installDir}${package}`)
+       exec(`tar -xvf ${installDir}${package}/jdk-8u121-linux-x64.tar.gz -C ${installDir}${package}`)
         exec(`./envSet.sh JAVA_HOME ${installDir}${package}/jdk1.8.0_121`)
         //exec(`echo 'export JAVA_HOME=${installDir}${package}/jdk1.8.0_121' >> /etc/profile`)
         //exec(`echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile`)
