@@ -104,7 +104,7 @@ module.exports.ycsb = (opt) => {
         const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
         // console.log(`stdout: ${stdout}`);
       }catch(err){
-        console.log(err);
+
       }
 
       // console.log('parse start');
@@ -203,11 +203,7 @@ module.exports.ycsb = (opt) => {
             })
 
           } catch (err) {
-            err.stdout;
-            err.stderr;
-            err.pid;
-            err.signal;
-            err.status;
+
             // etc
           }
         }
