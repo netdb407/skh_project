@@ -36,7 +36,7 @@ path_exporter = PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
 home_exporter = export JAVA_HOME=/root/skh_project/package/java && export MAVEN_HOME=/root/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
 
 
-#IO Tracer
+# [IO Tracer 관련 설정]
 IO_output_dir = /root/ssdStorage/output
 IO_driverManager_dir =
 IO_tracer_dir = /root/iotracer
@@ -55,7 +55,8 @@ cassandra_version = apache-cassandra-3.11.5
 server_cassandra_dir = /root/skh_project/
 
 #directory_node
-node_cassandra_dir = /root/ssdStorage/skh_project/
+#node_cassandra_dir = /root/ssdStorage/skh_project/
+node_cassandra_dir = /root/ssdStorage/cassandra
 
 #update_configuration_path_server
 update_conf_path = /root/skh_project/Update/
