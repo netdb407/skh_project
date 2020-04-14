@@ -4,10 +4,6 @@ const exec =  require('child_process').exec
 const execSync =  require('child_process').execSync
 const fs = require('fs')
 const chalk = require('chalk')
-const java_exporter = property.get_java_exporter()
-const maven_exporter = property.get_maven_exporter()
-const path_exporter = property.get_path_exporter()
-const home_exporter = property.get_home_exporter()
 const server_ycsb_dir = property.get_server_ycsb_dir()
 const server_wlfile_dir = property.get_server_wlfile_dir()
 const server_IP = property.get_server_IP()
@@ -178,12 +174,8 @@ module.exports.ycsb = (opt) => {
         }
 
       }else{
-        console.log(`${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
-          ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
-          -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${runtype}_result \
-          -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s -t`)
           try {
-            let cmd = `${java_exporter} && ${maven_exporter} && ${path_exporter} && cd YCSB && \
+            let cmd = `cd YCSB && \
             ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
             -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${runtype}_result \
             -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
