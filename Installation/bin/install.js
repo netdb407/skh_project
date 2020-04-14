@@ -47,10 +47,9 @@ program
       var nodes = property.get_nodes_IP();
       var node_arr = nodes.split(',');
       var password = property.get_password();
-      ip = property.get_nodes_IP().split(',');
       //installDir = property.get_node_install_dir(); // root/ssdStorage
-      console.log('opt ===>', opt);
-      installDatabase(opt, nodes, node_arr, password);
+      var db = opt.database
+      installDatabase(db, nodes, node_arr, password);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
 
@@ -67,14 +66,16 @@ program
         }
         break;
       }
-
+      //아예 -a옵션은 패키지만 설치하는거로 설명을 바꿀까...
       var nodes = property.get_nodes_IP();
       var node_arr = nodes.split(',');
       var password = property.get_password();
       ip = property.get_nodes_IP().split(',');
       //installDir = property.get_node_install_dir(); // root/ssdStorage
-      console.log('opt ===>', opt);
-      installDatabase(opt, nodes, node_arr, password);
+      databaseAll = ['cassandra']
+      for(var db of databaseAll){
+        installDatabase(db, nodes, node_arr, password);
+      }
     }
  })
 program.parse(process.argv)
@@ -242,9 +243,9 @@ function versionCheck(i, package, installDir){
 
 
 
-  function installDatabase(opt, nodes, node_arr, password){
+  function installDatabase(db, nodes, node_arr, password){
     console.log('node정보 : ', node_arr);
-    switch(opt.database){
+    switch(db){
         case 'cassandra' :
   	var dir = property.get_server_cassandra_dir()
   	var node_dir = property.get_node_cassandra_dir()
