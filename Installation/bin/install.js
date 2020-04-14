@@ -46,10 +46,9 @@ program
     if(opt.database){
       var nodes = property.get_nodes_IP();
       var node_arr = nodes.split(',');
-      var password = property.get_password();
       //installDir = property.get_node_install_dir(); // root/ssdStorage
       var db = opt.database
-      installDatabase(db, nodes, node_arr, password);
+      installDatabase(db, nodes, node_arr);
     }
     //옵션 뒤에 인자 받는 경우 boolean 값으로 저장됨
 
@@ -58,8 +57,8 @@ program
       ip = property.get_nodes_IP().split(',');
       ip.push(property.get_server_IP());
       ip = ip.sort();
-      // packageAll = ['git', 'python', 'java', 'maven']
-      packageAll = ['git', 'python', 'java']
+      packageAll = ['git', 'python', 'java', 'maven']
+      // packageAll = ['git', 'python', 'java']
       for(var i of ip){
         for(var pck of packageAll){
             isInstalledPkg(i, pck, installDir)
@@ -69,12 +68,11 @@ program
       //아예 -a옵션은 패키지만 설치하는거로 설명을 바꿀까...
       var nodes = property.get_nodes_IP();
       var node_arr = nodes.split(',');
-      var password = property.get_password();
       ip = property.get_nodes_IP().split(',');
       //installDir = property.get_node_install_dir(); // root/ssdStorage
       databaseAll = ['cassandra']
       for(var db of databaseAll){
-        installDatabase(db, nodes, node_arr, password);
+        installDatabase(db, nodes, node_arr);
       }
     }
  })
@@ -243,7 +241,7 @@ function versionCheck(i, package, installDir){
 
 
 
-  function installDatabase(db, nodes, node_arr, password){
+  function installDatabase(db, nodes, node_arr){
     console.log('node정보 : ', node_arr);
     switch(db){
         case 'cassandra' :
@@ -265,7 +263,7 @@ function versionCheck(i, package, installDir){
            break;
           }
 
-        cassandraAction.cassandraCopy(nodes, node_arr, password, cassandraHome, node_dir, conf, update_conf);
+        cassandraAction.cassandraCopy(nodes, node_arr, cassandraHome, node_dir, conf, update_conf);
   	console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
         break;
      }
