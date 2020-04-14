@@ -445,6 +445,9 @@ module.exports.ycsb = (opt) => {
     }
   }
 
+
+
+
   function isNumber(s) { // 입력이 숫자인지 확인해주는 함수
     s += ''; // 문자열로 변환
     s = s.replace(/^\s*|\s*$/g, ''); // 좌우 공백 제거
