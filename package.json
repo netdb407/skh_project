@@ -6,8 +6,13 @@
   "bin": {
     "installation": "./Installation/bin/install.js",
     "benchmarking": "./Benchmarking/bin/benchmark.js",
+<<<<<<< Updated upstream
     "wlgenerating" : "./WorkloadGenerator/bin/WLgenerate_start.js",
     "nosqltest" : "./nosql-tests_ser/benchmark3.js"
+=======
+    "wlgenerating": "./WorkloadGenerator/bin/WLgenerate_start.js",
+    "nosqltest": "./nosqltest/benchmark3.js"
+>>>>>>> Stashed changes
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

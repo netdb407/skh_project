@@ -39,6 +39,9 @@ module.exports = {
   get_server_install_dir(){
     return properties.get("server_install_dir");
   },
+  get_server_install_dir_WL(){
+    return properties.get("server_install_dir_WL");
+  },
   get_node_install_dir(){
     return properties.get("node_install_dir");
   },
@@ -89,9 +92,6 @@ module.exports = {
   },
   get_pythonVersion(){
     return properties.get("python_version");
-  },
-  get_gitVersion(){
-    return properties.get("git_version");
   },
   get_mavenVersion(){
     return properties.get("maven_version");
