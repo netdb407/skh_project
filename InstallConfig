@@ -15,6 +15,7 @@ server_wlfile_dir = workloads
 server_WLgenerate_dir = WorkloadGenerator/bin/
 server_file_dir = workloads/
 
+
 # [node directory]
 node_install_dir = /root/ssdStorage/skh_project/package/
 node_data_dir =
@@ -23,6 +24,13 @@ node_data_dir =
 # [ycsb(192 서버컴에만 있음) 관련 설정]
 ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
 ycsb_exportfile_dir = /root/ssdStorage/skh_project/YCSB_RESULT
+
+# [PATH 관련 설정 home_exporter]
+java_exporter = export JAVA_HOME=/root/ssdStorage/skh_project/package/java
+maven_exporter = export MAVEN_HOME=/root/ssdStorage/skh_project/package/maven
+path_exporter = PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
+home_exporter = export JAVA_HOME=/root/ssdStorage/skh_project/package/java && export MAVEN_HOME=/root/ssdStorage/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
+
 
 # [IO Tracer 관련 설정]
 IO_output_dir = /root/ssdStorage/output

@@ -6,7 +6,8 @@
   "bin": {
     "installation": "./Installation/bin/install.js",
     "benchmarking": "./Benchmarking/bin/benchmark.js",
-    "wlgenerating": "./WorkloadGenerator/bin/WLgenerate_start.js"
+    "wlgenerating": "./WorkloadGenerator/bin/WLgenerate_start.js",
+    "nosqltest": "./nosqltest/benchmark3.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

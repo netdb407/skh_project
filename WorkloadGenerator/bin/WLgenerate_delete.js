@@ -47,7 +47,7 @@ program.parse(process.argv)
 
   async function main(){
   const answers = await inquirer.prompt(q1);
-    if(answers === 'YCSB'){
+    if(answers.dft === 'YCSB'){
       inquirer.prompt(questions1).then(answer =>{
         if(answer){
           fs.unlinkSync(dir1+answer.dfn);
