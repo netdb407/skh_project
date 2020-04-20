@@ -366,6 +366,26 @@ var q2 = [
       return valid || 'Please enter a number';
     },
     default : 10
+  },
+  {
+    type : 'input',
+    name : 'operations',
+    message : 'operations',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 1000000
+  },
+  {
+    type : 'input',
+    name : 'vertices',
+    message : 'vertices',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 1000000
   }
 ];
 
@@ -462,6 +482,9 @@ inquirer.prompt(question).then(answers => {
       console.log("Hard_Path ="+answers2.Hard_Path);
       console.log("Aggregation ="+answers2.Aggregation);
       console.log("Neighbor2 ="+answers2.Neighbor2);
+      console.log("-----------------");
+      console.log("operations ="+answers2.operations);
+      console.log("vertices ="+answers2.vertices);
       console.log("********************************");
 
       var bb = ["type ="+answers.type+'\n'+
@@ -475,7 +498,9 @@ inquirer.prompt(question).then(answers => {
       "SSSP ="+answers2.SSSP+'\n'+
       "Hard_Path ="+answers2.Hard_Path+'\n'+
       "Aggregation ="+answers2.Aggregation+'\n'+
-      "Neighbor2 ="+answers2.Neighbor2];
+      "Neighbor2 ="+answers2.Neighbor2+'\n'+
+      "operations ="+answers2.operations+'\n'+
+      "vertices ="+answers2.vertices];
       fs.readdir(dir2,function(err,filelist){
         for(i=0;i<filelist.length;i++){
           if(filelist[i]===answers.name){
