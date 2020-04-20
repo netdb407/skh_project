@@ -1,0 +1,12 @@
+type =GRAPH
+File name =workloads
+Create_vertex =8.3
+Update_vertex =23.8
+Delete_vertex =3.2
+Create_edge =29
+Update_edge =25.8
+Delete_edge =9.6
+SSSP =10
+Hard_Path =10
+Aggregation =10
+Neighbor2 =10
