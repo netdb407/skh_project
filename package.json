@@ -6,8 +6,8 @@
   "bin": {
     "installation": "./Installation/bin/install.js",
     "benchmarking": "./Benchmarking/bin/benchmark.js",
-    "wlgenerating" : "./WorkloadGenerator/bin/WLgenerate_start.js",
-    "nosqltest" : "./nosql-tests_ser/benchmark3.js"
+    "wlgenerating": "./WorkloadGenerator/bin/WLgenerate_start.js",
+    "nosqltest": "./nosqltest/benchmark3.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -35,6 +35,7 @@
     "p-queue": "^6.3.0",
     "path": "^0.12.7",
     "progress": "^2.0.3",
+    "promise": "^8.1.0",
     "properties-reader": "^0.3.1",
     "rxjs": "^6.5.4",
     "stats-lite": "^2.2.0",

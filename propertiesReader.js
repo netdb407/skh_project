@@ -28,6 +28,9 @@ module.exports = {
   get_nodes_IP(){
     return properties.get("nodes_IP");
   },
+  get_nodetool_IP(){
+    return properties.get("nodetool_IP");
+  },
   get_nodes_hostname(){
     return properties.get("nodes_hostname");
   },
@@ -38,6 +41,9 @@ module.exports = {
   //directory
   get_server_install_dir(){
     return properties.get("server_install_dir");
+  },
+  get_server_install_dir_WL(){
+    return properties.get("server_install_dir_WL");
   },
   get_node_install_dir(){
     return properties.get("node_install_dir");
@@ -68,12 +74,22 @@ module.exports = {
   get_ycsb_exportfile_dir(){
     return properties.get("ycsb_exportfile_dir")
   },
-  get_ycsb_threadcount(){
-    return properties.get("ycsb_threadcount")
+
+
+  //home exporter
+  get_java_exporter(){
+    return properties.get("java_exporter");
   },
-  get_ycsb_timewindow(){
-    return properties.get("ycsb_timewindow")
+  get_maven_exporter(){
+    return properties.get("maven_exporter");
   },
+  get_path_exporter(){
+    return properties.get("path_exporter");
+  },
+  get_home_exporter(){
+    return properties.get("home_exporter");
+  },
+
 
   //IO Tracer
   get_IO_output_dir(){
@@ -82,6 +98,13 @@ module.exports = {
   get_IO_driverManager_dir(){
     return properties.get("IO_driverManager_dir");
   },
+  get_IO_tracer_dir(){
+    return properties.get("IO_tracer_dir");
+  },
+  get_IO_watch_dir(){
+    return properties.get("IO_watch_dir");
+  },
+
 
   //version
   get_javaVersion(){
@@ -89,9 +112,6 @@ module.exports = {
   },
   get_pythonVersion(){
     return properties.get("python_version");
-  },
-  get_gitVersion(){
-    return properties.get("git_version");
   },
   get_mavenVersion(){
     return properties.get("maven_version");
@@ -114,10 +134,5 @@ module.exports = {
  get_update_conf_path(){
    return properties.get("update_conf_path")
  },
-
- // 카산드라 tracing 옵션
- get_cassandra_tracing_option(){
-   return properties.get("cassandra_tracing_option")
- }
 
 }

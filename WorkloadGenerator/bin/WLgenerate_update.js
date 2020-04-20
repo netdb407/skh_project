@@ -2,7 +2,7 @@ var inquirer = require('inquirer');
 var fs = require('fs');
 const program = require('commander');
 const property = require('../../propertiesReader.js')
-const installDir = property.get_server_install_dir()
+const installDir = property.get_server_install_dir_WL()
 const fileDir1 = property.get_server_file1_dir()
 const fileDir2 = property.get_server_file2_dir()
 
@@ -400,6 +400,26 @@ var q3 = [
       return valid || 'Please enter a number';
     },
     default : ''
+  },
+  {
+    type : 'input',
+    name : 'operations',
+    message : 'operations',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : ''
+  },
+  {
+    type : 'input',
+    name : 'vertices',
+    message : 'vertices',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : ''
   }
 ];
 
@@ -508,6 +528,8 @@ async function main2(){
       q3[7].default = fileproperties._properties.Hard_Path ;
       q3[8].default = fileproperties._properties.Aggregation ;
       q3[9].default = fileproperties._properties.Neighbor2 ;
+      q3[10].default = fileproperties._properties.operations;
+      q3[11].default = fileproperties._properties.vertices ;
       if(answer.choice === 'FileName'){
         var fsExists = fs.existsSync(dir2+answer.original_name);
         if(fsExists){
@@ -542,7 +564,9 @@ async function main2(){
             "SSSP ="+answer2_2.SSSP+'\n'+
             "Hard_Path ="+answer2_2.Hard_Path+'\n'+
             "Aggregation ="+answer2_2.Aggregation+'\n'+
-            "Neighbor2 ="+answer2_2.Neighbor2
+            "Neighbor2 ="+answer2_2.Neighbor2+'\n'+
+            "operations ="+answers2.operations+'\n'+
+            "vertices ="+answers2.vertices
           ];
           fs.readFile(dir2+answer.original_name,'utf8',function(err,data){
             if(err) throw err;
