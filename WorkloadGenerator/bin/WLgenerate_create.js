@@ -359,8 +359,28 @@ var q2 = [
   },
   {
     type : 'input',
-    name : 'Neighbor2',
-    message : 'Neighbor2',
+    name : 'Neighbors',
+    message : 'Neighbors',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 10
+  },
+  {
+    type : 'input',
+    name : 'Neighbors2',
+    message : 'Neighbors2',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 10
+  },
+  {
+    type : 'input',
+    name : 'Neighbors2data',
+    message : 'Neighbors2data',
     validate: function(value) {
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
@@ -481,7 +501,9 @@ inquirer.prompt(question).then(answers => {
       console.log("SSSP ="+answers2.SSSP);
       console.log("Hard_Path ="+answers2.Hard_Path);
       console.log("Aggregation ="+answers2.Aggregation);
-      console.log("Neighbor2 ="+answers2.Neighbor2);
+      console.log("Neighbors ="+answers2.Neighbors);
+      console.log("Neighbors2 ="+answers2.Neighbors2);
+      console.log("Neighbors2data ="+answers2.Neighbors2data);
       console.log("-----------------");
       console.log("operations ="+answers2.operations);
       console.log("vertices ="+answers2.vertices);
@@ -498,7 +520,9 @@ inquirer.prompt(question).then(answers => {
       "SSSP ="+answers2.SSSP+'\n'+
       "Hard_Path ="+answers2.Hard_Path+'\n'+
       "Aggregation ="+answers2.Aggregation+'\n'+
-      "Neighbor2 ="+answers2.Neighbor2+'\n'+
+      "Neighbors ="+answers2.Neighbors+'\n'+
+      "Neighbors2 ="+answers2.Neighbors2+'\n'+
+      "Neighbors2data ="+answers2.Neighbors2data+'\n'+
       "operations ="+answers2.operations+'\n'+
       "vertices ="+answers2.vertices];
       fs.readdir(dir2,function(err,filelist){

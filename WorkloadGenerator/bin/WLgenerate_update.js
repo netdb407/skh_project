@@ -393,13 +393,33 @@ var q3 = [
   },
   {
     type : 'input',
-    name : 'Neighbor2',
-    message : 'Neighbor2',
+    name : 'Neighbors',
+    message : 'Neighbors',
     validate: function(value) {
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
-    default : ''
+    default : 10
+  },
+  {
+    type : 'input',
+    name : 'Neighbors2',
+    message : 'Neighbors2',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 10
+  },
+  {
+    type : 'input',
+    name : 'Neighbors2data',
+    message : 'Neighbors2data',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    default : 10
   },
   {
     type : 'input',
@@ -527,9 +547,11 @@ async function main2(){
       q3[6].default = fileproperties._properties.SSSP ;
       q3[7].default = fileproperties._properties.Hard_Path ;
       q3[8].default = fileproperties._properties.Aggregation ;
-      q3[9].default = fileproperties._properties.Neighbor2 ;
-      q3[10].default = fileproperties._properties.operations;
-      q3[11].default = fileproperties._properties.vertices ;
+      q3[9].default = fileproperties._properties.Neighbors ;
+      q3[10].default = fileproperties._properties.Neighbors2 ;
+      q3[11].default = fileproperties._properties.Neighbors2data ;
+      q3[12].default = fileproperties._properties.operations;
+      q3[13].default = fileproperties._properties.vertices ;
       if(answer.choice === 'FileName'){
         var fsExists = fs.existsSync(dir2+answer.original_name);
         if(fsExists){
@@ -564,7 +586,9 @@ async function main2(){
             "SSSP ="+answer2_2.SSSP+'\n'+
             "Hard_Path ="+answer2_2.Hard_Path+'\n'+
             "Aggregation ="+answer2_2.Aggregation+'\n'+
-            "Neighbor2 ="+answer2_2.Neighbor2+'\n'+
+            "Neighbors ="+answer2_2.Neighbors+'\n'+
+            "Neighbors2 ="+answer2_2.Neighbors2+'\n'+
+            "Neighbors2data ="+answer2_2.Neighbors2data+'\n'+
             "operations ="+answers2.operations+'\n'+
             "vertices ="+answers2.vertices
           ];
