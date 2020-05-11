@@ -13,6 +13,7 @@ const ycsb_exportfile_dir = property.get_ycsb_exportfile_dir()
 const IO_tracer_dir = property.get_IO_tracer_dir()
 const IO_watch_dir = property.get_IO_watch_dir()
 const IO_output_dir = property.get_IO_output_dir()
+const node_cassandra_dir = property.get_node_cassandra_dir()
 const error = chalk.red('ERR!')
 let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loadsizeCmd = '',
 threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracingCmd = ''
@@ -20,6 +21,7 @@ threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracin
 module.exports.ycsb = (opt) => {
   exec(`mkdir YCSB_RESULT`)
   // runCassandra(nodes_IP)
+  cqlsh(opt.dbtype)
   checkCassandra(opt)
   checkRuntype(opt.runtype)
   checkFile(opt.wlfile)
@@ -28,7 +30,6 @@ module.exports.ycsb = (opt) => {
   checkTimewindow(opt)
   checkThreads(opt)
   checkiotracer(opt)
-
 
     if(opt.runtype == 'load' || opt.runtype == 'run'){
       runYCSB(opt, opt.runtype)
@@ -43,21 +44,115 @@ module.exports.ycsb = (opt) => {
       console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
     }
   }
+  const childProcess = require("child_process");
 
+
+  function execute(command) {
+  /**
+   * @param {Function} resolve A function that resolves the promise
+   * @param {Function} reject A function that fails the promise
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+   */
+  return new Promise(function(resolve, reject) {
+    /**
+     * @param {Error} error An error triggered during the execution of the childProcess.exec command
+     * @param {string|Buffer} standardOutput The result of the shell command execution
+     * @param {string|Buffer} standardError The error resulting of the shell command execution
+     * @see https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
+     */
+
+    childProcess.exec(command, function(error, standardOutput, standardError) {
+      if (error) {
+        reject();
+        return;
+      }
+
+      if (standardError) {
+        reject(standardError);
+        return;
+      }
+      resolve(standardOutput);
+    });
+  });
+}
+
+  async function DropAndCreate() {
+    i = '203.255.92.193'
+    cmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh ${i}`
+    createCmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/createKeyspace.cql ${i}`
+    dropCmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/dropKeyspace.cql ${i}`
+    checkCmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/checkTable.cql ${i}`
+  try {
+    const passwdContent = await execute(dropCmd);
+    // console.log(passwdContent);
+  } catch (error) {
+    // console.error(error);
+  }
+  try {
+    const shadowContent = await execute(createCmd);
+    // console.log(shadowContent);
+  } catch (error) {
+    // console.error(error);
+  }
+}
+
+
+  function cqlsh(dbtype){
+    i = '203.255.92.193'
+    // console.log(node_cassandra_dir);
+    cmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh ${i}`
+    // execSync(`ssh root@${i} ${node_cassandra_dir}/bin/cqlsh ${i}`)
+    // cmd = 'ls'
+    // main();
+    createCmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/createKeyspace.cql ${i}`
+    dropCmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/dropKeyspace.cql ${i}`
+    checkCmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/checkTable.cql ${i}`
+
+    let create = exec(createCmd, (error, stdout, stderr)=>{
+      // console.log(stdout);
+      console.log(stderr);
+      // if(error !== null){
+      //   console.log(`exec err : ${error}`);
+      // }
+
+      if(stderr.includes("AlreadyExists")){
+        console.log('이미존재함');
+        // let drop = exec(dropCmd, (error, stdout, stderr)=>{
+        //   console.log(stdout);
+        //   console.log(stderr);
+        // })
+        // execute(dropCmd)
+        // .then( execute(createCmd))
+
+        // execute(dropCmd)
+        // .then( (data) => execute(createCmd))
+        DropAndCreate()
+      }
+      // else{
+      //   console.log('없어서 걍 진행');
+      // }
+    })
+
+
+
+
+    //
+    // bin/cqlsh -k ycsb -f select.cql 203.255.92.193
+    // bin/cqlsh -f Query1.cql 203.255.92.193
+  }
 
   function checkiotracer(opt){
     let iotracerInfo = chalk.magenta('iotracer')
     if(opt.iotracer==true){
       let iotracerLine = `${iotracerInfo} : ${opt.iotracer}`
-      console.log(iotracerLine);
+      console.log(iotracerLine)
 
     }else{
       opt.iotracer = 'false'
       let iotracerLine = `${iotracerInfo} : ${opt.iotracer}`
-      console.log(iotracerLine);
+      console.log(iotracerLine)
     }
   }
-
 
     function checkCassandra(opt){
       let cassandratracingInfo = chalk.magenta('cassandra tracing')
@@ -65,18 +160,18 @@ module.exports.ycsb = (opt) => {
       if(opt.dbtype == 'cassandra'){ // 카산드라일때 tracinㅎ 옵션
         let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
         opt.dbtype = 'cassandra-cql'
-        console.log(dbtypeLine);
+        console.log(dbtypeLine)
 
         if(opt.casstracing==true){
           cassandraTracing = 'true'
           cassandraTracingLine = `${cassandratracingInfo} : on`
           cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
-          console.log(cassandraTracingLine);
+          console.log(cassandraTracingLine)
         }else{
           cassandraTracing = 'false'
           cassandraTracingLine = `${cassandratracingInfo} : off`
           cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
-          console.log(cassandraTracingLine);
+          console.log(cassandraTracingLine)
         }
       }else{ // 카산드라가 아닐때
         let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
@@ -84,14 +179,13 @@ module.exports.ycsb = (opt) => {
 
         if(opt.casstracing==true){
           cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
-          console.log(cassandraTracingLine);
+          console.log(cassandraTracingLine)
         }else{
           cassandraTracingLine = ''
         }
 
       }
     }
-
 
   function getIOresults(opt, runtype){
     let ip;
@@ -242,7 +336,6 @@ module.exports.ycsb = (opt) => {
     }
   }
 
-
   function checkRuntype(runtype){
     let runtypeInfo = chalk.magenta('runtype')
     if(runtype == 'load' || runtype == 'run' || runtype == 'loadrun'){
@@ -253,7 +346,6 @@ module.exports.ycsb = (opt) => {
       console.log(runtypeLine)
     }
   }
-
 
   function checkFile(wlfile){
     let wlfileInfo = chalk.magenta('workload file')
@@ -275,8 +367,6 @@ module.exports.ycsb = (opt) => {
       }
     }
   }
-
-
 
   function checkLoadsize(runtype, loadsize){
     if((runtype == 'run') && (loadsize)){ // run인데 load size가 있는 경우
@@ -433,9 +523,6 @@ module.exports.ycsb = (opt) => {
     }
   }
 
-
-
-
   function isNumber(s) { // 입력이 숫자인지 확인해주는 함수
     s += ''; // 문자열로 변환
     s = s.replace(/^\s*|\s*$/g, ''); // 좌우 공백 제거
@@ -449,15 +536,15 @@ module.exports.ycsb = (opt) => {
       opt.timewindow = 1
       timewindowLine = `${timewindowInfo} : ${opt.timewindow} (sec)`
       timewindow = `${opt.timewindow}`*Math.pow(10,3)
-      console.log(timewindowLine);
+      console.log(timewindowLine)
     }else { // 값이 있으면 숫자인지 확인
       if(isNumber(opt.timewindow)){
         timewindowLine = `${timewindowInfo} : ${opt.timewindow} (sec)`
         timewindow = `${opt.timewindow}`*Math.pow(10,3)
-        console.log(timewindowLine);
+        console.log(timewindowLine)
       }else{
         timewindowLine = `${error} ${timewindowInfo} : enter timewindow as number type.`
-        console.log(timewindowLine);
+        console.log(timewindowLine)
       }
     }
   }
@@ -467,14 +554,14 @@ module.exports.ycsb = (opt) => {
     if(opt.threads == null) { // 값이 없으면 default
       opt.threads = 1
       threadLine = `${threadsInfo} : ${opt.threads}`
-      console.log(threadLine);
+      console.log(threadLine)
     }else { // 값이 있으면 숫자인지 확인
       if(isNumber(opt.threads)){
         threadLine = `${threadsInfo} : ${opt.threads}`
-        console.log(threadLine);
+        console.log(threadLine)
       }else{
         threadLine = `${error} ${threadsInfo} : enter threads as number type.`
-        console.log(threadLine);
+        console.log(threadLine)
       }
     }
   }
