@@ -111,7 +111,8 @@ public class ArangoDBClient extends DB {
       
       // Init ArangoDB connection
       try {
-        arangoDB = new ArangoDB.Builder().host(ip).port(port).useProtocol(protocol).build();
+        arangoDB = new ArangoDB.Builder()
+         .host(ip).port(port).useProtocol(protocol).build();
       } catch (Exception e) {
         logger.error("Failed to initialize ArangoDB", e);
         System.exit(-1);
@@ -128,7 +129,13 @@ public class ArangoDBClient extends DB {
           }
         }
         try {
-          arangoDB.createDatabase(databaseName);
+          // arangoDB.createDatabase(databaseName);
+          arangoDB.createDatabase(new DBCreateOptions()
+              .name(databaseName)
+              .options(new DatabaseOptions()
+                  .replicationFactor(3)
+              )
+          );
           logger.info("Database created: " + databaseName);
         } catch (ArangoDBException e) {
           logger.error("Failed to create database: {} with ex: {}", databaseName, e.toString());
