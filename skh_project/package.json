@@ -1,0 +1,43 @@
+{
+  "name": "skh_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "installation": "./Installation/bin/install.js",
+    "benchmarking": "./Benchmarking/bin/benchmark.js",
+    "wlgenerating": "./WorkloadGenerator/bin/WLgenerate_start.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^3.2.0",
+    "author": "^1.0.0",
+    "await": "^0.2.6",
+    "binary-search-bounds": "^2.0.4",
+    "child_process": "^1.0.2",
+    "cli-progress": "^3.6.0",
+    "commander": "^4.1.1",
+    "crypto": "^1.0.1",
+    "dedent": "^0.7.0",
+    "dependencies": "0.0.1",
+    "esm": "^3.2.25",
+    "fs": "0.0.1-security",
+    "git": "^0.1.5",
+    "inquirer": "^7.0.6",
+    "license": "0.0.3",
+    "loadsh": "0.0.4",
+    "lodash.random": "^3.2.0",
+    "p-queue": "^6.3.0",
+    "path": "^0.12.7",
+    "progress": "^2.0.3",
+    "promise": "^8.1.0",
+    "properties-reader": "^0.3.1",
+    "rxjs": "^6.5.4",
+    "stats-lite": "^2.2.0",
+    "time-span": "^3.1.0"
+  }
+}
