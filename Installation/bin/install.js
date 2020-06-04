@@ -238,8 +238,6 @@ function versionCheck(i, package, installDir, ip){
        // console.log('i1===>', i);
        // console.log('ip[0]===>', ip[0]);
        // console.log('ip[1]===>', ip[1]);
-
-
       if(i == property.get_server_IP()) {
         // console.log('???1');
        exec(`wget ${mirror1} -P ${installDir}${package}`)
@@ -249,7 +247,6 @@ function versionCheck(i, package, installDir, ip){
         //exec(`echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile`)
         //exec(`source /etc/profile`)
       }
-
       else{
         // console.log('???2');
         // console.log('i2===>', i);
@@ -259,9 +256,6 @@ function versionCheck(i, package, installDir, ip){
       }
       console.log(chalk.green.bold('[INFO]'), 'complete');
       //tar파일 압축 해제 해야 함..
-
-
-
        break;
      case 'python' :
        makePythonLink(i);
@@ -304,24 +298,22 @@ function versionCheck(i, package, installDir, ip){
     console.log('node정보 : ', node_arr);
     switch(db){
         case 'cassandra' :
-  	var dir = property.get_server_cassandra_dir()
-  	var node_dir = property.get_node_cassandra_dir()
-  	var version = property.get_cassandra_version()
-  	var cassandraHome = `${dir}${version}`
-  	var conf = `${cassandraHome}/conf/cassandra.yaml`
-    	var update_conf = property.get_update_conf_path()
-
-  	var exists = fs.existsSync(`${conf}`);
-          if(exists==true){
-           cassandraAction.cassandraSetClusterEnv(conf, nodes);
-           console.log(chalk.green.bold('[INFO]'), 'cassandra Set Cluster Environments');
-  	}else{
-           console.log(chalk.red.bold('[Error]'), 'conf file not found');
-           break;
-          }
-
-        cassandraAction.cassandraCopy(nodes, node_arr, cassandraHome, node_dir, conf, update_conf);
-  	console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
+  	       var dir = property.get_server_cassandra_dir()
+  	       var node_dir = property.get_node_cassandra_dir()
+  	       var version = property.get_cassandra_version()
+  	       var cassandraHome = `${dir}${version}`
+  	       var conf = `${cassandraHome}/conf/cassandra.yaml`
+    	     var update_conf = property.get_update_conf_path()
+        	 var exists = fs.existsSync(`${conf}`);
+                if(exists==true){
+                 cassandraAction.cassandraSetClusterEnv(conf, nodes);
+                 console.log(chalk.green.bold('[INFO]'), 'cassandra Set Cluster Environments');
+              	}else{
+                  console.log(chalk.red.bold('[Error]'), 'conf file not found');
+                  break;
+                }
+          cassandraAction.cassandraCopy(nodes, node_arr, cassandraHome, node_dir, conf, update_conf);
+  	      console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
         break;
      }
   }
