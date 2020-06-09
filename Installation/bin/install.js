@@ -160,27 +160,44 @@ function isInstalledPkg(i, package, installDir, ip){
   // export PATH=$PATH:$MAVEN_HOME/bin
 
 
-  function makeMavenHome(i){
-    // exec(`scp /etc/profile root@${i}:${installDir}`)
-    // console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
-    //exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
-    exec(`./envSet.sh MAVEN_HOME ${rpm_dir_in_skhproject}maven`)
-    // exec(`echo 'export PATH=$PATH:/root/ssdStorage/skh_project/Installation/rpm/maven/bin' >> /etc/profile`)
-    // exec(`echo 'export PATH=$PATH:$MAVEN_HOME/bin' >> /etc/profile`)
-    //exec("echo export PATH=$PATH:/root/ssdStorage/skh_project/Installation/rpm/maven/bin >> /etc/profile")
-    // exec(`source /etc/profile`)
-    // exec(`chmod +x /root/ssdStorage/skh_project/Installation/rpm/maven/bin/mvn`)
-
-    // exec(`whoami > /root/ssdStorage/skh_project/xxxtmp 2>&1`)
-    // exec(`mvn`)
-    // exec(`mvn > /root/ssdStorage/skh_project/xxxtmp 2>&1`)
+      // if(package == 'git'||'java'||'maven'){
+        try{
+          stdout = exec(`ssh root@${i} "rpm -qa|grep ${packageName}"`).toString();
+          if(stdout!=null){
+            console.log(chalk.green.bold('[INFO]'), package, 'is already installed.');
+            console.log(chalk.green.bold('[INFO]'), 'Check the version is matching or not ...');
+            versionCheck(i, package, installDir);
+          }
+          if(package == 'maven'){
+            makeMavenHome(i)
+          }
+        }
+        catch(e){
+          installPackage(i, package, installDir);
+        }
+      // }
 
 
     console.log(chalk.green.bold('[INFO]'), 'Ready to use Maven.');
   }
 
+  // /etc/profile 에 추가
+  // export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-2.el8_1.x86_64/jre/
+  // export MAVEN_HOME=/root/maven
+  // export PATH=$PATH:$JAVA_HOME/bin
+  // export PATH=$PATH:$MAVEN_HOME/bin
 
 
+  function makeMavenHome(i){
+    exec(`scp /etc/profile root@${i}:${installDir}`)
+    console.log(chalk.green.bold('[INFO]'), 'Sending /etc/profile to', i);
+    exec(`ssh root@${i} cat ${installDir}profile > /etc/profile`)
+    exec(`ssh root@${i} chmod +x /root/maven/bin/mvn`)
+    exec(`ssh root@${i} source /etc/profile`)
+
+    exec(`exit`)
+    console.log(chalk.green.bold('[INFO]'), 'Ready to use Maven.');
+  }
 
 
 
