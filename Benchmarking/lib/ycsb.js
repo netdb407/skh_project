@@ -249,7 +249,7 @@ module.exports.ycsb = (opt) => {
               console.log('--------------------------------------')
               // console.log('start');
               if(opt.iotracer == true){ // 벤치마킹 종료 후 iotracer 결과를 저장함
-                getIOresults(opt.name, ip)
+                getIOresults(opt.name, ip, opt.runtype)
               }
               if(opt.dbtype == 'cassandra-cql'){
                 ip.forEach((i) => {
@@ -429,7 +429,7 @@ module.exports.ycsb = (opt) => {
       }
     }
 
-  function getIOresults(bmname, ip){
+  function getIOresults(bmname, ip, runtype){
     ip.forEach((i) => { // iotracer 종료 후
       console.log('--------------------------------------')
       console.log(chalk.green.bold('[INFO]'), 'iotracer kill : ', chalk.blue.bold(i));
