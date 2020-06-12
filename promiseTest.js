@@ -1,12 +1,5 @@
 #!/usr/bin/env node
 
-// 1. 함수 정의 : return promise 객체(UN이 3개일때 true담고, 아닐때 false를 담기)
-// 2. 변수 생성 : 1번의 함수로 생성
-// 3. 2번의 변수로 .then(성공 시 벤치마크 수행), .catch(실패 시 상태확인 재실행)
-//
-//
-//
-//
 // 소민이가 실행하는 상태확인 함수 1개 => checkCassON()
 //
 // checkCassON()함수 => return promise 객체
@@ -74,27 +67,17 @@ function checkCassON(nodeIPArr, nodetool_ip){
       // console.log('stdout data======>', data);
 
       resulta += data.toString();
-      // console.log('RESULTA', resulta)
 
       let testc = resulta.match('UN')
       if(testc !== null){
-        // let testb = resulta.match('UN');
         tempArray.push(testc)
       }
-      console.log('tempArray length ===>', tempArray.length);
-      // tempArray.push(testb)
-      // console.log(tempArray.length);
-
-      // const testdata = data.split(' ');
-      // tempArray.push(testdata.indexOf('UN'));
-      // statusArr = tempArray.filter(un => un == 0);
-      // console.log('===> stdout_statusArr : ', statusArr);
+      // console.log('tempArray length ===>', tempArray.length);
       if(tempArray.length ==3){
         statusCass = true
       }
-      console.log('statusCass ===> : ', statusCass);
+      //console.log('statusCass ===> : ', statusCass);
       return resolve(statusCass);
-
     })
 
     checkcmd.stdin.on('data', function(data){
@@ -124,24 +107,46 @@ function checkCassON(nodeIPArr, nodetool_ip){
 }
 
 let checktest = checkCassON(nodeIPArr, nodetool_ip)
+statusCass = checktest
 
+function getStatus(statusCass){
+  return new Promise(function(resolve, reject){
+    if(statusCass == true){
+      return resolve(statusCass);
+    }else{
+      return reject();
+    }
+  })
+}
 
+let statustest = getStatus(statusCass)
 
-checktest.then(result => {
-  console.log(result);
+console.log('====>statustest : ', statustest);
+
+statustest.then(result =>{
+  console.log('result: ', result);
+  if(result){
+    console.log('start cassandra benchmarking');
+  }else{
+    console.log('try again nodetool status');
+  }
+})
+
+//checktest.then(result => {
+  //console.log(result);
   // console.log('=====> result(true/false) : \n', result);
   // console.log('====> cassandra status : ', statusCass);
   // console.log('wow its true! Start Cassandra Benchmarking');
 
-    if(result == true){
-      console.log('wow its true! Start Cassandra Benchmarking');
-    }else{
-      console.log('in if) Checking Cassandra status again..');
-    }
-  })
-  .catch(err => {
-    console.log('Checking Cassandra status again..');
-  })
+    //if(result == true){
+      //console.log('wow its true! Start Cassandra Benchmarking');
+    //}else{
+      //console.log('in if) Checking Cassandra status again..');
+    //}
+  //})
+  //.catch(err => {
+    //console.log('Checking Cassandra status again..');
+  //})
 
 
 
