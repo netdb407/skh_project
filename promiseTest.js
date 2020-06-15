@@ -39,114 +39,191 @@ var Promise = require('promise');
 let statusCass = false
 
 
+
+
 function checkCassON(nodeIPArr, nodetool_ip){
-  return new Promise(function(resolve, reject){
-    //1~3
-    nodeIPArr.forEach(function(ip){
-      let firewallcmd = `ssh root@${ip} systemctl stop firewalld`
-      // let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
-      let runcmd = `ssh root@${ip} /root/ssdStorage/cassandra/bin/cassandra -R`
-      console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(ip));
-      exec(firewallcmd)
-      console.log(chalk.green.bold('[INFO]'), 'stop firewall in', `${ip}`);
-      // exec(killcmd)
-      exec(runcmd)
-      console.log(chalk.green.bold('[INFO]'), 'run Cassandra in', `${ip}`);
-    })
-    //4
+// const checkcas = (nodeIPArr, nodetool_ip) => {
+  return new Promise((resolve, reject) => {
+  nodeIPArr.forEach(function(ip){
+    let firewallcmd = `ssh root@${ip} systemctl stop firewalld`
+    // let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
+    let runcmd = `ssh root@${ip} /root/ssdStorage/cassandra/bin/cassandra -R`
     console.log('----------------------------------------------------------');
-    console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
-    console.log(chalk.green.bold('[INFO]'), 'check Node Status');
-    let statuscmd = `ssh root@${nodetool_ip} /root/ssdStorage/cassandra/bin/nodetool status`
-    let checkcmd = exec(statuscmd)
-
-    let results = '';
-
-    checkcmd.stdout.on('data', function(data){
-      // console.log('stdout data======>', data);
-
-      results += data.toString();
-      console.log('results : ', results);
-
-      let temp = results.match('UN')
-      if(temp !== null){
-        tempArray.push(temp)
-      }
-      console.log('tempArray length ===>', tempArray.length);
-      if(tempArray.length ==3){
-        statusCass = true
-      }
-      console.log('statusCass ===> : ', statusCass);
-      return resolve(statusCass);
-    })
-
-    checkcmd.stdin.on('data', function(data){
-      console.log('stdin data====>', data);
-      const testdata = data.split(' ');
-      tempArray.push(testdata.indexOf('UN'));
-      statusArr = tempArray.filter(un => un == 0);
-      console.log('===> stdin_statusArr : ', statusArr);
-      if(statusArr.length ==3){
-        statusCass = true
-      }
-    })
-
-    checkcmd.stderr.on('data', function(data){
-      console.log('stderr data====>', data);
-      const testdata = data.split(' ');
-      tempArray.push(testdata.indexOf('UN'));
-      statusArr = tempArray.filter(un => un == 0);
-      console.log('===> stderr_statusArr : ', statusArr);
-      if(statusArr.length ==3){
-        statusCass = true
-      }
-      return reject( console.log('error!') );
-    })
-
+    console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(ip));
+    exec(firewallcmd)
+    console.log(chalk.green.bold('[INFO]'), 'stop firewall in', `${ip}`);
+    // exec(killcmd)
+    exec(runcmd)
+    console.log(chalk.green.bold('[INFO]'), 'run Cassandra in', `${ip}`);
   })
+  //4
+  console.log('----------------------------------------------------------');
+  console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
+  console.log(chalk.green.bold('[INFO]'), 'check Node Status');
+  let statuscmd = `ssh root@${nodetool_ip} /root/ssdStorage/cassandra/bin/nodetool status`
+  let checkcmd = exec(statuscmd)
+
+  let results = '';
+
+  checkcmd.stdout.on('data', function(data){
+    // console.log('stdout data======>', data);
+
+    results += data.toString();
+    //console.log('results : ', results);
+
+    let temp = results.match('UN')
+    if(temp !== null){
+      tempArray.push(temp)
+    }
+    console.log('tempArray length ===>', tempArray.length);
+    if(tempArray.length ==3){
+      statusCass = true
+    }
+    console.log('statusCass ===> : ', statusCass);
+    resolve(statusCass);
+  })
+
+  checkcmd.stderr.on('data', function(data){
+    console.log('stderr data====>', data);
+    const testdata = data.split(' ');
+    tempArray.push(testdata.indexOf('UN'));
+    statusArr = tempArray.filter(un => un == 0);
+    console.log('===> stderr_statusArr : ', statusArr);
+    if(statusArr.length ==3){
+      statusCass = true
+    }
+    reject( console.log('error!') );
+  })
+
+})
 }
 
-let checktest = checkCassON(nodeIPArr, nodetool_ip)
-statusCass = checktest
-console.log('#######   statusCass : ', statusCass);
-
-
-
-function success(result){
-  console.log('success');
-}
-function failure(error){
-  console.log('fail');
-}
-
-
-checkCassON().then(success, failure);
 
 
 
 
-function getStatus(statusCass){
+function getStatus(){
   return new Promise(function(resolve, reject){
-    if(statusCass == true){
-      return resolve(statusCass);
+
+    if(res == true){
+      resolve( console.log('please ..'));
     }else{
-      return reject();
+      reject(console.log('sdsd ..'));
     }
   })
 }
 
-let statustest = getStatus(statusCass)
-
-console.log('====>statustest : ', statustest);
 
 
+checkCassON(nodeIPArr, nodetool_ip)
+  .then(getStatus())
+  .then(res => console.log('ressssssss:', res))
 
-statustest.then(result =>{
-  console.log('result: ', result);
-  if(result){
-    console.log(chalk.green.bold('[INFO]'), 'start cassandra benchmarking');
-  }else{
-    console.log(chalk.green.bold('[INFO]'), 'try again nodetool status');
-  }
-})
+
+
+
+
+//
+// let statustest = getStatus(statusCass)
+//
+// console.log('====>statustest : ', statustest);
+//
+//
+//
+// statustest.then(result =>{
+//   console.log('result: ', result);
+//   if(result){
+//     console.log(chalk.green.bold('[INFO]'), 'start cassandra benchmarking');
+//   }else{
+//     console.log(chalk.green.bold('[INFO]'), 'try again nodetool status');
+//   }
+// })
+
+
+
+// function checkCassON(nodeIPArr, nodetool_ip){
+//   return new Promise(function(resolve, reject){
+//     //1~3
+//     nodeIPArr.forEach(function(ip){
+//       let firewallcmd = `ssh root@${ip} systemctl stop firewalld`
+//       // let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
+//       let runcmd = `ssh root@${ip} /root/ssdStorage/cassandra/bin/cassandra -R`
+//       console.log('----------------------------------------------------------');
+//       console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(ip));
+//       exec(firewallcmd)
+//       console.log(chalk.green.bold('[INFO]'), 'stop firewall in', `${ip}`);
+//       // exec(killcmd)
+//       exec(runcmd)
+//       console.log(chalk.green.bold('[INFO]'), 'run Cassandra in', `${ip}`);
+//     })
+//     //4
+//     console.log('----------------------------------------------------------');
+//     console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
+//     console.log(chalk.green.bold('[INFO]'), 'check Node Status');
+//     let statuscmd = `ssh root@${nodetool_ip} /root/ssdStorage/cassandra/bin/nodetool status`
+//     let checkcmd = exec(statuscmd)
+//
+//     let results = '';
+//
+//     checkcmd.stdout.on('data', function(data){
+//       // console.log('stdout data======>', data);
+//
+//       results += data.toString();
+//       //console.log('results : ', results);
+//
+//       let temp = results.match('UN')
+//       if(temp !== null){
+//         tempArray.push(temp)
+//       }
+//       console.log('tempArray length ===>', tempArray.length);
+//       if(tempArray.length ==3){
+//         statusCass = true
+//       }
+//       console.log('statusCass ===> : ', statusCass);
+//       return resolve(statusCass);
+//     })
+//
+//     checkcmd.stdin.on('data', function(data){
+//       console.log('stdin data====>', data);
+//       const testdata = data.split(' ');
+//       tempArray.push(testdata.indexOf('UN'));
+//       statusArr = tempArray.filter(un => un == 0);
+//       console.log('===> stdin_statusArr : ', statusArr);
+//       if(statusArr.length ==3){
+//         statusCass = true
+//       }
+//     })
+//
+//     checkcmd.stderr.on('data', function(data){
+//       console.log('stderr data====>', data);
+//       const testdata = data.split(' ');
+//       tempArray.push(testdata.indexOf('UN'));
+//       statusArr = tempArray.filter(un => un == 0);
+//       console.log('===> stderr_statusArr : ', statusArr);
+//       if(statusArr.length ==3){
+//         statusCass = true
+//       }
+//       return reject( console.log('error!') );
+//     })
+//
+//   })
+// }
+
+// let checktest = checkCassON(nodeIPArr, nodetool_ip)
+// statusCass = checktest
+// console.log('#######   statusCass : ', statusCass);
+
+
+//
+// function success(result){
+//   console.log('success');
+// }
+// function failure(error){
+//   console.log('fail');
+// }
+//
+//
+// checkCassON(nodeIPArr, nodetool_ip).then(result => success(result))
+
+
+// checkCassON().then(success, failure);
