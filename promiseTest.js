@@ -61,22 +61,23 @@ function checkCassON(nodeIPArr, nodetool_ip){
     let statuscmd = `ssh root@${nodetool_ip} /root/ssdStorage/cassandra/bin/nodetool status`
     let checkcmd = exec(statuscmd)
 
-    let resulta = '';
+    let results = '';
 
     checkcmd.stdout.on('data', function(data){
       // console.log('stdout data======>', data);
 
-      resulta += data.toString();
+      results += data.toString();
+      console.log('results : ', results);
 
-      let testc = resulta.match('UN')
-      if(testc !== null){
-        tempArray.push(testc)
+      let temp = results.match('UN')
+      if(temp !== null){
+        tempArray.push(temp)
       }
-      // console.log('tempArray length ===>', tempArray.length);
+      console.log('tempArray length ===>', tempArray.length);
       if(tempArray.length ==3){
         statusCass = true
       }
-      //console.log('statusCass ===> : ', statusCass);
+      console.log('statusCass ===> : ', statusCass);
       return resolve(statusCass);
     })
 
@@ -108,6 +109,22 @@ function checkCassON(nodeIPArr, nodetool_ip){
 
 let checktest = checkCassON(nodeIPArr, nodetool_ip)
 statusCass = checktest
+console.log('#######   statusCass : ', statusCass);
+
+
+
+function success(result){
+  console.log('success');
+}
+function failure(error){
+  console.log('fail');
+}
+
+
+checkCassON().then(success, failure);
+
+
+
 
 function getStatus(statusCass){
   return new Promise(function(resolve, reject){
@@ -123,31 +140,13 @@ let statustest = getStatus(statusCass)
 
 console.log('====>statustest : ', statustest);
 
+
+
 statustest.then(result =>{
   console.log('result: ', result);
   if(result){
-    console.log('start cassandra benchmarking');
+    console.log(chalk.green.bold('[INFO]'), 'start cassandra benchmarking');
   }else{
-    console.log('try again nodetool status');
+    console.log(chalk.green.bold('[INFO]'), 'try again nodetool status');
   }
 })
-
-//checktest.then(result => {
-  //console.log(result);
-  // console.log('=====> result(true/false) : \n', result);
-  // console.log('====> cassandra status : ', statusCass);
-  // console.log('wow its true! Start Cassandra Benchmarking');
-
-    //if(result == true){
-      //console.log('wow its true! Start Cassandra Benchmarking');
-    //}else{
-      //console.log('in if) Checking Cassandra status again..');
-    //}
-  //})
-  //.catch(err => {
-    //console.log('Checking Cassandra status again..');
-  //})
-
-
-
-  // checkcmd.kill('SIGINT');
