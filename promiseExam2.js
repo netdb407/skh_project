@@ -11,32 +11,90 @@ nodeIPArr = node_ip.split(',');
 let tempArray = []
 let statusArr = []
 var Promise = require('promise');
-let status = -1
+let status = -1 //켜져있을 때 1, 꺼져있을 때 -1
 
+// let good = false
+// let loop_cnt = 0
 
+// let promisee = check(status, nodeIPArr, nodetool_ip)
 
-
-
-check1(status, nodeIPArr, nodetool_ip)
-  // .then(check2(status))
-  // .then(check3(status))
-  .then(res => {
-    console.log('resss:', res);
-    console.log('last :', chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
-  })
-  .catch(err => {
-    setTimeout(function () {
-       check1(status, nodeIPArr, nodetool_ip)
-
-    }, 3000).then(res => {
-      console.log('resss:', res);
-      console.log('last :', chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
+// while (good == false) {
+  check(status, nodeIPArr, nodetool_ip)
+    .then(res => {
+      // good = true
+      console.log('then resolve res :', res);  //1
+      if(res == 1){
+        return console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
+      }
     })
-  })
+    .catch(err => {
+      console.log('catch err res : ', err);
+      console.log('----------------------------------------------------------');
+      console.log(chalk.green.bold('[INFO]'), 'check cassandra again');
+      console.log('status : ', err); // -1
+      // setTimeout(function () {
+      //   // tempArray = []
+      if(err == -1){
+        check(status, nodeIPArr, nodetool_ip)
+        .then(res => console.log('ressss :', res))
+      }
+
+      //   console.log('status : ', err);
+      //   //재귀호출 ..
+      // }, 3000)
+      // loop_cnt += 1
+    })
+// }
+
+// check(status, nodeIPArr, nodetool_ip)
+// .then(res => {
+//   console.log('first then resolve res :', res);  //1
+//   if(res == 1){
+//     return console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
+//   }
+// })
+// .catch(err => {
+//   console.log('----------------------------------------------------------');
+//   console.log(chalk.green.bold('[INFO]'), 'check cassandra again');
+//   console.log('status : ', err); // -1
+//   setTimeout(function () {
+//     // tempArray = []
+//     check(status, nodeIPArr, nodetool_ip)
+//     console.log('status : ', err);
+//     //재귀호출 ..
+//   }, 3000)
+//   loop_cnt += 1
+// })
+// // return console.log('change status to -1 : ' , err); //-1
 
 
 
-function check1(status, nodeIPArr, nodetool_ip) {
+
+
+
+
+    // check(status, nodeIPArr, nodetool_ip)
+    // .then(res => {
+    //   console.log('res : ', res);
+    //   console.log('second then resolve res  :', res);  //1
+    //   if(res == 1){
+    //     console.log('please!');
+    //     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
+    //   }
+    // })
+
+    // if(err == -1){
+    //
+    // }
+
+
+
+
+
+
+
+
+function check(status, nodeIPArr, nodetool_ip) {
     return new Promise(function(resolve, reject) {
       nodeIPArr.forEach(function(ip){
         let firewallcmd = `ssh root@${ip} systemctl stop firewalld`
@@ -50,7 +108,7 @@ function check1(status, nodeIPArr, nodetool_ip) {
         exec(runcmd)
         console.log(chalk.green.bold('[INFO]'), 'run Cassandra in', `${ip}`);
       })
-      //4
+
       console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
       console.log(chalk.green.bold('[INFO]'), 'check Node Status');
@@ -58,75 +116,36 @@ function check1(status, nodeIPArr, nodetool_ip) {
       let checkcmd = exec(statuscmd)
 
       let results = '';
-      console.log('test!!');
+      // console.log('?');
 
       checkcmd.stdout.on('data', function(data){
-        // console.log('stdout data======>', data);
-        console.log('stdout!!');
+        // console.log('??');
         results += data.toString();
-        // console.log('results : ', results);
-
         let temp = results.match('UN')
         if(temp !== null){
           tempArray.push(temp)
         }
-        // console.log('before : ', status);
+        // console.log('tempArray : ', tempArray.length);
         if(tempArray.length ==3){
-          console.log('check1 :', status);
-          return resolve(status * -1);
+          return resolve(status * -1);  //1
         }
-        //console.log('tempArray length ===>', tempArray.length);
-
       })
 
-
-
-      checkcmd.stdin.on('data', function(data){
-        console.log('stdin!!');
-        results += data.toString();
-        // console.log('results : ', results);
-
-        let temp = results.match('UN')
-        if(temp !== null){
-          tempArray.push(temp)
-        }
-        if(tempArray.length ==3){
-          console.log('check1 :', status);
-          return resolve(status * -1);
-        }
-      })
+      // checkcmd.stdin.on('data', function(data){
+      //   results += data.toString();
+      //   let temp = results.match('UN')
+      //   if(temp !== null){
+      //     tempArray.push(temp)
+      //   }
+      //   // console.log('tempArray : ', tempArray.length);
+      //   if(tempArray.length ==3){
+      //     return resolve(status * -1);  //1
+      //   }
+      // })
 
       checkcmd.stderr.on('data', function(data){
-        console.log('stderr!!');
-        //상태확인 재실행
-
-        return reject( console.log('error!') );
-
+        console.log(chalk.red.bold('[ERROR]'), 'stderr error!!');
+        return reject(status); //-1
       })
-
-
-
     });
 }
-
-
-
-// function check2(status){
-//   return new Promise(function(resolve, reject) {
-//     status = 2
-//     console.log('check2 : ', status);
-//       return resolve( status);
-//     // }
-//   });
-// }
-
-
-
-// function check3(status) {
-//     return new Promise(function(resolve, reject) {
-//       // if(status == true){
-//       console.log('check3 :', status);
-//         return resolve( status);
-//       // }
-//     });
-// }
