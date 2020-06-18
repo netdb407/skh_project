@@ -290,6 +290,7 @@ function versionCheck(i, package, installDir, ip){
    switch(package){
      case 'java' :
        packageName = cmds.java
+
        break;
      case 'python' :
        packageName = cmds.python
