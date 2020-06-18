@@ -22,7 +22,8 @@ node_data_dir =
 
 
 # [ycsb(192 서버컴에만 있음) 관련 설정]
-ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
+#ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
+ycsb_exporter = site.ycsb.measurements.exporter.JSONArrayMeasurementsExporter
 ycsb_exportfile_dir = /root/ssdStorage/skh_project/YCSB_RESULT
 
 # [PATH 관련 설정 home_exporter]
@@ -51,7 +52,7 @@ server_cassandra_dir = /root/ssdStorage/skh_project/
 
 #directory_node
 #node_cassandra_dir = /root/ssdStorage/skh_project/dk
-node_cassandra_dir = /root/ssdStorage/cassandra
+node_cassandra_dir = /root/ssdStorage/KNUT/cassandra
 
 #update_configuration_path_server
 update_conf_path = /root/ssdStorage/skh_project/Update/
