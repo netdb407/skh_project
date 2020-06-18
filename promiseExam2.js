@@ -19,18 +19,18 @@ testtt(status, nodeIPArr, nodetool_ip)
 
 async function testtt(status, nodeIPArr, nodetool_ip){
   runExec(status, nodeIPArr, nodetool_ip)
-  let asyncTest = await stdout_results(status, nodeIPArr, nodetool_ip)
-  //success : results, error : -1
-  console.log('asyncTest : ', asyncTest);
-  let undnRes = 0
-  if(asyncTest == -1){
-    console.log(chalk.red.bold('[ERROR]'), 'try again');
+  let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
+  // console.log('resTemp : ', resTemp);
+  let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1
+  console.log(chalk.green.bold('[INFO]'), 'Success:1, Failed:-1');
+  console.log('isOK : ', isOK);
+  if(isOK == 1){
+    console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
   }else{
-    undnRes = await find_UN_DN(asyncTest)
+    console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
+    testtt(status, nodeIPArr, nodetool_ip)
   }
-  console.log('undnRes : ', undnRes);
 }
-
 
 
 
@@ -78,6 +78,29 @@ async function testtt(status, nodeIPArr, nodetool_ip){
 // }
 
 
+
+function runExec(status, nodeIPArr, nodetool_ip) {
+    return new Promise(function(resolve, reject) {
+      nodeIPArr.forEach(function(ip){
+        let firewallcmd = `ssh root@${ip} systemctl stop firewalld`
+        // let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
+        let runcmd = `ssh root@${ip} /root/ssdStorage/cassandra/bin/cassandra -R`
+        console.log('----------------------------------------------------------');
+        console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(ip));
+        exec(firewallcmd)
+        console.log(chalk.green.bold('[INFO]'), 'stop firewall in', `${ip}`);
+        // exec(killcmd)
+        exec(runcmd)
+        console.log(chalk.green.bold('[INFO]'), 'run Cassandra in', `${ip}`);
+      })
+      return console.log('run complete!');
+    });
+}
+
+
+
+
+
 function stdout_results(status, nodeIPArr, nodetool_ip){
   return new Promise(function(resolve, reject){
     console.log('----------------------------------------------------------');
@@ -87,24 +110,18 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
     let checkcmd = exec(statuscmd)
 
     let results = ''
-    let unArray = []
-    let dnArray = []
-    // console.log('?');
 
     checkcmd.stdout.on('data', function(data){
       results += data.toString()
     })
 
-
-
     checkcmd.on('exit', function(code){
       //console.log('results : \n', results);
-      return resolve(results);
+      return resolve(results)
     })
 
-
     checkcmd.stderr.on('data', function(data){
-      return resolve(status); //-1
+      return resolve(console.log('stderr error!'))
     })
 
   });
@@ -149,7 +166,7 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
 
 function find_UN_DN(results){
   return new Promise(function(resolve, reject) {
-  //console.log('? \n', typeof results, '\n ?? \n', results);
+  console.log('nodetool status results: \n', results);
   let unTemp = 0
   let dnTemp = 0
 
@@ -157,13 +174,13 @@ function find_UN_DN(results){
   if(unTemp1 !== null){
     unTemp = unTemp1.length
   }
-  console.log('UNTEMP : ', unTemp)
+  console.log('count UN : ', unTemp)
 
   let dnTemp1 = results.toString().match(/DN/gi)
   if(dnTemp1 !== null){
     dnTemp = dnTemp1.length
   }
-  console.log('DNTEMP : ', dnTemp);
+  console.log('count DN : ', dnTemp);
 
   if(unTemp == 3){
     return resolve(status * -1) //success : 1
@@ -171,53 +188,4 @@ function find_UN_DN(results){
     return resolve(status)  //fail : -1
   }
 });
-}
-
-
-
-
-function runExec(status, nodeIPArr, nodetool_ip) {
-    return new Promise(function(resolve, reject) {
-      nodeIPArr.forEach(function(ip){
-        let firewallcmd = `ssh root@${ip} systemctl stop firewalld`
-        // let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
-        let runcmd = `ssh root@${ip} /root/ssdStorage/cassandra/bin/cassandra -R`
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(ip));
-        exec(firewallcmd)
-        console.log(chalk.green.bold('[INFO]'), 'stop firewall in', `${ip}`);
-        // exec(killcmd)
-        exec(runcmd)
-        console.log(chalk.green.bold('[INFO]'), 'run Cassandra in', `${ip}`);
-      })
-
-      return resolve( console.log('run complete!') )
-
-
-      // console.log('unArray : ', unArray.length);
-      // if(unArray.length ==3){
-      //   console.log('this is in stdout');
-      //   return resolve(status * -1);  //1
-      // }
-      //
-      // console.log('dnArray : ', dnArray.length);
-      // if(unArray.length !==3){
-      //   console.log('DN has occured');
-      //   return resolve(status);  //-1
-      // }
-
-      // checkcmd.stdin.on('data', function(data){
-      //   results += data.toString();
-      //   let temp = results.match('UN')
-      //   if(temp !== null){
-      //     unArray.push(temp)
-      //   }
-      //   // console.log('unArray : ', unArray.length);
-      //   if(unArray.length ==3){
-      //     return resolve(status * -1);  //1
-      //   }
-      // })
-
-
-    });
 }
