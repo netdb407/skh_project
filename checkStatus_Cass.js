@@ -10,25 +10,29 @@ let nodetool_ip = property.get_nodetool_IP();
 nodeIPArr = node_ip.split(',');
 let statusArr = []
 var Promise = require('promise');
-let status = -1 //켜져있을 때 1, 꺼져있을 때 -1
+let status = -1 //켜져있을 때 1, 꺼져있을 때 -1, stderr일때 0
 
 
 
 
-testtt(status, nodeIPArr, nodetool_ip)
+checkStatus_Cass(status, nodeIPArr, nodetool_ip)
 
-async function testtt(status, nodeIPArr, nodetool_ip){
+async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
   runExec(status, nodeIPArr, nodetool_ip)
   let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
   // console.log('resTemp : ', resTemp);
-  let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1
-  console.log(chalk.green.bold('[INFO]'), 'Success:1, Failed:-1');
-  console.log('isOK : ', isOK);
+  let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1, stederr: 0
+  console.log(chalk.green.bold('[INFO]'), 'Cassandra is OK? :', isOK, '(Success:1, Failed:-1)');
   if(isOK == 1){
+    console.log('----------------------------------------------------------');
     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
-  }else{
+    console.log('----------------------------------------------------------');
+  }else if(isOK == -1){
+    console.log('----------------------------------------------------------');
     console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
-    testtt(status, nodeIPArr, nodetool_ip)
+    checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+  }else if(isOK == 0){
+    console.log('stderr~!!!');
   }
 }
 
@@ -48,7 +52,8 @@ function runExec(status, nodeIPArr, nodetool_ip) {
         exec(runcmd)
         console.log(chalk.green.bold('[INFO]'), 'run Cassandra in', `${ip}`);
       })
-      return console.log('run complete!');
+      console.log('----------------------------------------------------------');
+      return console.log(chalk.green.bold('[INFO]'), 'run exec complete!');
     });
 }
 
@@ -76,7 +81,7 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
     })
 
     checkcmd.stderr.on('data', function(data){
-      return resolve(console.log('stderr error!'))
+      return resolve(status*0)
     })
 
   });
@@ -86,7 +91,7 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
 
 function find_UN_DN(results){
   return new Promise(function(resolve, reject) {
-  console.log('nodetool status results: \n', results);
+  // console.log('nodetool status results: \n', results);
   let unTemp = 0
   let dnTemp = 0
 
@@ -94,13 +99,12 @@ function find_UN_DN(results){
   if(unTemp1 !== null){
     unTemp = unTemp1.length
   }
-  console.log('count UN : ', unTemp)
-
   let dnTemp1 = results.toString().match(/DN/gi)
   if(dnTemp1 !== null){
     dnTemp = dnTemp1.length
   }
-  console.log('count DN : ', dnTemp);
+
+  console.log(chalk.green.bold('[INFO]'), 'UN:', unTemp, ', DN:', dnTemp)
 
   if(unTemp == 3){
     return resolve(status * -1) //success : 1
