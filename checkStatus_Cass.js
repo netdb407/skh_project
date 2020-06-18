@@ -34,51 +34,6 @@ async function testtt(status, nodeIPArr, nodetool_ip){
 
 
 
-
-
-
-
-// while (good == false) {
-  // check(status, nodeIPArr, nodetool_ip)
-  //   .then(res => {
-  //     // good = true
-  //     console.log('then resolve res :', res);  //1
-  //     if(res == 1){
-  //       return console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
-  //     }else{
-  //       //함수 재실행 setTimeout
-  //       console.log(chalk.yellow.bold('[INFO]'), 'check cassandra again');
-  //       check(status, nodeIPArr, nodetool_ip)
-  //     }
-  //   })
-
-    // .catch(err => {
-    //   console.log('catch err res : ', err);
-    //   console.log('----------------------------------------------------------');
-    //   console.log(chalk.yellow.bold('[INFO]'), 'check cassandra again');
-    //   console.log('status : ', err); // -1
-    //   // setTimeout(function () {
-    //   if(err == -1){
-    //     check(status, nodeIPArr, nodetool_ip)
-    //     // .then(res2 => {
-    //     //   console.log('res2 : ', res2);
-    //     //   if(res == 1){
-    //     //     return console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
-    //     //   }
-    //     // })
-    //   }
-    //
-    //   //   console.log('status : ', err);
-    //   //   //재귀호출 ..
-    //   // }, 3000)
-    //   // loop_cnt += 1
-    //   return err
-    // })
-
-// }
-
-
-
 function runExec(status, nodeIPArr, nodetool_ip) {
     return new Promise(function(resolve, reject) {
       nodeIPArr.forEach(function(ip){
@@ -126,41 +81,6 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
 
   });
 }
-
-// function stdoutTest(status, nodeIPArr, nodetool_ip){
-//   return new Promise(function(resolve, reject){
-//     console.log('----------------------------------------------------------');
-//     console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
-//     console.log(chalk.green.bold('[INFO]'), 'check Node Status');
-//     let statuscmd = `ssh root@${nodetool_ip} /root/ssdStorage/cassandra/bin/nodetool status`
-//     let checkcmd = exec(statuscmd)
-//
-//     let results = ''
-//     let unArray = []
-//     let dnArray = []
-//     // console.log('?');
-//
-//     checkcmd.stdout.on('data', function(data){
-//       console.log('data : ', data);
-//       results += data.toString()
-//       // console.log('results : ', results);
-//       return resolve(results);
-//     })
-//
-//     // checkcmd.stderr.on('data', function(data){
-//     //   console.log(chalk.red.bold('[ERROR]'), 'stderr error!!');
-//     //   return reject(status); //-1
-//     // })
-//
-//     // checkcmd.on('exit', function(data){
-//     //   // console.log('data : ', data);
-//     //   // results += data.toString()
-//     //   console.log('results12 : ', results);
-//     // })
-//
-// });
-// }
-
 
 
 
