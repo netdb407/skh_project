@@ -8,14 +8,21 @@ let nodeIPArr //split array
 let node_ip = property.get_nodes_IP();
 let nodetool_ip = property.get_nodetool_IP();
 nodeIPArr = node_ip.split(',');
-let statusArr = []
 var Promise = require('promise');
 let status = -1 //켜져있을 때 1, 꺼져있을 때 -1, stderr일때 0
 
 
+// checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+
+checkStatus()
+
+function checkStatus(){
+  return new Promise(function(resolve, reject) {
+  resolve(checkStatus_Cass(status, nodeIPArr, nodetool_ip))
+  });
+}
 
 
-checkStatus_Cass(status, nodeIPArr, nodetool_ip)
 
 async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
   runExec(status, nodeIPArr, nodetool_ip)
@@ -27,11 +34,14 @@ async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
     console.log('----------------------------------------------------------');
     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
     console.log('----------------------------------------------------------');
+
   }else if(isOK == -1){
     console.log('----------------------------------------------------------');
     console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
+
     checkStatus_Cass(status, nodeIPArr, nodetool_ip)
   }else if(isOK == 0){
+    
     console.log('stderr~!!!');
   }
 }

@@ -1,5 +1,6 @@
 const program = require('commander')
 const property = require('../../propertiesReader.js')
+const checkStatus_Cass = require('../../checkStatus_Cass.js')
 const childProcess = require("child_process");
 const exec =  require('child_process').exec
 const execSync =  require('child_process').execSync
@@ -81,7 +82,7 @@ module.exports.ycsb = (opt) => {
     })
 
 
-    const runYCSB = (opt, runtype) => new Promise( resolve => {
+    const runYCSB =  (opt, runtype) => new Promise( resolve => {
 
       if(opt.iotracer == true){ // IOracer 옵션이 있을 경우Otracer 를 실행함
         ip.forEach((i) => {
@@ -122,10 +123,15 @@ module.exports.ycsb = (opt) => {
           try { // error가 없는 경우 벤치마킹을 수행함
             if(opt.dbtype == 'cassandra-cql' && opt.remove == true && runtype == 'load'){
               // remove data 옵션이 있는 경우 데이터를 삭제함 (노드 3대)
-               dropData()
+
+               checkStatus_Cass.then(status =>{
+                 console.log('status : ', status);
+               })
+               .then( dropData())
                .then( createData())
                // createData()
             }else if(opt.dbtype == 'cassandra-cql' && opt.remove == null && runtype == 'load'){
+              checkStatus_Cass
               createData()
             }
               let cmd = ''
