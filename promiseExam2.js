@@ -103,33 +103,8 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
     })
 
 
-
-    let unTemp = 0
-    let dnTemp = 0
-
-    let unTemp1 = results.toString().match(/UN/gi)
-    if(unTemp1 !== null){
-      unTemp = unTemp1.length
-    }
-    console.log('UNTEMP : ', unTemp)
-
-    let dnTemp1 = results.toString().match(/DN/gi)
-    if(dnTemp1 !== null){
-      dnTemp = dnTemp1.length
-    }
-    console.log('DNTEMP : ', dnTemp);
-
-    if(unTemp == 3){
-      return status * -1 //success : 1
-    }else{
-      return status //fail : -1
-    }
-
-
-
-
     checkcmd.stderr.on('data', function(data){
-      return status  //fail : -1
+      return resolve(status); //-1
     })
 
   });
