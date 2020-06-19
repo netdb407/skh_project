@@ -18,7 +18,11 @@ checkStatus()
 
 function checkStatus(){
   return new Promise(function(resolve, reject) {
-  resolve(checkStatus_Cass(status, nodeIPArr, nodetool_ip))
+    console.log('?????');
+    let resolveTemp = checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+    console.log('RESOLVETEMP', resolveTemp)
+
+    return Promise.resolve(resolveTemp)
   });
 }
 
@@ -41,7 +45,7 @@ async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
 
     checkStatus_Cass(status, nodeIPArr, nodetool_ip)
   }else if(isOK == 0){
-    
+
     console.log('stderr~!!!');
   }
 }
@@ -87,11 +91,11 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
 
     checkcmd.on('exit', function(code){
       //console.log('results : \n', results);
-      return resolve(results)
+      return Promise.resolve(results)
     })
 
     checkcmd.stderr.on('data', function(data){
-      return resolve(status*0)
+      return Promise.resolve(status*0)
     })
 
   });
@@ -117,9 +121,9 @@ function find_UN_DN(results){
   console.log(chalk.green.bold('[INFO]'), 'UN:', unTemp, ', DN:', dnTemp)
 
   if(unTemp == 3){
-    return resolve(status * -1) //success : 1
+    return Promise.resolve(status * -1) //success : 1
   }else{
-    return resolve(status)  //fail : -1
+    return Promise.resolve(status)  //fail : -1
   }
 });
 }
