@@ -126,7 +126,7 @@ public class CassandraCQLClient extends DB {
   private static boolean debug = false;
 
   private static boolean trace = false;
-  
+
   /**
    * Initialize any state for this DB. Called once per DB instance; there is one
    * DB instance per client thread.
@@ -182,7 +182,7 @@ public class CassandraCQLClient extends DB {
               .withPort(Integer.valueOf(port)).addContactPoints(hosts);
           if (useSSL) {
             clusterBuilder = clusterBuilder.withSSL();
-          } 
+          }
           cluster = clusterBuilder.build();
         } else {
           cluster = Cluster.builder().withPort(Integer.valueOf(port))
@@ -588,6 +588,8 @@ public class CassandraCQLClient extends DB {
       return Status.OK;
     } catch (Exception e) {
       logger.error(MessageFormatter.format("Error inserting key: {}", key).getMessage(), e);
+      e.printStackTrace();
+      e.printStackTrace(System.out);
     }
 
     return Status.ERROR;
