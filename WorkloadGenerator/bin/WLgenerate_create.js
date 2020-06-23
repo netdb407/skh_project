@@ -335,17 +335,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
-    default : 10
-  },
-  {
-    type : 'input',
-    name : 'Hard_Path',
-    message : 'Hard_Path',
-    validate: function(value) {
-      var valid = !isNaN(parseFloat(value));
-      return valid || 'Please enter a number';
-    },
-    default : 10
+    default : 0
   },
   {
     type : 'input',
@@ -355,7 +345,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
-    default : 10
+    default : 0
   },
   {
     type : 'input',
@@ -365,42 +355,22 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
-    default : 10
+    default : 0
   },
   {
     type : 'input',
-    name : 'Neighbors2',
-    message : 'Neighbors2',
+    name : 'read',
+    message : 'read',
     validate: function(value) {
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
-    default : 10
-  },
-  {
-    type : 'input',
-    name : 'Neighbors2data',
-    message : 'Neighbors2data',
-    validate: function(value) {
-      var valid = !isNaN(parseFloat(value));
-      return valid || 'Please enter a number';
-    },
-    default : 10
+    default : 0
   },
   {
     type : 'input',
     name : 'operations',
     message : 'operations',
-    validate: function(value) {
-      var valid = !isNaN(parseFloat(value));
-      return valid || 'Please enter a number';
-    },
-    default : 1000000
-  },
-  {
-    type : 'input',
-    name : 'vertices',
-    message : 'vertices',
     validate: function(value) {
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
@@ -499,14 +469,10 @@ inquirer.prompt(question).then(answers => {
       console.log("Update_edge ="+answers2.Update_edge);
       console.log("Delete_edge ="+answers2.Delete_edge);
       console.log("SSSP ="+answers2.SSSP);
-      console.log("Hard_Path ="+answers2.Hard_Path);
       console.log("Aggregation ="+answers2.Aggregation);
       console.log("Neighbors ="+answers2.Neighbors);
-      console.log("Neighbors2 ="+answers2.Neighbors2);
-      console.log("Neighbors2data ="+answers2.Neighbors2data);
-      console.log("-----------------");
+      console.log("read ="+answers2.read);
       console.log("operations ="+answers2.operations);
-      console.log("vertices ="+answers2.vertices);
       console.log("********************************");
 
       var bb = ["type ="+answers.type+'\n'+
@@ -518,14 +484,12 @@ inquirer.prompt(question).then(answers => {
       "Update_edge ="+answers2.Update_edge+'\n'+
       "Delete_edge ="+answers2.Delete_edge+'\n'+
       "SSSP ="+answers2.SSSP+'\n'+
-      "Hard_Path ="+answers2.Hard_Path+'\n'+
       "Aggregation ="+answers2.Aggregation+'\n'+
       "Neighbors ="+answers2.Neighbors+'\n'+
-      "Neighbors2 ="+answers2.Neighbors2+'\n'+
-      "Neighbors2data ="+answers2.Neighbors2data+'\n'+
-      "operations ="+answers2.operations+'\n'+
-      "vertices ="+answers2.vertices];
+      "read ="+answers2.read+'\n'+
+      "operations ="+answers2.operations];
       fs.readdir(dir2,function(err,filelist){
+        console.log(dir2);
         for(i=0;i<filelist.length;i++){
           if(filelist[i]===answers.name){
             answers.name = answers.name+'0';
