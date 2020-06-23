@@ -1,7 +1,8 @@
 # [cluster 정보 (,뒤에 띄어쓰기 안함)]
 server_IP = 203.255.92.192
 nodes_IP = 203.255.92.193,203.255.92.194,203.255.92.195
-#nodetool_IP = 203.255.92.193
+nodetool_IP = 203.255.92.193
+orientMaster_IP = 203.255.92.195
 
 # ! 192 서버컴에 mkdir ssdStorage한 다음에 설치하기
 rpm_dir_in_skhproject = /root/ssdStorage/skh_project/Installation/rpm/
@@ -13,7 +14,9 @@ server_install_dir_WL = /root/ssdStorage/skh_project/
 server_ycsb_dir = ./YCSB
 server_wlfile_dir = workloads
 server_WLgenerate_dir = WorkloadGenerator/bin/
-server_file_dir = workloads/
+server_file1_dir = YCSB/workloads/
+server_file2_dir = Graph/workloads/
+server_file3_dir = Graph/result/
 
 
 # [node directory]
@@ -52,9 +55,14 @@ server_cassandra_dir = /root/ssdStorage/skh_project/
 
 #directory_node
 #node_cassandra_dir = /root/ssdStorage/skh_project/dk
-node_cassandra_dir = /root/ssdStorage/KNUT/cassandra
+#node_cassandra_dir = /root/ssdStorage/cassandra
+node_cassandra_dir = /root/ssdStorage/KNUT/test/cassandra
+
 
 #update_configuration_path_server
 update_conf_path = /root/ssdStorage/skh_project/Update/
 
 cassandra_tracing_option = false
+
+# [orientdb 관련 설정]
+server_orientdb_dir = orientdb193,orientdb194,orientdb195
