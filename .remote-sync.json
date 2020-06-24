@@ -1,0 +1,19 @@
+{
+  "logger": {
+    "title": "Remote Sync"
+  },
+  "uploadOnSave": true,
+  "useAtomicWrites": false,
+  "deleteLocal": true,
+  "hostname": "203.255.92.192",
+  "port": "22",
+  "target": "/root/ssdStorage/skh_project_ya",
+  "ignore": [
+    ".remote-sync.json",
+    ".git/**"
+  ],
+  "username": "root",
+  "password": "netdb3230",
+  "watch": [],
+  "transport": "scp"
+}
