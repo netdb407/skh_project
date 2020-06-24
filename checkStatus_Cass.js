@@ -26,6 +26,8 @@ async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
   if(isOK == 1){
     console.log('----------------------------------------------------------');
     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
+
+    setTimeout(function(){console.log('YCSB running code')}, 5000);
     console.log('----------------------------------------------------------');
   }else if(isOK == -1){
     console.log('----------------------------------------------------------');
@@ -35,7 +37,10 @@ async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
     console.log('stderr~!!!');
   }
 }
-
+//20초 후에 재실행하고 안좋으면 kill
+// setTimeout(checkNodeStatus(nodetool_ip), 3000);
+// let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
+// exec(killcmd)
 
 
 function runExec(status, nodeIPArr, nodetool_ip) {
