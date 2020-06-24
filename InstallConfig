@@ -52,7 +52,7 @@ server_cassandra_dir = /root/ssdStorage/skh_project/
 
 #directory_node
 #node_cassandra_dir = /root/ssdStorage/skh_project/dk
-node_cassandra_dir = /root/ssdStorage/KNUT/cassandra
+node_cassandra_dir = /root/ssdStorage/KNUT/test/cassandra
 
 #update_configuration_path_server
 update_conf_path = /root/ssdStorage/skh_project/Update/

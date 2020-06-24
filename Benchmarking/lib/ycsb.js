@@ -36,36 +36,6 @@ nodeIPArr = node_ip.split(',');
 let status = -1 //켜져있을 때 1, 꺼져있을 때 -1, stderr일때 0
 
 
-
-// checkStatus_Cass(status, nodeIPArr, nodetool_ip)
-
-
-
-
-// async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
-//   runExec(status, nodeIPArr, nodetool_ip)
-//   let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
-//   // console.log('resTemp : ', resTemp);
-//   let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1, stederr: 0
-//   console.log(chalk.green.bold('[INFO]'), 'Cassandra is OK? :', isOK, '(Success:1, Failed:-1)');
-//   if(isOK == 1){
-//     console.log('----------------------------------------------------------');
-//     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
-//     console.log('----------------------------------------------------------');
-//
-//   }else if(isOK == -1){
-//     console.log('----------------------------------------------------------');
-//     console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
-//
-//     checkStatus_Cass(status, nodeIPArr, nodetool_ip)
-//   }else if(isOK == 0){
-//
-//     console.log('stderr~!!!');
-//   }
-// }
-
-
-
 function runExec(status, nodeIPArr, nodetool_ip) {
     return new Promise(function(resolve, reject) {
       nodeIPArr.forEach(function(ip){
@@ -85,10 +55,6 @@ function runExec(status, nodeIPArr, nodetool_ip) {
     });
 }
 
-
-
-
-
 function stdout_results(status, nodeIPArr, nodetool_ip){
   return new Promise(function(resolve, reject){
     console.log('----------------------------------------------------------');
@@ -105,17 +71,15 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
 
     checkcmd.on('exit', function(code){
       //console.log('results : \n', results);
-      return Promise.resolve(results)
+      return resolve(results)
     })
 
     checkcmd.stderr.on('data', function(data){
-      return Promise.resolve(status*0)
+      return resolve(status*0)
     })
 
   });
 }
-
-
 
 function find_UN_DN(results){
   return new Promise(function(resolve, reject) {
@@ -135,9 +99,9 @@ function find_UN_DN(results){
   console.log(chalk.green.bold('[INFO]'), 'UN:', unTemp, ', DN:', dnTemp)
 
   if(unTemp == 3){
-    return Promise.resolve(status * -1) //success : 1
+    return resolve(status * -1) //success : 1
   }else{
-    return Promise.resolve(status)  //fail : -1
+    return resolve(status)  //fail : -1
   }
 });
 }
@@ -148,16 +112,6 @@ function find_UN_DN(results){
 
 module.exports.ycsb = (opt) => {
   exec(`mkdir YCSB_RESULT`)
-  // // runCassandra(nodes_IP)
-  // // cqlsh(opt.dbtype)
-  // checkCassandra(opt)
-  // checkRuntype(opt.runtype)
-  // checkFile(opt.wlfile)
-  // checkLoadsize(opt.runtype, opt.loadsize)
-  // benchmarkName(opt)
-  // checkTimewindow(opt)
-  // checkThreads(opt)
-  // checkiotracer(opt)
 
   function runFunc(opt) {
       return new Promise(function(resolve, reject) {
@@ -176,84 +130,51 @@ module.exports.ycsb = (opt) => {
 
   runFunc(opt)
 
+  if(opt.dbtype = 'cassandra-cql'){
+    checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+  }
+
+
   async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
-    console.log('asdf');
     runExec(status, nodeIPArr, nodetool_ip)
     let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
     // console.log('resTemp : ', resTemp);
     let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1, stederr: 0
+
     console.log(chalk.green.bold('[INFO]'), 'Cassandra is OK? :', isOK, '(Success:1, Failed:-1)');
     if(isOK == 1){
       console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
       console.log('----------------------------------------------------------');
+      // runYCSB(opt, opt.runtype)
 
+      if(opt.runtype == 'load' || opt.runtype == 'run'){
 
-                if(opt.runtype == 'load' || opt.runtype == 'run'){
-                    // runFunc(opt)checkStatus_Cass
-                  // checkStatus_Cass().then(status =>{
-                  //   console.log('status : ', status);
-                  // })
-                  // checkStatus_Cass.then ((data) => runYCSB(opt, opt.runtype) )
+        runYCSB(opt, opt.runtype)
+      }else if(opt.runtype == 'loadrun'){
+        let runtype1 = opt.runtype.substring(0,4)
+        let runtype2 = opt.runtype.substring(4,7)
 
-                  // checkStatus().then(status =>{
-                  //   console.log('status : ', status);
-                  // })
+        // checkStatus_Cass
 
-                  runYCSB(opt, opt.runtype)
-                }else if(opt.runtype == 'loadrun'){
-                  let runtype1 = opt.runtype.substring(0,4)
-                  let runtype2 = opt.runtype.substring(4,7)
+        runYCSB(opt, runtype1)
+        .then( (data) => runYCSB(opt, runtype2))
 
-                  // checkStatus_Cass
-
-                  runYCSB(opt, runtype1)
-                  .then( (data) => runYCSB(opt, runtype2))
-
-                }else {
-                  console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
-                }
+      }else {
+        console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
+      }
 
     }else if(isOK == -1){
       console.log('----------------------------------------------------------');
       console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
 
       checkStatus_Cass(status, nodeIPArr, nodetool_ip)
-
     }else if(isOK == 0){
 
       console.log('stderr~!!!');
     }
   }
 
-  checkStatus_Cass(status, nodeIPArr, nodetool_ip)
-
-    //
-    //
-    // if(opt.runtype == 'load' || opt.runtype == 'run'){
-    //     // runFunc(opt)checkStatus_Cass
-    //   // checkStatus_Cass().then(status =>{
-    //   //   console.log('status : ', status);
-    //   // })
-    //   // checkStatus_Cass.then ((data) => runYCSB(opt, opt.runtype) )
-    //
-    //   // checkStatus().then(status =>{
-    //   //   console.log('status : ', status);
-    //   // })
-    //
-    //   runYCSB(opt, opt.runtype)
-    // }else if(opt.runtype == 'loadrun'){
-    //   let runtype1 = opt.runtype.substring(0,4)
-    //   let runtype2 = opt.runtype.substring(4,7)
-    //
-    //   // checkStatus_Cass
-    //
-    //   runYCSB(opt, runtype1)
-    //   .then( (data) => runYCSB(opt, runtype2))
-    //
-    // }else {
-    //   console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
-    // }
   }
 
 /* ################################################################################################################# */
@@ -287,8 +208,8 @@ module.exports.ycsb = (opt) => {
 
 
     const runYCSB =  (opt, runtype) => new Promise( resolve => {
-
       if(opt.iotracer == true){ // IOracer 옵션이 있을 경우Otracer 를 실행함
+        if(opt.runtype == 'load'||opt.runtype == 'run'||((opt.runtype=='loadrun')&&(runtype=='load')))
         ip.forEach((i) => {
           console.log('--------------------------------------')
           console.log(chalk.green.bold('[INFO]'), 'iotracer run : ', chalk.blue.bold(i));
@@ -325,18 +246,12 @@ module.exports.ycsb = (opt) => {
 
       }else{
           try { // error가 없는 경우 벤치마킹을 수행함
-            if(opt.dbtype == 'cassandra-cql' && opt.remove == true && runtype == 'load'){
-              // remove data 옵션이 있는 경우 데이터를 삭제함 (노드 3대)
-
-               // checkStatus_Cass().then(status =>{
-               //   console.log('status : ', status);
-               // })
-               // .then( dropData())
-               // .then( createData())
-
-               dropData().then ( createData() )
-
-               // createData()
+            if(opt.dbtype == 'cassandra-cql' && opt.remove == true){
+              if(opt.runtype == 'load'){
+                dropData().then ( createData() )
+              }else if((opt.runtype == 'loadrun') && (runtype == 'load')){
+                dropData().then ( createData() )
+              }
             }else if(opt.dbtype == 'cassandra-cql' && opt.remove == null && runtype == 'load'){
               // checkStatus_Cass
               createData()
@@ -345,20 +260,20 @@ module.exports.ycsb = (opt) => {
             if(opt.dbtype == 'cassandra-cql'){
               cmd = `cd YCSB && \
               ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} -p measurementtype=timeseries ${loadsizeCmd} \
-              -p timeseries.granularity=${timewindow} -p exporter=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${runtype}_result \
+              -p timeseries.granularity=${timewindow} -p exporter=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/${runtype}_result \
               -threads ${opt.threads} ${cassandraTracingCmd} -s`
             }else if ((opt.dbtype == 'arangodb')&&(runtype == 'load')){
               cmd = `cd YCSB && \
               ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p arangodb.ip=${nodetool_ip} -p arangodb.port=${8529} -p measurementtype=timeseries ${loadsizeCmd} \
-              -p timeseries.granularity=${timewindow} -p exporter=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${runtype}_result \
+              -p timeseries.granularity=${timewindow} -p exporter=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/${runtype}_result \
               -threads ${opt.threads} ${dropDBBeforeRunCmd} -s`
             }else if ((opt.dbtype == 'arangodb')&&(runtype == 'run')){
               cmd = `cd YCSB && \
               ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p arangodb.ip=${nodetool_ip} -p arangodb.port=${8529} -p measurementtype=timeseries ${loadsizeCmd} \
-              -p timeseries.granularity=${timewindow} -p exporter=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${runtype}_result \
+              -p timeseries.granularity=${timewindow} -p exporter=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/${runtype}_result \
               -threads ${opt.threads} -s`
             }
-            console.log(cmd);
+            // console.log(cmd);
             let cmdexec = exec(cmd)
             console.log('--------------------------------------')
             console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} started.`)
@@ -375,13 +290,16 @@ module.exports.ycsb = (opt) => {
               console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} completed.`)
               console.log('--------------------------------------')
               // console.log('start');
-              exec(`/root/ssdStorage/skh_project/json2csv.sh ${ycsb_exportfile_dir}/${opt.name}/bm_${runtype}_result`)
+              exec(`/root/ssdStorage/skh_project/json2csv.sh ${ycsb_exportfile_dir}/${opt.name}/${runtype}_result`)
 
               if(opt.iotracer == true){ // 벤치마킹 종료 후 iotracer 결과를 저장함
-                getIOresults(opt.name, ip, opt.runtype)
+                if((opt.runtype == 'load')||(opt.runtype == 'run')||((opt.runtype == 'loadrun')&&(runtype == 'run'))){
+                  getIOresults(opt.name, ip, opt.runtype)
+                }
               }
-              if(opt.dbtype == 'cassandra-cql'){
-                ip.forEach((i) => {
+              if((opt.dbtype == 'cassandra-cql')){
+                if(((opt.runtype == 'load')||(opt.runtype == 'run'))||((opt.runtype == 'loadrun')&&(runtype == 'run'))){
+                  ip.forEach((i) => {
                   console.log('--------------------------------------')
                   console.log(chalk.green.bold('[INFO]'), 'cassandra kill : ', chalk.blue.bold(i));
                   console.log('--------------------------------------')
@@ -390,6 +308,11 @@ module.exports.ycsb = (opt) => {
                     // console.log(`stdout: ${stdout}`);
                   }catch(err){ }
                 })
+
+                console.log('--------------------------------------')
+                console.log(chalk.green.bold('[INFO]'), 'complete benchmarking : ', chalk.blue.bold(opt.name));
+                console.log('--------------------------------------')
+                }
               }else if (opt.dbtype == 'arangodb'){
                 ip.forEach((i) => {
                   console.log('--------------------------------------')
@@ -408,36 +331,6 @@ module.exports.ycsb = (opt) => {
           } catch (err) { }
         }
     })
-
-
-    function execute(command) {
-    /**
-     * @param {Function} resolve A function that resolves the promise
-     * @param {Function} reject A function that fails the promise
-     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
-     */
-    return new Promise(function(resolve, reject) {
-      /**
-       * @param {Error} error An error triggered during the execution of the childProcess.exec command
-       * @param {string|Buffer} standardOutput The result of the shell command execution
-       * @param {string|Buffer} standardError The error resulting of the shell command execution
-       * @see https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
-       */
-
-      childProcess.exec(command, function(error, standardOutput, standardError) {
-        if (error) {
-          reject();
-          return;
-        }
-
-        if (standardError) {
-          reject(standardError);
-          return;
-        }
-        resolve(standardOutput);
-      });
-    });
-  }
 
     async function DropAndCreate(i, nodetool_ip, node_cassandra_dir) {
       dropCmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/dropKeyspace.cql ${i}`
@@ -535,7 +428,7 @@ module.exports.ycsb = (opt) => {
       console.log(chalk.green.bold('[INFO]'), 'iotracer kill : ', chalk.blue.bold(i));
       console.log('--------------------------------------')
       try{
-        const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
+        const stdout =  execSync(`ssh root@${i} ${IO_tracer_dir}/killIO.sh`)
         // console.log(`stdout: ${stdout}`);
       }catch(err){ }
 
@@ -546,8 +439,11 @@ module.exports.ycsb = (opt) => {
         // console.log('parse end');
 
         // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
-        execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${bmname}`)
-        execSync(`mv ${ycsb_exportfile_dir}/${bmname}/output ${ycsb_exportfile_dir}/${bmname}/${i}_${runtype}_output`)
+        execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${bmname}/${i}_${runtype}_output`)
+        // execSync(`mv ${ycsb_exportfile_dir}/${bmname}/output ${ycsb_exportfile_dir}/${bmname}/${i}_${runtype}_output`)
+        //
+        // execSync(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${bmname}`)
+        // execSync(`mv ${ycsb_exportfile_dir}/${bmname}/output ${ycsb_exportfile_dir}/${bmname}/${i}_${runtype}_output`)
         // console.log('result end');
         // console.log(`stdout: ${std`out3}`);
 
