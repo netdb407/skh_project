@@ -107,7 +107,6 @@ function find_UN_DN(results){
 }
 
 
-
 /* ################################################################################################################# */
 
 module.exports.ycsb = (opt) => {
@@ -156,9 +155,12 @@ module.exports.ycsb = (opt) => {
         let runtype2 = opt.runtype.substring(4,7)
 
         // checkStatus_Cass
-
+        opt.flag = true
         runYCSB(opt, runtype1)
-        .then( (data) => runYCSB(opt, runtype2))
+        .then((data) => {
+            opt.flag = data
+            runYCSB(opt, runtype2)
+          })
 
       }else {
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
@@ -207,7 +209,7 @@ module.exports.ycsb = (opt) => {
     })
 
 
-    const runYCSB =  (opt, runtype) => new Promise( resolve => {
+    const runYCSB = (opt, runtype) => new Promise( resolve => {
       if(opt.iotracer == true){ // IOracer 옵션이 있을 경우Otracer 를 실행함
         if(opt.runtype == 'load'||opt.runtype == 'run'||((opt.runtype=='loadrun')&&(runtype=='load')))
         ip.forEach((i) => {
@@ -223,9 +225,6 @@ module.exports.ycsb = (opt) => {
           }
         })
       }
-
-      let runtype1 = opt.runtype.substring(0,4)
-      let runtype2 = opt.runtype.substring(4,7)
 
       if((dbtypeLine.match('ERR'))||(runtypeLine.match('ERR'))||(wlfileLine.match('ERR'))||(loadsizeLine.match('ERR'))||(threadLine.match('ERR'))||(timewindowLine.match('ERR'))||(cassandraTracingLine.match('ERR'))){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
@@ -274,14 +273,26 @@ module.exports.ycsb = (opt) => {
               -threads ${opt.threads} -s`
             }
             // console.log(cmd);
-            let cmdexec = exec(cmd)
+            let cmdexec ;
+            if(!opt.flag){
+              cmd = 'ls'
+            // cmdexec = exec(cmd)
+
+            }
             console.log('--------------------------------------')
             console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} started.`)
             console.log('--------------------------------------')
+            cmdexec = exec(cmd)
+            // else
+            //   cmdexec = 'ls'
 
+            let flag = true
             cmdexec.stderr.on('data', function(data) {
               // console.log('데이터??');
               console.log(data)
+              if(data.includes('Exception')){v
+                flag = false
+              }
             })
 
             cmdexec.on('exit', function(code){
@@ -325,33 +336,17 @@ module.exports.ycsb = (opt) => {
                 })
               }
               // console.log('end');
-              resolve(opt, runtype)
+              // if(!flag)
+              //   runtype =
+              resolve(flag)
+
+
             })
 
           } catch (err) { }
         }
     })
 
-    async function DropAndCreate(i, nodetool_ip, node_cassandra_dir) {
-      dropCmd = `ssh root@${i} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/dropKeyspace.cql ${i}`
-      createCmd = `ssh root@${nodetool_ip} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/createKeyspace.cql ${nodetool_ip}`
-    try {
-      // ip.forEach((i) => {
-        removeCmd = `ssh root@${i} rm -rf ${node_cassandra_dir}/data/*`
-        console.log('--------------------------------------')
-        console.log(chalk.green.bold('[INFO]'), 'remove cassandra data : ', chalk.blue.bold(i));
-        console.log('--------------------------------------')
-          const passwdContent =  await execute(removeCmd);
-
-    } catch (error) {  }
-    try {
-      console.log('--------------------------------------')
-      console.log(chalk.green.bold('[INFO]'), 'careate cassandra table : ', chalk.blue.bold(nodetool_ip));
-      console.log('--------------------------------------')
-      const shadowContent = await execute(createCmd);
-      // console.log(shadowContent);
-    } catch (error) { }
-  }
 
   async function Create(nodetool_ip, node_cassandra_dir){
     createCmd = `ssh root@${nodetool_ip} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/createKeyspace.cql ${nodetool_ip}`
@@ -418,7 +413,6 @@ module.exports.ycsb = (opt) => {
           dropDBBeforeRunCmd = `-p cassandra.tracing=${dropDBBeforeRun}`
           console.log(dropDBBeforeRunLine)
         }
-
       }
     }
 
