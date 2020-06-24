@@ -21,27 +21,52 @@ async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
   runExec(status, nodeIPArr, nodetool_ip)
   let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
   // console.log('resTemp : ', resTemp);
+
   let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1, stederr: 0
+
+  //20초 기다리기!!
+  //isOK 값에 따라 실행시키는걸 함수로 짠 다음에 setTimeout안에 넣기
   console.log(chalk.green.bold('[INFO]'), 'Cassandra is OK? :', isOK, '(Success:1, Failed:-1)');
   if(isOK == 1){
     console.log('----------------------------------------------------------');
     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
-
-    setTimeout(function(){console.log('YCSB running code')}, 5000);
     console.log('----------------------------------------------------------');
   }else if(isOK == -1){
+    let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
+    exec(killcmd)
     console.log('----------------------------------------------------------');
-    console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
-    checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+    console.log(chalk.red.bold('[ERROR]'), 'kill cassandra process');
   }else if(isOK == 0){
     console.log('stderr~!!!');
   }
-}
-//20초 후에 재실행하고 안좋으면 kill
-// setTimeout(checkNodeStatus(nodetool_ip), 3000);
-// let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
-// exec(killcmd)
 
+}
+
+
+
+
+
+
+// async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
+//   runExec(status, nodeIPArr, nodetool_ip)
+//   let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
+//   // console.log('resTemp : ', resTemp);
+//   let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1, stederr: 0
+//   console.log(chalk.green.bold('[INFO]'), 'Cassandra is OK? :', isOK, '(Success:1, Failed:-1)');
+//   if(isOK == 1){
+//     console.log('----------------------------------------------------------');
+//     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
+//
+//     setTimeout(function(){console.log('YCSB running code')}, 5000);
+//     console.log('----------------------------------------------------------');
+//   }else if(isOK == -1){
+//     console.log('----------------------------------------------------------');
+//     console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
+//     checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+//   }else if(isOK == 0){
+//     console.log('stderr~!!!');
+//   }
+// }
 
 function runExec(status, nodeIPArr, nodetool_ip) {
     return new Promise(function(resolve, reject) {
@@ -72,7 +97,12 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
     console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
     console.log(chalk.green.bold('[INFO]'), 'check Node Status');
     let statuscmd = `ssh root@${nodetool_ip} /root/ssdStorage/cassandra/bin/nodetool status`
-    let checkcmd = exec(statuscmd)
+    let checkcmd = setTimeout(exec(statuscmd), 5000);
+    console.log('CHECKCMD', checkcmd)
+
+
+    //20초
+    // let isOK = await setTimeout(find_UN_DN(resTemp), 5000);
 
     let results = ''
 
