@@ -152,7 +152,7 @@ function isInstalledPkg(i, package, installDir, ip){
     // }
 
     // })
-  }
+  // }
 
   // export JAVA_HOME=/root/ssdStorage/skh_project/jdk1.8.0_121
   // export MAVEN_HOME=/root/ssdStorage/skh_project/Installation/rpm/maven
@@ -312,9 +312,10 @@ function versionCheck(i, package, installDir, ip){
 
 
 
-  function installDatabase(db, nodes, node_arr){
-    console.log('node정보 : ', node_arr);
+function installDatabase(db, nodes, node_arr){
+    // console.log('node정보 : ', node_arr);
     switch(db){
+      //193,194,195에 설치
         case 'cassandra' :
   	       var dir = property.get_server_cassandra_dir()
   	       var node_dir = property.get_node_cassandra_dir()
@@ -332,6 +333,46 @@ function versionCheck(i, package, installDir, ip){
                 }
           cassandraAction.cassandraCopy(nodes, node_arr, cassandraHome, node_dir, conf, update_conf);
   	      console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
+          break;
+
+        case 'arango' :
+        //193,194,195에 설치
+          node_arr.forEach(i=>{
+            console.log(chalk.green.bold('[INFO]'), 'Check if ArangoDB is installed in', chalk.blue.bold(i));
+            try{
+              stdout = exec(`ssh root@${i} "rpm -qa|grep arango"`).toString();
+              if(stdout!=null){
+                console.log(chalk.green.bold('[INFO]'),'ArangoDB is already installed in', chalk.blue.bold(i));
+              }
+            }
+            catch{
+              exec(`ssh root@${i} wget -P /root/ https://download.arangodb.com/9c169fe900ff79790395784287bfa82f0dc0059375a34a2881b9b745c8efd42e/arangodb36/Enterprise/Linux/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+              exec(`ssh root@${i} rpm -ivh /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+              exec(`ssh root@${i} rm -rf /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+              console.log(chalk.green.bold('[INFO]'), 'Install ArangoDB Complete!');
+            }
+          })
         break;
+
+        case 'orient' :
+
+          break;
      }
   }
+
+
+
+// function execShellCommand(cmd) {
+//  const exec = require('child_process').exec;
+//  return new Promise((resolve, reject) => {
+//   exec(cmd, (error, stdout, stderr) => {
+//    if (error) {
+//     console.warn(error);
+//    }
+//    resolve(stdout? stdout : stderr);
+//   });
+//  });
+// }
+//
+// const javaInfo = await execShellCommand('java -version');
+// console.log(javaInfo);
