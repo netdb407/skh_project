@@ -13,43 +13,12 @@ var Promise = require('promise');
 let status = -1 //켜져있을 때 1, 꺼져있을 때 -1, stderr일때 0
 
 
-
 runExec(status, nodeIPArr, nodetool_ip)
 checkStatus_Cass(status, nodeIPArr, nodetool_ip)
-
-// async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
-//   runExec(status, nodeIPArr, nodetool_ip)
-//   let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
-//   // console.log('resTemp : ', resTemp);
-//
-//   let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1, stederr: 0
-//
-//   //20초 기다리기!!
-//   //isOK 값에 따라 실행시키는걸 함수로 짠 다음에 setTimeout안에 넣기
-//   //상태확인만 계속하기 ! 켜지말고 !!!
-//   console.log(chalk.green.bold('[INFO]'), 'Cassandra is OK? :', isOK, '(Success:1, Failed:-1)');
-//   if(isOK == 1){
-//     console.log('----------------------------------------------------------');
-//     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
-//     console.log('----------------------------------------------------------');
-//   }else if(isOK == -1){
-//     let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
-//     exec(killcmd)
-//     console.log('----------------------------------------------------------');
-//     console.log(chalk.red.bold('[ERROR]'), 'kill cassandra process');
-//   }else if(isOK == 0){
-//     console.log('stderr~!!!');
-//   }
-//
-// }
-//
-
-
 
 
 
 async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
-  // runExec(status, nodeIPArr, nodetool_ip)
   let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
   // console.log('resTemp : ', resTemp);
   let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1, stederr: 0
@@ -57,15 +26,14 @@ async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
   if(isOK == 1){
     console.log('----------------------------------------------------------');
     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
-
-    setTimeout(function(){console.log('YCSB running code')}, 5000);
     console.log('----------------------------------------------------------');
   }else if(isOK == -1){
     console.log('----------------------------------------------------------');
-    console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
-    checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+    console.log(chalk.red.bold('[ERROR]'), 'check cassandra again .. waiting for 20 seconds');
+    setTimeout(checkStatus_Cass, 1000 * 20, status, nodeIPArr, nodetool_ip)
   }else if(isOK == 0){
-    console.log('stderr~!!!');
+    console.log('----------------------------------------------------------');
+    console.log(chalk.red.bold('[ERROR]'), 'stderr');
   }
 }
 
@@ -75,13 +43,14 @@ function runExec(status, nodeIPArr, nodetool_ip) {
     return new Promise(function(resolve, reject) {
       nodeIPArr.forEach(function(ip){
         let firewallcmd = `ssh root@${ip} systemctl stop firewalld`
-        // let killcmd = `ssh root@${ip} /root/ssdStorage/cassandra/killCass.sh`
-        let runcmd = `ssh root@${ip} /root/ssdStorage/cassandra/bin/cassandra -R`
+
+        //#수정하기! <hdd성능평가용으로 잠시 디렉토리 변경함> config에 cassandrahome
+        // let runcmd = `ssh root@${ip} /root/ssdStorage/cassandra/bin/cassandra -R`
+        let runcmd = `ssh root@${ip} /root/ssdStorage/KNUT/test/cassandra/bin/cassandra -R`
         console.log('----------------------------------------------------------');
         console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(ip));
         exec(firewallcmd)
         console.log(chalk.green.bold('[INFO]'), 'stop firewall in', `${ip}`);
-        // exec(killcmd)
         exec(runcmd)
         console.log(chalk.green.bold('[INFO]'), 'run Cassandra in', `${ip}`);
       })
@@ -93,20 +62,16 @@ function runExec(status, nodeIPArr, nodetool_ip) {
 
 
 
-
 function stdout_results(status, nodeIPArr, nodetool_ip){
   return new Promise(function(resolve, reject){
     console.log('----------------------------------------------------------');
-    console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
+    //console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(nodetool_ip));
     console.log(chalk.green.bold('[INFO]'), 'check Node Status');
-    let statuscmd = `ssh root@${nodetool_ip} /root/ssdStorage/cassandra/bin/nodetool status`
-    // let checkcmd = setTimeout(exec(statuscmd), 5000);
+
+    //#수정하기! <hdd성능평가용으로 잠시 디렉토리 변경함> config에 cassandrahome
+    // let statuscmd = `ssh root@${nodetool_ip} /root/ssdStorage/cassandra/bin/nodetool status`
+    let statuscmd = `ssh root@${nodetool_ip} /root/ssdStorage/KNUT/test/cassandra/bin/nodetool status`
     let checkcmd = exec(statuscmd)
-    // console.log('CHECKCMD', checkcmd)
-
-
-    //20초
-    // let isOK = await setTimeout(find_UN_DN(resTemp), 5000);
 
     let results = ''
 
@@ -130,7 +95,6 @@ function stdout_results(status, nodeIPArr, nodetool_ip){
 
 function find_UN_DN(results){
   return new Promise(function(resolve, reject) {
-  // console.log('nodetool status results: \n', results);
   let unTemp = 0
   let dnTemp = 0
 
