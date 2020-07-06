@@ -128,7 +128,6 @@ dbstart().then(function(result){
   statuscheck().then(function(result){
 
 
-
     if(a=9){
       start();
     }else {

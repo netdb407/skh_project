@@ -152,7 +152,7 @@ function isInstalledPkg(i, package, installDir, ip){
     // }
 
     // })
-  }
+  // }
 
   // export JAVA_HOME=/root/ssdStorage/skh_project/jdk1.8.0_121
   // export MAVEN_HOME=/root/ssdStorage/skh_project/Installation/rpm/maven
@@ -290,6 +290,7 @@ function versionCheck(i, package, installDir, ip){
    switch(package){
      case 'java' :
        packageName = cmds.java
+
        break;
      case 'python' :
        packageName = cmds.python
@@ -311,9 +312,10 @@ function versionCheck(i, package, installDir, ip){
 
 
 
-  function installDatabase(db, nodes, node_arr){
-    console.log('node정보 : ', node_arr);
+function installDatabase(db, nodes, node_arr){
+    // console.log('node정보 : ', node_arr);
     switch(db){
+      //193,194,195에 설치
         case 'cassandra' :
   	       var dir = property.get_server_cassandra_dir()
   	       var node_dir = property.get_node_cassandra_dir()
@@ -331,6 +333,108 @@ function versionCheck(i, package, installDir, ip){
                 }
           cassandraAction.cassandraCopy(nodes, node_arr, cassandraHome, node_dir, conf, update_conf);
   	      console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
+          break;
+
+        case 'arango' :
+        //193,194,195에 설치
+          node_arr.forEach(i=>{
+            console.log(chalk.green.bold('[INFO]'), 'Check if ArangoDB is installed in', chalk.blue.bold(i));
+            try{
+              stdout = exec(`ssh root@${i} "rpm -qa|grep arango"`).toString();
+              if(stdout!=null){
+                console.log(chalk.green.bold('[INFO]'),'ArangoDB is already installed in', chalk.blue.bold(i));
+              }
+            }
+            catch{
+              exec(`ssh root@${i} wget -P /root/ https://download.arangodb.com/9c169fe900ff79790395784287bfa82f0dc0059375a34a2881b9b745c8efd42e/arangodb36/Enterprise/Linux/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+              exec(`ssh root@${i} rpm -ivh /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+              exec(`ssh root@${i} rm -rf /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+              console.log(chalk.green.bold('[INFO]'), 'Install ArangoDB Complete!');
+            }
+          })
         break;
+
+        case 'orient' :
+        //@@@ 192에서 파일 수정하고 scp로 193,194,195에서 파일 덮어씌우기
+        //193,195는 아랑고 테스트 중, 194는 죽었음
+        //192나 rnd컴으로 테스트하기
+        //rnd 컴으로 오리엔트 설치하고 클러스터 설정 해보기?
+        //에트리 컴으로 오리엔트 클러스터 해보기 203.255.92.38, 39, 40, 41
+
+        //192에서 server.sh변경하고 scp로 덮어씌우는거????
+        //38에서 변경할 파일 : /bin/server.sh, /config/hazelcast, /config/default-distributed-db-config.json, /config/orientdb-server-config.xml
+
+        //1. tar파일 scp로 전송 : 38 ----> 39,40,41
+        //2. 38에서 /bin/server/sh 파일 수정 ---> 39에 보내보기
+
+        //쉘 스크립트 배쉬 파일 만들어서 실행시켜버리기 ! 원격으로 한대씩
+
+
+
+
+
+
+        //-----------------step 1.-----------------
+        //java 192, 193, 194, 195에 설치되어 있어야 함
+        // install -p java 부분 수정해서 네대 다 설치하기!
+        //java home설정
+
+        // /opt/orientdb-3.0.27.tar.gz 있으니까 풀어서 쓰기
+        //  sudo tar -zxvf opt/orientdb-3.0.27.tar.gz -C /opt
+        exec(`sudo tar -zxvf opt/orientdb-3.0.27.tar.gz -C /opt`)
+        //-----------------step 2.-----------------
+        // sudo vi /root/ssdStorage/orientdb194/bin/server.sh
+        exec(`sudo vi /root/ssdStorage/orientdb194/bin/server.sh`)
+        //orientdb194/bin/server.sh 파일 열고 키 잡아서 value 변경(메모리 사이즈 변경)
+        // ### ORIENTDB_OPTS_MEMORY="-Xms2G -Xmx2G" -> "-Xms256m –Xmx512m
+
+        //-----------------step 3.-----------------
+        // 3,4,5 모두 설정
+        // ### ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH" -> ORIENTDB_DIR="/root/ssdStorage/orientdb194"
+        // ### ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH" -> ORIENTDB_USER="orientdb"
+        // ### sudo chmod 640 /root/ssdStorage/orientdb194/config/orientdb-server-config.xml
+        // ### sudo cp /root/ssdStorage/orientdb194/bin/orientdb.service /etc/systemd/system
+
+        //-----------------step 4.-----------------
+        // root/ssdStorage/orientdb194/config/hazelcast 열고
+        // name=project, password=1234로 수정
+        // ip 추가해주기 3대 다 193,194,195
+
+
+        //-----------------step 5.-----------------
+        // /root/ssdStorage/orientdb194/config/default-distributed-db-config.json 열고
+        // readQuorum : 1 -> 2로 변경
+        //servers : {}에 추가하기
+        // "orientdb193" : "master"
+        // "orientdb194" : "master"
+        // "orientdb195" : "replica"
+
+        //-----------------step 6.-----------------
+        // /root/ssdStorage/orientdb194/config/orientdb-server-config.xml 열고
+        //<parameters>에서 value="false" -> "true"로 변경
+        // properties에 값 추가
+        // <entry value="1" name="db.pool.min"/>
+        // <entry value="50" name="db.pool.max"/>
+        // <entry value="100000" name="cache.size"/>
+
+
+          break;
      }
   }
+
+
+
+// function execShellCommand(cmd) {
+//  const exec = require('child_process').exec;
+//  return new Promise((resolve, reject) => {
+//   exec(cmd, (error, stdout, stderr) => {
+//    if (error) {
+//     console.warn(error);
+//    }
+//    resolve(stdout? stdout : stderr);
+//   });
+//  });
+// }
+//
+// const javaInfo = await execShellCommand('java -version');
+// console.log(javaInfo);

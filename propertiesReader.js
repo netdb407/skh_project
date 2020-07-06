@@ -1,6 +1,7 @@
 const PropertiesReader = require('properties-reader');
 
 const properties = PropertiesReader('./InstallConfig');
+// const properties = PropertiesReader('./InstallConfig_homedir');
 
 module.exports = {
   //user정보
