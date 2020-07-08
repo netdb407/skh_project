@@ -357,113 +357,63 @@ function installDatabase(db, nodes, node_arr){
         break;
 
         case 'orient' :
-        // 일단 38에서 tar파일을 scp로 39,40,41에 전송하고 압축 해제 tar -zxvf (/home/yh)
-        // 그럼 4대에 같은 파일들이 있겠지 server.sh 등
-        // 38에서 server.sh를 수정하고 scp로 전송해서 덮어씌워지는지 확인
-        //
-        // 나머지 파일도 같은 방식으로 수정해서 보내버리기..
-        //---------------------------------------------------------
-        //node3대 for문 돌리면서 scp로 전송하기 !
-        //orientdb tar 압축 풀기 4대 다?
-        //송희언니 코드 리뷰 !
-        let etri_arr = ['203.255.92.38', '203.255.92.39', '203.255.92.40', '203.255.92.41']
-        etri_arr.forEach(i=>{
-          console.log(chalk.green.bold('[INFO]'), 'Check if OrientDB is installed in', chalk.blue.bold(i));
-          try{
-            stdout = exec(`ssh root@${i} "rpm -qa|grep orient"`).toString();
-            if(stdout!=null){
-              console.log(chalk.green.bold('[INFO]'),'OrientDB is already installed in', chalk.blue.bold(i));
-            }
-          }
-          catch{
-            console.log('ㅅㄷㅅㄷ');
-          // exec(`scp ./orientdb-community-2.2.29.tar.gz root@${i}:/home/yh`)
-          //   console.log(chalk.green.bold('[INFO]'), 'tar파일 전송 완료!');
-          }
-        })
+          // 일단 38에서 tar파일을 scp로 39,40,41에 전송하고 압축 해제 tar -zxvf (/home/yh)
+          // 그럼 4대에 같은 파일들이 있겠지 server.sh 등
+          // 38에서 server.sh를 수정하고 scp로 전송해서 덮어씌워지는지 확인
+          //
+          // 나머지 파일도 같은 방식으로 수정해서 보내버리기..
+          //---------------------------------------------------------
+          //node3대 for문 돌리면서 scp로 전송하기 !
+          //orientdb tar 압축 풀기 4대 다?
+          //송희언니 코드 리뷰 !
+          let etri_arr = ['203.255.92.38', '203.255.92.39', '203.255.92.40', '203.255.92.41']
+          etri_arr.forEach(i=>{
+            // console.log(chalk.green.bold('[INFO]'), 'Check if OrientDB is installed in', chalk.blue.bold(i));
+            // try{
+              // let result = exec(`ssh root@${i} "rpm -qa|grep orient"`)
+              // // console.log('stdout:', stdout);
+              // result.stdout.on('data', function(data){
+              //   console.log('data:', data);
+              // })
+              // result.stdin('data', function(data){
+              //   console.log('data:', data);
+              // })
+              // result.stderr.on('data', function(data){
+              //   console.log('data:', data);
+              // })
+              // if(stdout!=null){
+              //   console.log(chalk.green.bold('[INFO]'),'OrientDB is already installed in', chalk.blue.bold(i));
+              // }
+            // }
+            // catch{
+            // exec(`scp ./orientdb-community-2.2.29.tar.gz root@${i}:/home/yh`)
+
+            //이미 38에 orientdb.tar.gz 파일이 있고 압축해제 완료 되어있어야 함 !!
+            exec('tar cf - orientdb-community-2.2.29 | ssh root@203.255.92.40 'cd /home/yh; tar xvf -'')
+            //로그가 먼저 나오니까 이거 끝나고 하도록  then?
+            console.log(chalk.green.bold('[INFO]'), chalk.blue.bold(i), 'Install OrientDB Complete!');
+            console.log('----------------------------------------------------------');
+
+            //38에서 클러스터용으로 파일을 수정하기 !! server.sh    vi편집기 명령어로 key잡고 value 수정
+
+            // sed -i 's/기존 내용/변경할 내용/g' 파일명.txt
+            // sed -i 's/'
+            // awk
 
 
+            // $ tar cvjf - * | ssh vivek@nixcraft "(cd /dest/; tar xjf -)"
+            // $ tar cvzf - mydir/ | ssh vivek@backupbox "cat > /backups/myfile.tgz"
+            // $ tar cvzf - /var/www/html | ssh vivek@server1.cyberciti.biz "dd of=/backups/www.tar.gz"
+            // $ ssh vivek@box2 "cat /backups/www.tar.gz" | tar xvzf -
+            //
+            //
+            //
+            // mkdir /data/
+            // sshfs vivek@server1.cyberciti.biz:/ /data/
+            // tar -zcvf /data/file.tar.gz /home/vivek/
 
-        //---------------------------------------------------------
-        //@@@ 192에서 파일 수정하고 scp로 193,194,195에서 파일 덮어씌우기
-        //193,195는 아랑고 테스트 중, 194는 죽었음
-        //192나 rnd컴으로 테스트하기
-        //rnd 컴으로 오리엔트 설치하고 클러스터 설정 해보기?
-
-
-
-        //192에서 server.sh변경하고 scp로 덮어씌우는거????
-        //38에서 변경할 파일 : /bin/server.sh, /config/hazelcast, /config/default-distributed-db-config.json, /config/orientdb-server-config.xml
-
-        //1. tar파일 scp로 전송 : 38 ----> 39,40,41
-        //2. 38에서 /bin/server/sh 파일 수정 ---> 39에 보내보기
-
-        //쉘 스크립트 배쉬 파일 만들어서 실행시켜버리기 ! 원격으로 한대씩
-
-
-
-
-
-
-        //-----------------step 1.-----------------
-        //java 192, 193, 194, 195에 설치되어 있어야 함
-        // install -p java 부분 수정해서 네대 다 설치하기!
-        //java home설정
-
-        // /opt/orientdb-3.0.27.tar.gz 있으니까 풀어서 쓰기
-        // exec(`sudo tar -zxvf opt/orientdb-3.0.27.tar.gz -C /opt`)
-        //-----------------step 2.-----------------
-        // exec(`sudo vi /root/ssdStorage/orientdb194/bin/server.sh`)
-        //orientdb194/bin/server.sh 파일 열고 키 잡아서 value 변경(메모리 사이즈 변경)
-        // ### ORIENTDB_OPTS_MEMORY="-Xms2G -Xmx2G" -> "-Xms256m –Xmx512m
-
-        //-----------------step 3.-----------------
-        // 3,4,5 모두 설정
-        // ### ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH" -> ORIENTDB_DIR="/root/ssdStorage/orientdb194"
-        // ### ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH" -> ORIENTDB_USER="orientdb"
-        // ### sudo chmod 640 /root/ssdStorage/orientdb194/config/orientdb-server-config.xml
-        // ### sudo cp /root/ssdStorage/orientdb194/bin/orientdb.service /etc/systemd/system
-
-        //-----------------step 4.-----------------
-        // root/ssdStorage/orientdb194/config/hazelcast 열고
-        // name=project, password=1234로 수정
-        // ip 추가해주기 3대 다 193,194,195
-
-
-        //-----------------step 5.-----------------
-        // /root/ssdStorage/orientdb194/config/default-distributed-db-config.json 열고
-        // readQuorum : 1 -> 2로 변경
-        //servers : {}에 추가하기
-        // "orientdb193" : "master"
-        // "orientdb194" : "master"
-        // "orientdb195" : "replica"
-
-        //-----------------step 6.-----------------
-        // /root/ssdStorage/orientdb194/config/orientdb-server-config.xml 열고
-        //<parameters>에서 value="false" -> "true"로 변경
-        // properties에 값 추가
-        // <entry value="1" name="db.pool.min"/>
-        // <entry value="50" name="db.pool.max"/>
-        // <entry value="100000" name="cache.size"/>
-
-
-          break;
+            // }
+          })
+            break;
      }
   }
-
-
-
-// function execShellCommand(cmd) {
-//  const exec = require('child_process').exec;
-//  return new Promise((resolve, reject) => {
-//   exec(cmd, (error, stdout, stderr) => {
-//    if (error) {
-//     console.warn(error);
-//    }
-//    resolve(stdout? stdout : stderr);
-//   });
-//  });
-// }
-//
-// const javaInfo = await execShellCommand('java -version');
-// console.log(javaInfo);
