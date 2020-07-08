@@ -368,52 +368,50 @@ function installDatabase(db, nodes, node_arr){
           //송희언니 코드 리뷰 !
           let etri_arr = ['203.255.92.38', '203.255.92.39', '203.255.92.40', '203.255.92.41']
           etri_arr.forEach(i=>{
-            // console.log(chalk.green.bold('[INFO]'), 'Check if OrientDB is installed in', chalk.blue.bold(i));
-            // try{
-              // let result = exec(`ssh root@${i} "rpm -qa|grep orient"`)
-              // // console.log('stdout:', stdout);
-              // result.stdout.on('data', function(data){
-              //   console.log('data:', data);
-              // })
-              // result.stdin('data', function(data){
-              //   console.log('data:', data);
-              // })
-              // result.stderr.on('data', function(data){
-              //   console.log('data:', data);
-              // })
-              // if(stdout!=null){
-              //   console.log(chalk.green.bold('[INFO]'),'OrientDB is already installed in', chalk.blue.bold(i));
-              // }
-            // }
-            // catch{
-            // exec(`scp ./orientdb-community-2.2.29.tar.gz root@${i}:/home/yh`)
-
             //이미 38에 orientdb.tar.gz 파일이 있고 압축해제 완료 되어있어야 함 !!
             let tarcmd = `tar cf - orientdb-community-2.2.29 | ssh  root@${i} 'cd /home/yh; tar xvf -'`
             exec(tarcmd)
-            //로그가 먼저 나오니까 이거 끝나고 하도록  then?
             console.log(chalk.green.bold('[INFO]'), chalk.blue.bold(i), 'Install OrientDB Complete!');
             console.log('----------------------------------------------------------');
 
-            //38에서 클러스터용으로 파일을 수정하기 !! server.sh    vi편집기 명령어로 key잡고 value 수정
+            //!!!나중에 directory 환경변수에 저장해서 쓰기..!
+            let fixMemorycmd = `ssh root@${i} 'sed -i "s/Xms2G -Xmx2G/Xms256m -Xmx512m/g" /home/yh/orientdb-community-2.2.29/bin/server.sh'`
+            exec(fixMemorycmd)
+            console.log(chalk.green.bold('[INFO]'), chalk.blue.bold(i), 'fix server.sh Complete!');
+            console.log('----------------------------------------------------------');
 
-            // sed -i 's/기존 내용/변경할 내용/g' 파일명.txt
-            // sed -i 's/'
-            // awk
 
 
-            // $ tar cvjf - * | ssh vivek@nixcraft "(cd /dest/; tar xjf -)"
-            // $ tar cvzf - mydir/ | ssh vivek@backupbox "cat > /backups/myfile.tgz"
-            // $ tar cvzf - /var/www/html | ssh vivek@server1.cyberciti.biz "dd of=/backups/www.tar.gz"
-            // $ ssh vivek@box2 "cat /backups/www.tar.gz" | tar xvzf -
-            //
-            //
-            //
-            // mkdir /data/
-            // sshfs vivek@server1.cyberciti.biz:/ /data/
-            // tar -zcvf /data/file.tar.gz /home/vivek/
 
-            // }
+       //-----------------step 3.-----------------
+       // 3,4,5 모두 설정
+       // ### ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH" -> ORIENTDB_DIR="/root/ssdStorage/orientdb194"
+       // ### ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH" -> ORIENTDB_USER="orientdb"
+       // ### sudo chmod 640 /root/ssdStorage/orientdb194/config/orientdb-server-config.xml
+       // ### sudo cp /root/ssdStorage/orientdb194/bin/orientdb.service /etc/systemd/system
+
+       //-----------------step 4.-----------------
+       // root/ssdStorage/orientdb194/config/hazelcast 열고
+       // name=project, password=1234로 수정
+       // ip 추가해주기 3대 다 193,194,195
+
+
+       //-----------------step 5.-----------------
+       // /root/ssdStorage/orientdb194/config/default-distributed-db-config.json 열고
+       // readQuorum : 1 -> 2로 변경
+       //servers : {}에 추가하기
+       // "orientdb193" : "master"
+       // "orientdb194" : "master"
+       // "orientdb195" : "replica"
+
+       //-----------------step 6.-----------------
+       // /root/ssdStorage/orientdb194/config/orientdb-server-config.xml 열고
+       //<parameters>에서 value="false" -> "true"로 변경
+       // properties에 값 추가
+       // <entry value="1" name="db.pool.min"/>
+       // <entry value="50" name="db.pool.max"/>
+       // <entry value="100000" name="cache.size"/>
+
           })
             break;
      }
