@@ -337,29 +337,60 @@ function installDatabase(db, nodes, node_arr){
 
         case 'arango' :
         //193,194,195에 설치
-          node_arr.forEach(i=>{
-            console.log(chalk.green.bold('[INFO]'), 'Check if ArangoDB is installed in', chalk.blue.bold(i));
-            try{
-              stdout = exec(`ssh root@${i} "rpm -qa|grep arango"`).toString();
-              if(stdout!=null){
-                console.log(chalk.green.bold('[INFO]'),'ArangoDB is already installed in', chalk.blue.bold(i));
-              }
-            }
-            catch{
-              exec(`ssh root@${i} wget -P /root/ https://download.arangodb.com/9c169fe900ff79790395784287bfa82f0dc0059375a34a2881b9b745c8efd42e/arangodb36/Enterprise/Linux/arangodb3e-3.6.3-1.1.x86_64.rpm`)
-              exec(`ssh root@${i} rpm -ivh /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
-              exec(`ssh root@${i} rm -rf /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
-              console.log(chalk.green.bold('[INFO]'), 'Install ArangoDB Complete!');
-            }
-          })
+        //!!!ETRI 컴터로 돌리는동안 주석처리..
+        console.log('ETRI 컴터로 돌리는동안 주석처리..');
+          // node_arr.forEach(i=>{
+          //   console.log(chalk.green.bold('[INFO]'), 'Check if ArangoDB is installed in', chalk.blue.bold(i));
+          //   try{
+          //     stdout = exec(`ssh root@${i} "rpm -qa|grep arango"`).toString();
+          //     if(stdout!=null){
+          //       console.log(chalk.green.bold('[INFO]'),'ArangoDB is already installed in', chalk.blue.bold(i));
+          //     }
+          //   }
+          //   catch{
+          //     exec(`ssh root@${i} wget -P /root/ https://download.arangodb.com/9c169fe900ff79790395784287bfa82f0dc0059375a34a2881b9b745c8efd42e/arangodb36/Enterprise/Linux/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+          //     exec(`ssh root@${i} rpm -ivh /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+          //     exec(`ssh root@${i} rm -rf /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+          //     console.log(chalk.green.bold('[INFO]'), 'Install ArangoDB Complete!');
+          //   }
+          // })
         break;
 
         case 'orient' :
+        // 일단 38에서 tar파일을 scp로 39,40,41에 전송하고 압축 해제 tar -zxvf (/home/yh)
+        // 그럼 4대에 같은 파일들이 있겠지 server.sh 등
+        // 38에서 server.sh를 수정하고 scp로 전송해서 덮어씌워지는지 확인
+        //
+        // 나머지 파일도 같은 방식으로 수정해서 보내버리기..
+        //---------------------------------------------------------
+        //node3대 for문 돌리면서 scp로 전송하기 !
+        //orientdb tar 압축 풀기 4대 다?
+        //송희언니 코드 리뷰 !
+        let etri_arr = ['203.255.92.38', '203.255.92.39', '203.255.92.40', '203.255.92.41']
+        etri_arr.forEach(i=>{
+          console.log(chalk.green.bold('[INFO]'), 'Check if OrientDB is installed in', chalk.blue.bold(i));
+          try{
+            stdout = exec(`ssh root@${i} "rpm -qa|grep orient"`).toString();
+            if(stdout!=null){
+              console.log(chalk.green.bold('[INFO]'),'OrientDB is already installed in', chalk.blue.bold(i));
+            }
+          }
+          catch{
+            console.log('ㅅㄷㅅㄷ');
+          // exec(`scp ./orientdb-community-2.2.29.tar.gz root@${i}:/home/yh`)
+          //   console.log(chalk.green.bold('[INFO]'), 'tar파일 전송 완료!');
+          }
+        })
+
+
+
+        //---------------------------------------------------------
         //@@@ 192에서 파일 수정하고 scp로 193,194,195에서 파일 덮어씌우기
         //193,195는 아랑고 테스트 중, 194는 죽었음
         //192나 rnd컴으로 테스트하기
         //rnd 컴으로 오리엔트 설치하고 클러스터 설정 해보기?
-        //에트리 컴으로 오리엔트 클러스터 해보기 203.255.92.38, 39, 40, 41
+
+
 
         //192에서 server.sh변경하고 scp로 덮어씌우는거????
         //38에서 변경할 파일 : /bin/server.sh, /config/hazelcast, /config/default-distributed-db-config.json, /config/orientdb-server-config.xml
@@ -380,11 +411,9 @@ function installDatabase(db, nodes, node_arr){
         //java home설정
 
         // /opt/orientdb-3.0.27.tar.gz 있으니까 풀어서 쓰기
-        //  sudo tar -zxvf opt/orientdb-3.0.27.tar.gz -C /opt
-        exec(`sudo tar -zxvf opt/orientdb-3.0.27.tar.gz -C /opt`)
+        // exec(`sudo tar -zxvf opt/orientdb-3.0.27.tar.gz -C /opt`)
         //-----------------step 2.-----------------
-        // sudo vi /root/ssdStorage/orientdb194/bin/server.sh
-        exec(`sudo vi /root/ssdStorage/orientdb194/bin/server.sh`)
+        // exec(`sudo vi /root/ssdStorage/orientdb194/bin/server.sh`)
         //orientdb194/bin/server.sh 파일 열고 키 잡아서 value 변경(메모리 사이즈 변경)
         // ### ORIENTDB_OPTS_MEMORY="-Xms2G -Xmx2G" -> "-Xms256m –Xmx512m
 
