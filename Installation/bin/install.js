@@ -389,7 +389,8 @@ function installDatabase(db, nodes, node_arr){
             // exec(`scp ./orientdb-community-2.2.29.tar.gz root@${i}:/home/yh`)
 
             //이미 38에 orientdb.tar.gz 파일이 있고 압축해제 완료 되어있어야 함 !!
-            exec('tar cf - orientdb-community-2.2.29 | ssh root@203.255.92.40 'cd /home/yh; tar xvf -'')
+            let tarcmd = `tar cf - orientdb-community-2.2.29 | ssh  root@${i} 'cd /home/yh; tar xvf -'`
+            exec(tarcmd)
             //로그가 먼저 나오니까 이거 끝나고 하도록  then?
             console.log(chalk.green.bold('[INFO]'), chalk.blue.bold(i), 'Install OrientDB Complete!');
             console.log('----------------------------------------------------------');
