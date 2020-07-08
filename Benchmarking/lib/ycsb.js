@@ -1,5 +1,6 @@
 const program = require('commander')
 const property = require('../../propertiesReader.js')
+const PropertiesReader = require('properties-reader');
 // const checkStatus_Cass = require('../../checkStatus_Cass.js')
 const childProcess = require("child_process");
 const exec =  require('child_process').exec
@@ -19,10 +20,11 @@ const IO_tracer_dir = property.get_IO_tracer_dir()
 const IO_watch_dir = property.get_IO_watch_dir()
 const IO_output_dir = property.get_IO_output_dir()
 const node_cassandra_dir = property.get_node_cassandra_dir()
+
 const error = chalk.red('ERR!')
 let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loadsizeCmd = '',
 threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracingCmd = ''
-
+let recordcount = '', operationcount = ''
 
 // const property = require('./propertiesReader.js')
 // const exec =  require('child_process').exec
@@ -127,55 +129,76 @@ module.exports.ycsb = (opt) => {
         });
   }
 
+
   runFunc(opt)
 
+
+
   if(opt.dbtype = 'cassandra-cql'){
-    checkStatus_Cass(status, nodeIPArr, nodetool_ip)
-  }
+    // checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+    if(opt.runtype == 'load' || opt.runtype == 'run'){
+      opt.flag = true
+      runYCSB(opt, opt.runtype)
+    }else if(opt.runtype == 'loadrun'){
+      let runtype1 = opt.runtype.substring(0,4)
+      let runtype2 = opt.runtype.substring(4,7)
 
+      // checkStatus_Cass
+      opt.flag = true
+      runYCSB(opt, runtype1)
+      .then((data) => {
+          opt.flag = data
+          runYCSB(opt, runtype2)
+        })
 
-  async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
-    runExec(status, nodeIPArr, nodetool_ip)
-    let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
-    // console.log('resTemp : ', resTemp);
-    let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1, stederr: 0
-
-    console.log(chalk.green.bold('[INFO]'), 'Cassandra is OK? :', isOK, '(Success:1, Failed:-1)');
-    if(isOK == 1){
-      console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
-      console.log('----------------------------------------------------------');
-      // runYCSB(opt, opt.runtype)
-
-      if(opt.runtype == 'load' || opt.runtype == 'run'){
-
-        runYCSB(opt, opt.runtype)
-      }else if(opt.runtype == 'loadrun'){
-        let runtype1 = opt.runtype.substring(0,4)
-        let runtype2 = opt.runtype.substring(4,7)
-
-        // checkStatus_Cass
-        opt.flag = true
-        runYCSB(opt, runtype1)
-        .then((data) => {
-            opt.flag = data
-            runYCSB(opt, runtype2)
-          })
-
-      }else {
-        console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
-      }
-
-    }else if(isOK == -1){
-      console.log('----------------------------------------------------------');
-      console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
-
-      checkStatus_Cass(status, nodeIPArr, nodetool_ip)
-    }else if(isOK == 0){
-
-      console.log('stderr~!!!');
+    }else {
+      console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
     }
   }
+
+
+  // async function checkStatus_Cass(status, nodeIPArr, nodetool_ip){
+  //   runExec(status, nodeIPArr, nodetool_ip)
+  //   let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
+  //   // console.log('resTemp : ', resTemp);
+  //   let isOK = await find_UN_DN(resTemp) //success: 1, failed: -1, stederr: 0
+  //
+  //   console.log(chalk.green.bold('[INFO]'), 'Cassandra is OK? :', isOK, '(Success:1, Failed:-1)');
+  //   if(isOK == 1){
+  //     console.log('----------------------------------------------------------');
+  //     console.log(chalk.green.bold('[INFO]'), 'Start cassandra benchmarking');
+  //     console.log('----------------------------------------------------------');
+  //     // runYCSB(opt, opt.runtype)
+  //
+  //     if(opt.runtype == 'load' || opt.runtype == 'run'){
+  //
+  //       runYCSB(opt, opt.runtype)
+  //     }else if(opt.runtype == 'loadrun'){
+  //       let runtype1 = opt.runtype.substring(0,4)
+  //       let runtype2 = opt.runtype.substring(4,7)
+  //
+  //       // checkStatus_Cass
+  //       opt.flag = true
+  //       runYCSB(opt, runtype1)
+  //       .then((data) => {
+  //           opt.flag = data
+  //           runYCSB(opt, runtype2)
+  //         })
+  //
+  //     }else {
+  //       console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
+  //     }
+  //
+  //   }else if(isOK == -1){
+  //     console.log('----------------------------------------------------------');
+  //     console.log(chalk.red.bold('[ERROR]'), 'check cassandra again');
+  //
+  //     checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+  //   }else if(isOK == 0){
+  //
+  //     console.log('stderr~!!!');
+  //   }
+  // }
 
   }
 
@@ -286,13 +309,45 @@ module.exports.ycsb = (opt) => {
             // else
             //   cmdexec = 'ls'
 
+            let file = `${server_ycsb_dir}/${server_wlfile_dir}/${opt.wlfile}`
+            try {
+              fs.statSync(file);
+
+              const properties = PropertiesReader(`./YCSB/workloads/${opt.wlfile}`);
+              recordcount = properties.get('recordcount')
+              operationcount = properties.get('operationcount')
+              // console.log(operationcount);
+              // console.log(typeof(recordcount));
+
+            }catch (err) {
+              if (err.code === 'ENOENT') {
+                // console.log(err);
+                // wlfileLine = `${error} ${wlfileInfo} : invalid workload file : workloads/${opt.wlfile} (No such type or file)`
+                // console.log(wlfileLine)
+              }
+            }
+
             let flag = true
+
             cmdexec.stderr.on('data', function(data) {
-              // console.log('데이터??');
+              // console.log(operationcount/100);
               console.log(data)
-              if(data.includes('Exception')){v
+              let temp = data.split(" ")
+              if(data.includes('Exception')){
                 flag = false
               }
+              for (let i=0; i<1; i+=0.1){
+                if(temp[4] > recordcount*0.8){
+                  console.log(`80 완료`);
+                  console.log('TEMP[4]', temp[4])
+                  console.log('OPERATIONCOUNT*0.8', recordcount*0.8)
+                }
+              }
+
+              // if(data.includes('10000')){
+              //   results += data
+              //   console.log('10% 완료');
+              // }
             })
 
             cmdexec.on('exit', function(code){
@@ -315,7 +370,7 @@ module.exports.ycsb = (opt) => {
                   console.log(chalk.green.bold('[INFO]'), 'cassandra kill : ', chalk.blue.bold(i));
                   console.log('--------------------------------------')
                   try{
-                    const stdout =  execSync(`ssh root@${i} ${node_cassandra_dir}/killCass.sh`)
+                    // const stdout =  execSync(`ssh root@${i} ${node_cassandra_dir}/killCass.sh`)
                     // console.log(`stdout: ${stdout}`);
                   }catch(err){ }
                 })
@@ -656,7 +711,11 @@ module.exports.ycsb = (opt) => {
     console.log(benchmarkNameLine);
 
     try{
-      exec(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
+      if((dbtypeLine.match('ERR'))||(runtypeLine.match('ERR'))||(wlfileLine.match('ERR'))||(loadsizeLine.match('ERR'))||(threadLine.match('ERR'))||(timewindowLine.match('ERR'))||(cassandraTracingLine.match('ERR'))){
+      }else{
+        exec(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
+      }
+
     }catch (err) {
       if (err.code === 'ENOENT') {
         // console.log(chalk.red.bold('[ERROR]'),'There was an error.')
