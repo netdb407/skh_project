@@ -13,7 +13,7 @@ module.exports.cassandraSetClusterEnv = (conf, seeds) => {
 }
 
 
-module.exports.cassandraCopy = (seeds, nodes, password, cassandraHome, node_dir, conf, update_conf) => {
+module.exports.cassandraCopy = (seeds, nodes, cassandraHome, node_dir, conf, update_conf) => {
   for(var i in nodes){
      var node = nodes[i];
      var fs = require('fs');

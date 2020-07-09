@@ -126,6 +126,8 @@ async function statusCheck(){
       if(a1.length==9){
         a = a1.length;
          console.log('Status is complete! ONLINE:', a);
+      }else {
+        set
       }
       // while(flag){
       //   if(a1==9){
