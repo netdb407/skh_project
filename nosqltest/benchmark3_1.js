@@ -81,6 +81,7 @@ var st = settime;
 var x = 1;
 var database = databases[0];
 var desc;
+let a = 0;
 try {
   desc = require('./' + database + '/description');
 } catch (err) {
@@ -110,30 +111,41 @@ async function dbstart(){
   })
 }
 
+const sleep = (ms) => {
+    return new Promise(resolve=>{
+        setTimeout(resolve,ms)
+    })
+}
+
 async function statusCheck(){
   return new Promise(function(resolve,reject){
-    const stdout = exec(`ssh root@203.255.92.195 tail -20 ${IO_watch_dir}/orientdb195/log/orient-server.log.0`);
+    let flag = true;
+    const stdout = exec(`ssh root@203.255.92.193 tail -20 ${IO_watch_dir}/orientdb195/log/orient-server.log.0`);
     stdout.stdout.on('data', function(data) {
-      let a = 0
-      let a1 = data.toString().match(/ONLINE/gi)
-      if(a !== null){
-        a = a1.length
+      let a1 = data.toString().match(/ONLINE/gi);
+      if(a1.length==9){
+        a = a1.length;
+         console.log('Status is complete! ONLINE:', a);
       }
-      console.log('Status is complete! ONLINE:', a)
+      // while(flag){
+      //   if(a1==9){
+      //     a = a1.length;
+      //     flag=false;
+      //     console.log('Status is complete! ONLINE:', a)
+      //     return resolve();
+      //   }
+      // }
     })
   })
 }
 
+
 dbstart().then(function(result){
-  statuscheck().then(function(result){
-
-
-
-    if(a=9){
-      start();
-    }else {
-      console.log('failed!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-    }
+  console.log(1);
+  sleep(2000);
+  statusCheck().then(function(result){
+    console.log(2);
+    start();
   });
 })
 // .............................................................................
