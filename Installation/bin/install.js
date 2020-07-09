@@ -368,17 +368,17 @@ function installDatabase(db, nodes, node_arr){
           //송희언니 코드 리뷰 !
           let etri_arr = ['203.255.92.38', '203.255.92.39', '203.255.92.40', '203.255.92.41']
           etri_arr.forEach(i=>{
+            console.log(chalk.green.bold('[INFO]'), chalk.blue.bold(i));
+
             //이미 38에 orientdb.tar.gz 파일이 있고 압축해제 완료 되어있어야 함 !!
-            let tarcmd = `tar cf - orientdb-community-2.2.29 | ssh  root@${i} 'cd /home/yh; tar xvf -'`
-            exec(tarcmd)
-            console.log(chalk.green.bold('[INFO]'), chalk.blue.bold(i), 'Install OrientDB Complete!');
-            console.log('----------------------------------------------------------');
+            let tar_cmd = `tar cf - orientdb-community-2.2.29 | ssh  root@${i} 'cd /home/yh; tar xvf -'`
+            exec(tar_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'Install OrientDB Complete!');
 
             //!!!나중에 directory 환경변수에 저장해서 쓰기..!
-            let fixMemorycmd = `ssh root@${i} 'sed -i "s/Xms2G -Xmx2G/Xms256m -Xmx512m/g" /home/yh/orientdb-community-2.2.29/bin/server.sh'`
-            exec(fixMemorycmd)
-            console.log(chalk.green.bold('[INFO]'), chalk.blue.bold(i), 'fix server.sh Complete!');
-            console.log('----------------------------------------------------------');
+            let fixMemory_cmd = `ssh root@${i} 'sed -i "s/Xms2G -Xmx2G/Xms256m -Xmx512m/g" /home/yh/orientdb-community-2.2.29/bin/server.sh'`
+            exec(fixMemory_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'fix server.sh Complete!');
 
 
 
@@ -395,14 +395,37 @@ function installDatabase(db, nodes, node_arr){
        // name=project, password=1234로 수정
        // ip 추가해주기 3대 다 193,194,195
 
+       let fixName_cmd = `ssh root@${i} 'sed -i "s/<name>orientdb/<name>project/g" /home/yh/orientdb-community-2.2.29/config/hazelcast.xml'`
+       let fixPass_cmd = `ssh root@${i} 'sed -i "s/<password>orientdb/<password>1234/g" /home/yh/orientdb-community-2.2.29/config/hazelcast.xml'`
+
+       exec(fixName_cmd)
+       exec(fixPass_cmd)
+       console.log(chalk.green.bold('[INFO]'), 'fix name&pass in hazelcast.xml Complete!');
+
 
        //-----------------step 5.-----------------
        // /root/ssdStorage/orientdb194/config/default-distributed-db-config.json 열고
        // readQuorum : 1 -> 2로 변경
        //servers : {}에 추가하기
        // "orientdb193" : "master"
-       // "orientdb194" : "master"
+       // "orientdb194" : "master"010
        // "orientdb195" : "replica"
+
+
+       //파일 자체에 ""있는 경우 처리 어떻게 할지??
+       // let fixReadQuorum_cmd = `ssh root@${i} "sed -i 's#"readQuorum": 1#"readQuorum": 2#g' /home/yh/orientdb-community-2.2.29/config/default-distributed-db-config.json"`
+       // let fixReadQuorum_cmd = `ssh root@${i} 'sed -i "s/export \"\\\$readQuorum\": 1//export \"\\\$readQuorum\": 2/" /home/yh/orientdb-community-2.2.29/config/default-distributed-db-config.json"`
+
+       let fixReadQuorum_cmd = `ssh root@${i} 'sed -i "s/export \"\\\$readQuorum\": 1/export \"\\\$readQuorum\": 2#g' /home/yh/orientdb-community-2.2.29/config/default-distributed-db-config.json'`
+
+                                              // 'sed -i 's/   PART="$1"   /PART="A"/' flash.sh'
+                                              // 'sed -i "s/export    PART=\"\\\$1\"   /export PART=\"A\"/" flash.sh'
+                                              // \"\\\$1\"
+                                              // "readQuorum"
+                                              // \"\\\readQuorum\"
+       exec(fixReadQuorum_cmd)
+       console.log(chalk.green.bold('[INFO]'), 'fix ReadQuorum in default-distributed-db-config.json Complete!');
+
 
        //-----------------step 6.-----------------
        // /root/ssdStorage/orientdb194/config/orientdb-server-config.xml 열고
@@ -411,6 +434,13 @@ function installDatabase(db, nodes, node_arr){
        // <entry value="1" name="db.pool.min"/>
        // <entry value="50" name="db.pool.max"/>
        // <entry value="100000" name="cache.size"/>
+
+       //어디 수정해야 하는지 남영이에게 물어보기!
+       // let fixServerconfig_cmd = `ssh root@${i} 'sed -i "s/"readQuorum": 1/"readQuorum": 2/g" /home/yh/orientdb-community-2.2.29/config/orientdb-server-config.xml'`
+       // exec(fixServerconfig_cmd)
+       // console.log(chalk.green.bold('[INFO]'), 'fix ReadQuorum in default-distributed-db-config.json Complete!');
+       console.log('----------------------------------------------------------');
+
 
           })
             break;
