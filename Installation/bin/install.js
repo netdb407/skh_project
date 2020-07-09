@@ -152,7 +152,7 @@ function isInstalledPkg(i, package, installDir, ip){
     // }
 
     // })
-  }
+  // }
 
   // export JAVA_HOME=/root/ssdStorage/skh_project/jdk1.8.0_121
   // export MAVEN_HOME=/root/ssdStorage/skh_project/Installation/rpm/maven
@@ -312,9 +312,10 @@ function versionCheck(i, package, installDir, ip){
 
 
 
-  function installDatabase(db, nodes, node_arr){
-    console.log('node정보 : ', node_arr);
+function installDatabase(db, nodes, node_arr){
+    // console.log('node정보 : ', node_arr);
     switch(db){
+      //193,194,195에 설치
         case 'cassandra' :
   	       var dir = property.get_server_cassandra_dir()
   	       var node_dir = property.get_node_cassandra_dir()
@@ -332,6 +333,116 @@ function versionCheck(i, package, installDir, ip){
                 }
           cassandraAction.cassandraCopy(nodes, node_arr, cassandraHome, node_dir, conf, update_conf);
   	      console.log(chalk.green.bold('[INFO]'), 'cassandra Installed');
+          break;
+
+        case 'arango' :
+        //193,194,195에 설치
+        //!!!ETRI 컴터로 돌리는동안 주석처리..
+        console.log('ETRI 컴터로 돌리는동안 주석처리..');
+          // node_arr.forEach(i=>{
+          //   console.log(chalk.green.bold('[INFO]'), 'Check if ArangoDB is installed in', chalk.blue.bold(i));
+          //   try{
+          //     stdout = exec(`ssh root@${i} "rpm -qa|grep arango"`).toString();
+          //     if(stdout!=null){
+          //       console.log(chalk.green.bold('[INFO]'),'ArangoDB is already installed in', chalk.blue.bold(i));
+          //     }
+          //   }
+          //   catch{
+          //     exec(`ssh root@${i} wget -P /root/ https://download.arangodb.com/9c169fe900ff79790395784287bfa82f0dc0059375a34a2881b9b745c8efd42e/arangodb36/Enterprise/Linux/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+          //     exec(`ssh root@${i} rpm -ivh /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+          //     exec(`ssh root@${i} rm -rf /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+          //     console.log(chalk.green.bold('[INFO]'), 'Install ArangoDB Complete!');
+          //   }
+          // })
         break;
+
+        case 'orient' :
+          // 일단 38에서 tar파일을 scp로 39,40,41에 전송하고 압축 해제 tar -zxvf (/home/yh)
+          // 그럼 4대에 같은 파일들이 있겠지 server.sh 등
+          // 38에서 server.sh를 수정하고 scp로 전송해서 덮어씌워지는지 확인
+          //
+          // 나머지 파일도 같은 방식으로 수정해서 보내버리기..
+          //---------------------------------------------------------
+          //node3대 for문 돌리면서 scp로 전송하기 !
+          //orientdb tar 압축 풀기 4대 다?
+          //송희언니 코드 리뷰 !
+          let etri_arr = ['203.255.92.38', '203.255.92.39', '203.255.92.40', '203.255.92.41']
+          etri_arr.forEach(i=>{
+            console.log(chalk.green.bold('[INFO]'), chalk.blue.bold(i));
+
+            //이미 38에 orientdb.tar.gz 파일이 있고 압축해제 완료 되어있어야 함 !!
+            let tar_cmd = `tar cf - orientdb-community-2.2.29 | ssh  root@${i} 'cd /home/yh; tar xvf -'`
+            exec(tar_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'Install OrientDB Complete!');
+
+            //!!!나중에 directory 환경변수에 저장해서 쓰기..!
+            let fixMemory_cmd = `ssh root@${i} 'sed -i "s/Xms2G -Xmx2G/Xms256m -Xmx512m/g" /home/yh/orientdb-community-2.2.29/bin/server.sh'`
+            exec(fixMemory_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'fix server.sh Complete!');
+
+
+
+
+       //-----------------step 3.-----------------
+       // 3,4,5 모두 설정
+       // ### ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH" -> ORIENTDB_DIR="/root/ssdStorage/orientdb194"
+       // ### ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH" -> ORIENTDB_USER="orientdb"
+       // ### sudo chmod 640 /root/ssdStorage/orientdb194/config/orientdb-server-config.xml
+       // ### sudo cp /root/ssdStorage/orientdb194/bin/orientdb.service /etc/systemd/system
+
+       //-----------------step 4.-----------------
+       // root/ssdStorage/orientdb194/config/hazelcast 열고
+       // name=project, password=1234로 수정
+       // ip 추가해주기 3대 다 193,194,195
+
+       let fixName_cmd = `ssh root@${i} 'sed -i "s/<name>orientdb/<name>project/g" /home/yh/orientdb-community-2.2.29/config/hazelcast.xml'`
+       let fixPass_cmd = `ssh root@${i} 'sed -i "s/<password>orientdb/<password>1234/g" /home/yh/orientdb-community-2.2.29/config/hazelcast.xml'`
+
+       exec(fixName_cmd)
+       exec(fixPass_cmd)
+       console.log(chalk.green.bold('[INFO]'), 'fix name&pass in hazelcast.xml Complete!');
+
+
+       //-----------------step 5.-----------------
+       // /root/ssdStorage/orientdb194/config/default-distributed-db-config.json 열고
+       // readQuorum : 1 -> 2로 변경
+       //servers : {}에 추가하기
+       // "orientdb193" : "master"
+       // "orientdb194" : "master"010
+       // "orientdb195" : "replica"
+
+
+       //파일 자체에 ""있는 경우 처리 어떻게 할지??
+       // let fixReadQuorum_cmd = `ssh root@${i} "sed -i 's#"readQuorum": 1#"readQuorum": 2#g' /home/yh/orientdb-community-2.2.29/config/default-distributed-db-config.json"`
+       // let fixReadQuorum_cmd = `ssh root@${i} 'sed -i "s/export \"\\\$readQuorum\": 1//export \"\\\$readQuorum\": 2/" /home/yh/orientdb-community-2.2.29/config/default-distributed-db-config.json"`
+
+       let fixReadQuorum_cmd = `ssh root@${i} 'sed -i "s/export \"\\\$readQuorum\": 1/export \"\\\$readQuorum\": 2#g' /home/yh/orientdb-community-2.2.29/config/default-distributed-db-config.json'`
+
+                                              // 'sed -i 's/   PART="$1"   /PART="A"/' flash.sh'
+                                              // 'sed -i "s/export    PART=\"\\\$1\"   /export PART=\"A\"/" flash.sh'
+                                              // \"\\\$1\"
+                                              // "readQuorum"
+                                              // \"\\\readQuorum\"
+       exec(fixReadQuorum_cmd)
+       console.log(chalk.green.bold('[INFO]'), 'fix ReadQuorum in default-distributed-db-config.json Complete!');
+
+
+       //-----------------step 6.-----------------
+       // /root/ssdStorage/orientdb194/config/orientdb-server-config.xml 열고
+       //<parameters>에서 value="false" -> "true"로 변경
+       // properties에 값 추가
+       // <entry value="1" name="db.pool.min"/>
+       // <entry value="50" name="db.pool.max"/>
+       // <entry value="100000" name="cache.size"/>
+
+       //어디 수정해야 하는지 남영이에게 물어보기!
+       // let fixServerconfig_cmd = `ssh root@${i} 'sed -i "s/"readQuorum": 1/"readQuorum": 2/g" /home/yh/orientdb-community-2.2.29/config/orientdb-server-config.xml'`
+       // exec(fixServerconfig_cmd)
+       // console.log(chalk.green.bold('[INFO]'), 'fix ReadQuorum in default-distributed-db-config.json Complete!');
+       console.log('----------------------------------------------------------');
+
+
+          })
+            break;
      }
   }

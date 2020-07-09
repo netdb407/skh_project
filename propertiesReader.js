@@ -1,6 +1,7 @@
 const PropertiesReader = require('properties-reader');
 
-const properties = PropertiesReader('./InstallConfig_homedir');
+const properties = PropertiesReader('./InstallConfig');
+// const properties = PropertiesReader('./InstallConfig_homedir');
 
 module.exports = {
   //user정보
@@ -37,6 +38,10 @@ module.exports = {
   get_nodes_password(){
     return properties.get("nodes_password");
   },
+  get_orientMaster_IP(){
+    return properties.get("orientMaster_IP");
+  },
+
 
   //directory
   get_server_install_dir(){
@@ -66,6 +71,10 @@ module.exports = {
   get_server_file2_dir(){
     return properties.get("server_file2_dir")
   },
+  get_server_file3_dir(){
+    return properties.get("server_file3_dir")
+  },
+
 
   //ycsb
   get_ycsb_exporter(){
@@ -133,6 +142,11 @@ module.exports = {
  //update_configuration_path_server
  get_update_conf_path(){
    return properties.get("update_conf_path")
+ },
+
+//orientdb
+server_orientdb_dir(){
+  return properties.get("server_orientdb_dir")
  },
 
 }
