@@ -399,14 +399,9 @@ module.exports.ycsb = (opt) => {
               const properties = PropertiesReader(`./YCSB/workloads/${opt.wlfile}`);
               recordcount = properties.get('recordcount')
               operationcount = properties.get('operationcount')
-              // console.log(operationcount);
-              // console.log(typeof(recordcount));
-
             }catch (err) {
               if (err.code === 'ENOENT') {
                 // console.log(err);
-                // wlfileLine = `${error} ${wlfileInfo} : invalid workload file : workloads/${opt.wlfile} (No such type or file)`
-                // console.log(wlfileLine)
               }
             }
 
@@ -428,22 +423,45 @@ module.exports.ycsb = (opt) => {
               //   }
               // }
 
-              switch(runtype){
-                case 'load':
-                if(recordcount*0.7<temp[4] && temp[4]<recordcount*0.9){
-                  console.log(`80% 완료`);
-                  console.log('TEMP[4]', temp[4])
-                  console.log('recordcount*0.8', recordcount*0.8)
+              // if(opt.event == null) { // 값이 없으면 default
+              //   opt.event = 0
+              // }else { // 값이 있으면 숫자인지 확인
+              //   if(isNumber(opt.event)){
+              //     eventLine = `${eventInfo} : ${opt.event}`
+              //     console.log(eventLine)
+              //   }else{
+              //     eventLine = `${error} ${eventInfo} : enter events as number type.`
+              //     console.log(eventLine)
+              //   }
+              // }
+              if(opt.event){
+                switch(runtype){
+                  case 'load':
+                  if(recordcount*(opt.event)*0.01<temp[4] && temp[4]<recordcount*(parseInt(opt.event)+parseInt("20"))*0.01){
+                    // 이벤트 내용 추가
+
+
+                    console.log('--------------------------------------')
+                    console.log(chalk.green.bold('[INFO]'), `${opt.event} % complete`);
+                    console.log('recordcount : ', temp[4])
+                    console.log(`recordcount*${opt.event*0.01} : `, recordcount*opt.event*0.01)
+                    console.log('--------------------------------------')
+                  }
+                    break;
+                  case 'run':
+                  if(operationcount*(opt.event)*0.01<temp[4] && temp[4]<operationcount*(parseInt(opt.event)+parseInt("20"))*0.01){
+                    // 이벤트 내용 추가
+
+                    console.log('--------------------------------------')
+                    console.log(chalk.green.bold('[INFO]'), `${opt.event} % complete`);
+                    console.log('operationcount : ', temp[4])
+                    console.log(`operationcount*${opt.event*0.01} : `, operationcount*opt.event*0.01)
+                    console.log('--------------------------------------')
+                  }
+                    break;
                 }
-                  break;
-                case 'run':
-                if(operationcount*0.7<temp[4] && temp[4]<operationcount*0.9){
-                  console.log(`80% 완료`);
-                  console.log('TEMP[4]', temp[4])
-                  console.log('operationcount*0.8', operationcount*0.8)
-                }
-                  break;
               }
+
 
               // if(runtype == 'load'){
               //   if(recordcount*0.7<temp[4] && temp[4]<recordcount*0.8){
@@ -487,7 +505,7 @@ module.exports.ycsb = (opt) => {
                   console.log(chalk.green.bold('[INFO]'), 'cassandra kill : ', chalk.blue.bold(i));
                   console.log('--------------------------------------')
                   try{
-                    const stdout =  execSync(`ssh root@${i} ${node_cassandra_dir}/killCass.sh`)
+                    // const stdout =  execSync(`ssh root@${i} ${node_cassandra_dir}/killCass.sh`)
                     // console.log(`stdout: ${stdout}`);
                   }catch(err){ }
                 })
