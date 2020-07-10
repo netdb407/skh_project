@@ -2,8 +2,7 @@
 
 const program = require('commander')
 const ycsbAction = require('../lib/ycsb.js')
-const nosqlTests = require('../lib/graphbench.js')
-const workloadProperty = require('../../workloadReader.js')
+const nosqlTests = require('../lib/nosqlTests.js')
 const chalk = require('chalk')
 const error = chalk.red('ERR!')
 const exec =  require('child_process').exec
