@@ -21,7 +21,18 @@ const IO_output_dir = property.get_IO_output_dir()
 const node_cassandra_dir = property.get_node_cassandra_dir()
 const node_arangodb_dir = property.get_node_arangodb_dir()
 
-let loadsizeCmd = '', recordcount = '', operationcount = ''
+const error = chalk.red('ERR!')
+let dbtypeLine = '',
+  runtypeLine = '',
+  wlfileLine = '',
+  loadsizeLine = '',
+  loadsizeCmd = '',
+  threadLine = '',
+  timewindowLine = '',
+  cassandraTracingLine = '',
+  cassandraTracingCmd = ''
+let recordcount = '',
+  operationcount = ''
 
 
 let nodeIPArr //split array
@@ -197,44 +208,36 @@ function arango_status(status, nodeIPArr, nodetool_ip) {
 
 module.exports.ycsb = (opt) => {
   exec(`mkdir YCSB_RESULT`)
-  // console.log(opt.dbtype);
+  console.log(opt.dbtype);
 
-  benchmark_name(opt)
-  run_function(status)
+  function runFunc(opt) {
+    return new Promise(function(resolve, reject) {
+      // runCassandra(nodes_IP)
+      // cqlsh(opt.dbtype)
+      checkCassandra(opt)
+      checkRuntype(opt.runtype)
+      checkFile(opt.wlfile)
+      checkLoadsize(opt.runtype, opt.loadsize)
+      benchmarkName(opt)
+      checkTimewindow(opt)
+      checkThreads(opt)
+      checkiotracer(opt)
+    });
+  }
 
-  async function run_function(status) {
-    let iotracer_status = await check_iotracer(status, opt.iotracer)
-    // console.log('IOTRACER_STATUS', iotracer_status)
-    let dbtype_status = await check_dbtype(status, opt.dbtype, opt.casstracing)
-    // console.log('DBTYPE_STATUS', dbtype_status)
-    let runtype_status = await check_runtype(status, opt.runtype)
-    // console.log('RUNTYPE_STATUS', runtype_status)
-    let wlfile_status = await check_Fileexist(status, opt.wlfile)
-    // console.log('WLFILE_STATUS', wlfile_status)
-    let loadsize_status = await check_loadsize(status, opt.runtype, opt.loadsize)
-    // console.log('LOADSIZE_STATUS', loadsize_status)
-    let timewindow_status = await check_Timewindow(status, opt)
-    // console.log('TIMEWINDOW_STATUS', timewindow_status)
-    let threads_status = await check_threads(status, opt)
-    // console.log('THREADS_STATUS', threads_status)
 
-    if(dbtype_status== 1&&runtype_status==1&&wlfile_status==1&&loadsize_status==1&&timewindow_status==1&&threads_status==1){
-      if (opt.dbtype == 'cassandra') {
-        runCassExec(status, nodeIPArr, nodetool_ip)
-        checkStatus_Cass(status, nodeIPArr, nodetool_ip)
-      } else if (opt.dbtype == 'arangodb') {
-        runArangoExec(status, nodeIPArr, nodetool_ip)
-        // setTimeout(checkStatus_Arango, 1000 * 5, status, nodeIPArr, nodetool_ip)
-        // checkStatus_Arango(status, nodeIPArr, nodetool_ip)
-        setTimeout(function() {
-          checkStatus_Arango(status, nodeIPArr, nodetool_ip)
-        }, 10000);
-      }
-    }else{
-      console.log('----------------------------------------------------------');
-      console.log(chalk.red.bold('[ERROR]'), 'There was an error and could not be executed.')
-      console.log('----------------------------------------------------------');
-    }
+  runFunc(opt)
+
+  if (opt.dbtype == 'cassandra-cql') {
+    runCassExec(status, nodeIPArr, nodetool_ip)
+    checkStatus_Cass(status, nodeIPArr, nodetool_ip)
+  } else if (opt.dbtype == 'arangodb') {
+    runArangoExec(status, nodeIPArr, nodetool_ip)
+    // setTimeout(checkStatus_Arango, 1000 * 5, status, nodeIPArr, nodetool_ip)
+    // checkStatus_Arango(status, nodeIPArr, nodetool_ip)
+    setTimeout(function() {
+      checkStatus_Arango(status, nodeIPArr, nodetool_ip)
+    }, 10000);
   }
 
 
@@ -265,9 +268,7 @@ module.exports.ycsb = (opt) => {
           })
 
       } else {
-        console.log('----------------------------------------------------------');
         console.log(chalk.red.bold('[ERROR]'), 'There was an error and could not be executed.')
-        console.log('----------------------------------------------------------');
       }
 
     } else if (isOK == -1) {
@@ -308,9 +309,7 @@ module.exports.ycsb = (opt) => {
             runYCSB(opt, runtype2)
           })
       } else {
-        console.log('----------------------------------------------------------');
         console.log(chalk.red.bold('[ERROR]'), 'There was an error and could not be executed.')
-        console.log('----------------------------------------------------------');
       }
 
     } else if (isOK == -1) {
@@ -360,6 +359,7 @@ const createData = () => new Promise(resolve => {
 
 
 const runYCSB = (opt, runtype) => new Promise(resolve => {
+  console.log('runYCSB');
   if (opt.iotracer == true) { // IOracer 옵션이 있을 경우Otracer 를 실행함
     if (opt.runtype == 'load' || opt.runtype == 'run' || ((opt.runtype == 'loadrun') && (runtype == 'load')))
       // console.log('iotracer 시작');
@@ -377,14 +377,32 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
         }
       })
   }
+
+  if ((dbtypeLine.match('ERR')) || (runtypeLine.match('ERR')) || (wlfileLine.match('ERR')) || (loadsizeLine.match('ERR')) || (threadLine.match('ERR')) || (timewindowLine.match('ERR')) || (cassandraTracingLine.match('ERR'))) {
+    console.log(chalk.red.bold('[ERROR]'), 'There was an error and could not be executed.')
+
+    if (opt.iotracer == true) { // error가 있는 경우 io tracer 를 종료해줌
+      ip.forEach((i) => {
+        try {
+          const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/kill.sh`)
+          // console.log(`stdout: ${stdout}`);
+          console.log('--------------------------------------')
+          console.log(chalk.green.bold('[INFO]'), 'iotracer kill : ', chalk.blue.bold(i));
+          console.log('--------------------------------------')
+        } catch (err) {
+          console.log(err);
+        }
+      })
+    }
+  } else {
     try { // error가 없는 경우 벤치마킹을 수행함
-      if (opt.dbtype == 'cassandra' && opt.remove == true) {
+      if (opt.dbtype == 'cassandra-cql' && opt.remove == true) {
         if (opt.runtype == 'load') {
           dropData().then(createData())
         } else if ((opt.runtype == 'loadrun') && (runtype == 'load')) {
           dropData().then(createData())
         }
-      } else if (opt.dbtype == 'cassandra' && opt.remove == null && runtype == 'load') {
+      } else if (opt.dbtype == 'cassandra-cql' && opt.remove == null && runtype == 'load') {
         // checkStatus_Cass
         createData()
       }
@@ -396,11 +414,11 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
       }
 
       let cmd = ''
-      if (opt.dbtype == 'cassandra') {
+      if (opt.dbtype == 'cassandra-cql') {
         cmd = `cd YCSB && \
-              ./bin/ycsb ${runtype} cassandra-cql -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} -p measurementtype=timeseries ${loadsizeCmd} \
+              ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} -p measurementtype=timeseries ${loadsizeCmd} \
               -p timeseries.granularity=${timewindow} -p exporter=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/${runtype}_result \
-              -threads ${opt.threads} -p cassandra.tracing=${cassandraTracing} -s`
+              -threads ${opt.threads} ${cassandraTracingCmd} -s`
       } else if (opt.dbtype == 'arangodb') {
         cmd = `cd YCSB && \
               ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p arangodb.ip=${nodetool_ip} -p arangodb.port=${8529} -p measurementtype=timeseries ${loadsizeCmd} \
@@ -431,7 +449,7 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
         operationcount = properties.get('operationcount')
       } catch (err) {
         if (err.code === 'ENOENT') {
-          console.log(err);
+          // console.log(err);
         }
       }
       let flag = true
@@ -469,6 +487,22 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
           }
         }
 
+
+        // if(runtype == 'load'){
+        //   if(recordcount*0.7<temp[4] && temp[4]<recordcount*0.8){
+        //     console.log(`70% 완료`);
+        //     console.log('TEMP[4]', temp[4])
+        //     console.log('recordcount*0.7', recordcount*0.8)
+        //   }
+        // }else if(runtype == 'run'){
+        //   if(operationcount*0.7<temp[4] && temp[4]<operationcount*0.8){
+        //     console.log(`70% 완료`);
+        //     console.log('TEMP[4]', temp[4])
+        //     console.log('operationcount*0.7', operationcount*0.8)
+        //   }
+        //
+        // }
+
       })
 
       cmdexec.on('exit', function(code) {
@@ -481,11 +515,11 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
 
         if (opt.iotracer == true) { // 벤치마킹 종료 후 iotracer 결과를 저장함
           if ((opt.runtype == 'load') || (opt.runtype == 'run') || ((opt.runtype == 'loadrun') && (runtype == 'run'))) {
-            get_IO_results(opt.name, ip, opt.runtype)
+            getIOresults(opt.name, ip, opt.runtype)
           }
         }
 
-        if (opt.dbtype == 'cassandra') {
+        if (opt.dbtype == 'cassandra-cql') {
           if (((opt.runtype == 'load') || (opt.runtype == 'run')) || ((opt.runtype == 'loadrun') && (runtype == 'run'))) {
             ip.forEach((i) => {
               try {
@@ -527,56 +561,55 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
     } catch (err) {
       console.log(err);
     }
-
+  }
 })
 
+function checkiotracer(opt) {
+  let iotracerInfo = chalk.magenta('iotracer')
+  if (opt.iotracer == true) {
+    let iotracerLine = `${iotracerInfo} : ${opt.iotracer}`
+    console.log(iotracerLine)
+  } else {
+    opt.iotracer = 'false'
+    let iotracerLine = `${iotracerInfo} : ${opt.iotracer}`
+    console.log(iotracerLine)
+  }
+}
 
+function checkCassandra(opt) {
+  let cassandratracingInfo = chalk.magenta('cassandra tracing')
+  let dropDBBeforeRun = chalk.magenta('dropDBBeforeRun (data remove)')
+  let dbtypeInfo = chalk.magenta('dbtype')
+  if (opt.dbtype == 'cassandra') { // 카산드라일때 tracinㅎ 옵션
+    let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+    opt.dbtype = 'cassandra-cql'
+    console.log(dbtypeLine)
 
-function check_dbtype(status, dbtype, casstracing) {
-  return new Promise(function(resolve, reject) {
-    console.log('----------------------------------------------------------');
-    console.log(chalk.green.bold('[INFO]'), 'dbtype :', chalk.blue.bold(dbtype));
-    // console.log('----------------------------------------------------------');
-
-    if (dbtype == 'cassandra') { // 카산드라일때 tracinㅎ 옵션
-      dbtype = 'cassandra-cql'
-      if (casstracing == true) {
-        cassandraTracing = 'true'
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'cassandraTracing :', chalk.blue.bold(cassandraTracing));
-        // console.log('----------------------------------------------------------');
-      } else {
-        cassandraTracing = 'false'
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'cassandraTracing :', chalk.blue.bold(cassandraTracing));
-        // console.log('----------------------------------------------------------');
-      }
-      return resolve(status * -1)
-    }else{
-      return resolve(status * -1)
+    if (opt.casstracing == true) {
+      cassandraTracing = 'true'
+      cassandraTracingLine = `${cassandratracingInfo} : on`
+      cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+      console.log(cassandraTracingLine)
+    } else {
+      cassandraTracing = 'false'
+      cassandraTracingLine = `${cassandratracingInfo} : off`
+      cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+      console.log(cassandraTracingLine)
     }
-  });
+  } else { // 카산드라가 아닐때
+    let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+    console.log(dbtypeLine);
+
+    if (opt.casstracing == true) {
+      cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
+      console.log(cassandraTracingLine)
+    } else {
+      cassandraTracingLine = ''
+    }
+  }
 }
 
-function check_iotracer(status, iotracer) {
-  return new Promise(function(resolve, reject) {
-      if (iotracer == true) {
-        iotracing = 'true'
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'iotracer :', chalk.blue.bold(iotracing));
-        // console.log('----------------------------------------------------------');
-      } else {
-        iotracing = 'false'
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'iotracer :', chalk.blue.bold(iotracing));
-        // console.log('----------------------------------------------------------');
-      }
-      return resolve(status * -1)
-  });
-}
-
-
-function get_IO_results(bmname, ip, runtype) {
+function getIOresults(bmname, ip, runtype) {
   ip.forEach((i) => { // iotracer 종료 후
     try {
       const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/killIO.sh`)
@@ -618,103 +651,120 @@ function get_IO_results(bmname, ip, runtype) {
   })
 }
 
+function checkCassandra(opt) {
+  let cassandratracingInfo = chalk.magenta('cassandra tracing')
+  let dbtypeInfo = chalk.magenta('dbtype')
+  if (opt.dbtype == 'cassandra') { // 카산드라일때 tracinㅎ 옵션
+    let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+    opt.dbtype = 'cassandra-cql'
+    console.log(dbtypeLine);
 
-
-function check_runtype(status, runtype) {
-  return new Promise(function(resolve, reject) {
-    if (runtype == 'load' || runtype == 'run' || runtype == 'loadrun') {
-      console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'runtype :', chalk.blue.bold(runtype));
-      // console.log('----------------------------------------------------------');
-      return resolve(status * -1)
+    if (opt.casstracing == true) {
+      cassandraTracing = 'true'
+      cassandraTracingLine = `${cassandratracingInfo} : on`
+      cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+      console.log(cassandraTracingLine);
     } else {
-      console.log('----------------------------------------------------------');
-      console.log(chalk.red.bold('[ERROR]'), 'runtype :', 'invalid runtype', chalk.blue.bold(runtype), `, (choose from 'load', 'run', 'loadrun')`)
-      // console.log('----------------------------------------------------------');
-      return resolve(status * 1)
+      cassandraTracing = 'false'
+      cassandraTracingLine = `${cassandratracingInfo} : off`
+      cassandraTracingCmd = `-p cassandra.tracing=${cassandraTracing}`
+      console.log(cassandraTracingLine);
     }
-  });
-}
+  } else { // 카산드라가 아닐때
+    let dbtypeLine = `${dbtypeInfo} : ${opt.dbtype}`
+    console.log(dbtypeLine);
 
-function check_Fileexist(status, wlfile) {
-  return new Promise(function(resolve, reject) {
-    if (wlfile == null) {
-      console.log('----------------------------------------------------------');
-      console.log(chalk.red.bold('[ERROR]'), 'workload file :', 'enter workload file name or type (news, contents, facebook, log, recommendation ..)')
-      // console.log('----------------------------------------------------------');
+    if (opt.casstracing == true) {
+      cassandraTracingLine = `${error} ${cassandratracingInfo} : 'cassandra tracing option' is only 'cassandra' option.`
+      console.log(cassandraTracingLine);
     } else {
-      let file = `${server_ycsb_dir}/${server_wlfile_dir}/${wlfile}`
-      try {
-        fs.statSync(file);
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'workload file :', chalk.blue.bold(wlfile));
-        // console.log('----------------------------------------------------------');
-        return resolve(status * -1) //success : 1
-      } catch (err) {
-        // console.error(err);
-        console.log('----------------------------------------------------------');
-        console.log(chalk.red.bold('[ERROR]'), 'workload name :', 'invalid workload file', chalk.blue.bold(wlfile), '(No such type of file)')
-        // console.log('----------------------------------------------------------');
-        return resolve(status) //fail : -1
-      }
+      cassandraTracingLine = ''
     }
-  });
+
+  }
 }
 
-
-function check_loadsize(status, runtype, loadsize) {
-
-  return new Promise(function(resolve, reject) {
-
-    if ((runtype == 'run') && (loadsize)) { // run인데 load size가 있는 경우
-      console.log('----------------------------------------------------------');
-      console.log(chalk.red.bold('[ERROR]'), 'load size :', `'load size' is ,load', 'loadrun' option.`)
-      // console.log('----------------------------------------------------------');
-
-      return resolve(status) //fail : -1
-    } else if ((runtype == 'load' || runtype == 'loadrun') && (loadsize)) { // load에 대한 loadsize 옵션
-      // 10M -> 10
-      let loadsizeInfo = chalk.magenta('load size')
-      let fieldcount = 10
-      let fieldlength = Math.pow(10, 6) / fieldcount
-
-      if (loadsize.match(/M/)) {
-        recordcount = loadsize.split('M')[0]
-        loadsizeCmd = `-p fieldcount=${fieldcount} -p fieldlength=${fieldlength} -p recordcount=${recordcount}`
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'load size :', chalk.blue.bold(loadsize));
-        // console.log('----------------------------------------------------------');
-        return resolve(status * -1) //success : 1
-      } else if (loadsize.match(/G/)) {
-        recordcount = loadsize.split('G')[0] * Math.pow(10, 3)
-        loadsizeCmd = `-p fieldcount=${fieldcount} -p fieldlength=${fieldlength} -p recordcount=${recordcount}`
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'load size :', chalk.blue.bold(loadsize));
-        // console.log('----------------------------------------------------------');
-        return resolve(status * -1) //success : 1
-      } else if (loadsize.match(/T/)) {
-        recordcount = loadsize.split('T')[0] * Math.pow(10, 6)
-        loadsizeCmd = `-p fieldcount=${fieldcount} -p fieldlength=${fieldlength} -p recordcount=${recordcount}`
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'load size :', chalk.blue.bold(loadsize));
-        // console.log('----------------------------------------------------------');
-        return resolve(status * -1) //success : 1
-      } else { // 형식이 안 맞으면 error
-        loadsizeLine = `${error} ${loadsizeInfo} : enter load size in (###M, ###G, ###T) format.`
-        loadsizeCmd = ''
-        console.log('----------------------------------------------------------');
-        console.log(chalk.red.bold('[ERROR]'), 'load size :', 'enter load size in (###M, ###G, ###T) format.');
-        // console.log('----------------------------------------------------------');
-        return resolve(status) //success : 1
-      }
-    }else{
-      loadsizeCmd = ''
-      return resolve(status * -1) //success : 1
-    }
-  });
+function checkRuntype(runtype) {
+  let runtypeInfo = chalk.magenta('runtype')
+  if (runtype == 'load' || runtype == 'run' || runtype == 'loadrun') {
+    runtypeLine = `${runtypeInfo} : ${runtype}`
+    console.log(runtypeLine)
+  } else {
+    runtypeLine = `${error} ${runtypeInfo} : invalid choice ${runtype}, (choose from 'load', 'run', 'loadrun')`
+    console.log(runtypeLine)
+  }
 }
 
-function benchmark_name(opt) {
+function checkFile(wlfile) {
+  let wlfileInfo = chalk.magenta('workload file')
+  if (wlfile == null) {
+    wlfileLine = `${error} ${wlfileInfo} : enter workload filename or type(news, contents, facebook, log, recommendation ..)`
+    console.log(wlfileLine)
+  } else {
+    let file = `${server_ycsb_dir}/${server_wlfile_dir}/${wlfile}`
+    try {
+      fs.statSync(file);
+      wlfileLine = `${wlfileInfo} : ${wlfile}`
+      console.log(wlfileLine)
+    } catch (err) {
+      console.error(err);
+      wlfileLine = `${error} ${wlfileInfo} : invalid workload file : workloads/${wlfile} (No such type or file)`
+      console.log(wlfileLine)
+    }
+  }
+}
+
+function checkLoadsize(runtype, loadsize) {
+  if ((runtype == 'run') && (loadsize)) { // run인데 load size가 있는 경우
+    let loadsizeInfo = chalk.magenta('load size')
+    loadsizeLine = `${error} ${loadsizeInfo}: 'loadsize' is 'load', 'loadrun' option`
+    console.log(loadsizeLine);
+  } else if ((runtype == 'load' || runtype == 'loadrun') && (loadsize)) { // load에 대한 loadsize 옵션
+    // 10M -> 10
+    transformLoadsize(loadsize)
+  }
+}
+
+function transformLoadsize(loadsize) {
+  let loadsizeInfo = chalk.magenta('load size')
+  let fieldcount = 10
+  let fieldlength = Math.pow(10, 6) / fieldcount
+
+  if (loadsize.match(/M/)) {
+    recordcount = loadsize.split('M')[0]
+
+    fieldcountLine = `-p fieldcount=${fieldcount}`
+    fieldlengthLine = `-p fieldlength=${fieldlength}`
+    recordcountLine = `-p recordcount=${recordcount}`
+
+    loadsizeLine = `${loadsizeInfo} : ${loadsize}`
+    loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
+  } else if (loadsize.match(/G/)) {
+    recordcount = loadsize.split('G')[0] * Math.pow(10, 3)
+
+    fieldcountLine = `-p fieldcount=${fieldcount}`
+    fieldlengthLine = `-p fieldlength=${fieldlength}`
+    recordcountLine = `-p recordcount=${recordcount}`
+
+    loadsizeLine = `${loadsizeInfo} : ${loadsize}`
+    loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
+  } else if (loadsize.match(/T/)) {
+    recordcount = loadsize.split('T')[0] * Math.pow(10, 6)
+
+    fieldcountLine = `-p fieldcount=${fieldcount}`
+    fieldlengthLine = `-p fieldlength=${fieldlength}`
+    recordcountLine = `-p recordcount=${recordcount}`
+
+    loadsizeLine = `${loadsizeInfo} : ${loadsize}`
+    loadsizeCmd = `${fieldcountLine} ${fieldlengthLine} ${recordcountLine}`
+  } else { // 형식이 안 맞으면 error
+    loadsizeLine = `${error} ${loadsizeInfo} : enter load size in (###M, ###G, ###T) format.`
+    loadsizeCmd = ''
+  }
+  console.log(loadsizeLine)
+}
+
+function benchmarkName(opt) {
   if ((typeof opt.name) == 'function') { // n 값이 없으면 디폴트값 만들어줌
     opt.name = 'ycsb_result_1'
     // console.log(opt);
@@ -799,12 +849,17 @@ function benchmark_name(opt) {
       }
     }
   }
-  console.log('----------------------------------------------------------');
-  console.log(chalk.green.bold('[INFO]'), 'benchmark Name :', chalk.blue.bold(opt.name));
-  // console.log('----------------------------------------------------------');
+
+  let benchmarkNameInfo = chalk.magenta('benchmark Name')
+  let benchmarkNameLine = `${benchmarkNameInfo} : ${opt.name}`
+  console.log(benchmarkNameLine);
 
   try {
+    if ((dbtypeLine.match('ERR')) || (runtypeLine.match('ERR')) || (wlfileLine.match('ERR')) || (loadsizeLine.match('ERR')) || (threadLine.match('ERR')) || (timewindowLine.match('ERR')) || (cassandraTracingLine.match('ERR'))) {
+
+    } else {
       exec(`mkdir ${ycsb_exportfile_dir}/${opt.name}`)
+    }
   } catch (err) {
     console.error(err);
   }
@@ -817,56 +872,38 @@ function isNumber(s) { // 입력이 숫자인지 확인해주는 함수
   return true;
 }
 
-
-function check_Timewindow(status, opt) {
-  // let timewindow = ''
-  return new Promise(function(resolve, reject) {
-    if (opt.timewindow == null) {
-      opt.timewindow = 1
-      console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'timewindow :', chalk.blue.bold(`${opt.timewindow} (sec)`));
-      // console.log('----------------------------------------------------------');
+function checkTimewindow(opt) {
+  let timewindowInfo = chalk.magenta('timewindow')
+  if (opt.timewindow == null) { // 값이 없으면 default
+    opt.timewindow = 1
+    timewindowLine = `${timewindowInfo} : ${opt.timewindow} (sec)`
+    timewindow = `${opt.timewindow}` * Math.pow(10, 3)
+    console.log(timewindowLine)
+  } else { // 값이 있으면 숫자인지 확인
+    if (isNumber(opt.timewindow)) {
+      timewindowLine = `${timewindowInfo} : ${opt.timewindow} (sec)`
       timewindow = `${opt.timewindow}` * Math.pow(10, 3)
-      return resolve(status * -1) //success : 1
+      console.log(timewindowLine)
     } else {
-      if (isNumber(opt.timewindow)) {
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'timewindow :', chalk.blue.bold(`${opt.timewindow} (sec)`));
-        // console.log('----------------------------------------------------------');
-        timewindow = `${opt.timewindow}` * Math.pow(10, 3)
-        return resolve(status * -1) //success : 1
-      } else {
-        console.log('----------------------------------------------------------');
-        console.log(chalk.red.bold('[ERROR]'), 'timewindow :', ` enter timewindow as number type.`)
-        // console.log('----------------------------------------------------------');
-        return resolve(status) //success : 1
-      }
+      timewindowLine = `${error} ${timewindowInfo} : enter timewindow as number type.`
+      console.log(timewindowLine)
     }
-  });
+  }
 }
 
-
-function check_threads(status, opt) {
-  // let timewindow = ''
-  return new Promise(function(resolve, reject) {
-    if (opt.threads == null) {
-      opt.threads = 1
-      console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'threads :', chalk.blue.bold(`${opt.threads}`));
-      // console.log('----------------------------------------------------------');
-      return resolve(status * -1) //success : 1
+function checkThreads(opt) {
+  let threadsInfo = chalk.magenta('threads')
+  if (opt.threads == null) { // 값이 없으면 default
+    opt.threads = 1
+    threadLine = `${threadsInfo} : ${opt.threads}`
+    console.log(threadLine)
+  } else { // 값이 있으면 숫자인지 확인
+    if (isNumber(opt.threads)) {
+      threadLine = `${threadsInfo} : ${opt.threads}`
+      console.log(threadLine)
     } else {
-      if (isNumber(opt.threads)) {
-        console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'threads :', chalk.blue.bold(`${opt.threads}`));
-        // console.log('----------------------------------------------------------');
-        return resolve(status * -1) //success : 1
-      } else {
-        console.log('----------------------------------------------------------');
-        console.log(chalk.red.bold('[ERROR]'), 'threads :', ` enter threads as number type.`)
-        // console.log('----------------------------------------------------------');
-        return resolve(status) //success : 1
-      }
+      threadLine = `${error} ${threadsInfo} : enter threads as number type.`
+      console.log(threadLine)
     }
-  });
+  }
 }

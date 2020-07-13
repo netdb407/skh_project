@@ -97,7 +97,7 @@ function checkStatus_time(status, time) {
         return resolve(status * -1) //success : 1
       } else { // 입력이 숫자가 아님
         console.log('----------------------------------------------------------');
-        console.log(chalk.red.bold('[ERROR]'), 'settime :', `insert 'number' type.`)
+        console.log(chalk.red.bold('[ERROR]'), 'settime :', `enter time as number type.`)
         console.log('----------------------------------------------------------');
         return resolve(status) //fail : -1
       }
