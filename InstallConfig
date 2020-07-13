@@ -63,10 +63,8 @@ node_cassandra_dir = /root/ssdStorage/KNUT/test/cassandra
 #update_configuration_path_server
 update_conf_path = /root/ssdStorage/skh_project/Update/
 
-cassandra_tracing_option = false
-
 # [orientdb 관련 설정]
 server_orientdb_dir = orientdb193,orientdb194,orientdb195
 
 # [arangodb 관련 설정]
-node_arangodb_dir = /root/ssdStorage/skh_project/arangodb3e-3.6.3-1/bin
+node_arangodb_dir = /root/ssdStorage/skh_project/arangodb3e-3.6.3-1
