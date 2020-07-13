@@ -7,7 +7,7 @@
   "deleteLocal": true,
   "hostname": "203.255.92.192",
   "port": "22",
-  "target": "/root/ssdStorage/skh_project_ya",
+  "target": "/root/ssdStorage/skh_project",
   "ignore": [
     ".remote-sync.json",
     ".git/**"
