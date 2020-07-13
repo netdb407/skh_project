@@ -74,6 +74,11 @@ module.exports = {
   get_server_file3_dir(){
     return properties.get("server_file3_dir")
   },
+  get_node_arangodb_dir(){
+    return properties.get("node_arangodb_dir")
+  },
+
+
 
 
   //ycsb
