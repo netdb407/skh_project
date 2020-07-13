@@ -11,8 +11,6 @@ const cassandraAction = require('../lib/cassandra.js')
 const fs = require('fs');
 
 
-
-
 let ip;
 let installDir;
 let rpm_dir_in_skhproject     = property.get_rpm_dir_in_skhproject(); //프로젝트 폴더 rpm
@@ -21,7 +19,6 @@ let packageName;
 let stdout;
 let packageAll;
 let version;
-
 
 program
   .command('install')
@@ -357,6 +354,82 @@ function installDatabase(db, nodes, node_arr){
         break;
 
         case 'orient' :
+        let etri_arr = ['203.255.92.39', '203.255.92.40', '203.255.92.41']
+        etri_arr.forEach(i=>{
+            // exec(`scp -r /home/yh/orientdb root@${i}:/home/yh`)
+            console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
+
+
+            // let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/root/ssdStorage/orientdb194"');
+            // fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixDir, 'utf-8');
+            // let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb"');
+            // fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixUser, 'utf-8');
+            // console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh Complete!');
+
+
+            if(i==etri_arr[0]){
+              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
+              // let fixDir_cmd = `ssh root@${i} 'sed -i "s|ORIENTDB_DIR="/home/yh/orientdb"|ORIENTDB_DIR="/home/yh/orientdb39"|g"' /home/yh/orientdb39/bin/orientdb.sh`
+              // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
+              // exec(fixDir_cmd)
+              let fixUser_cmd = `ssh root@${i} 'sed -i "s|ORIENTDB_USER="orientdb"|ORIENTDB_USER="orientdb39"|' /home/yh/orientdb39/bin/orientdb.sh`
+              exec(fixUser_cmd)
+              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+
+
+
+
+            //
+            //   let server =  fs.readFileSync('/home/yh/orientdb39/bin/orientdb.sh', 'utf-8');
+            //   let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/home/yh/orientdb39"');
+            //   fs.writeFileSync('/home/yh/orientdb39/bin/orientdb.sh', fixDir, 'utf-8');
+            //   let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb39"');
+            //   fs.writeFileSync('/home/yh/orientdb39/bin/orientdb.sh', fixUser, 'utf-8');
+            //   console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+            }
+            // if(i==etri_arr[1]){
+            //   //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
+            //   let server =  fs.readFileSync('/home/yh/orientdb40/bin/orientdb.sh', 'utf-8');
+            //   let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/home/yh/orientdb40"');
+            //   fs.writeFileSync('/home/yh/orientdb40/bin/orientdb.sh', fixDir, 'utf-8');
+            //   let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb40"');
+            //   fs.writeFileSync('/home/yh/orientdb40/bin/orientdb.sh', fixUser, 'utf-8');
+            //   console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+            // }
+            // if(i==etri_arr[2]){
+            //   //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
+            //   let server =  fs.readFileSync('/home/yh/orientdb41/bin/orientdb.sh', 'utf-8');
+            //   let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/home/yh/orientdb41"');
+            //   fs.writeFileSync('/home/yh/orientdb41/bin/orientdb.sh', fixDir, 'utf-8');
+            //   let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb41"');
+            //   fs.writeFileSync('/home/yh/orientdb41/bin/orientdb.sh', fixUser, 'utf-8');
+            //   console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+            // }
+
+
+            // let sudo =  fs.readFileSync('/etc/sudoers', 'utf-8');
+            // let fixSudo = sudo.replace(/Defaults requiretty/gi, '#Defaults requiretty"');
+            // fs.writeFileSync('/etc/suconsole.log(JSON.stringify())doers', fixSudo, 'utf-8');
+            // console.log(chalk.green.bold('[INFO]'), 'fix /etc/sudoers Complete!');
+            //
+            // let chmodCmd = `ssh -t root@${i} sudo chmod 640 /home/yh/orientdb/config/orientdb-server-config.xml`
+            // exec(chmodCmd)
+            // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete!');
+
+
+            // sudo: sorry, you must have a tty to run sudo
+            // 2.1 remote 서버의 /etc/sudoers 파일 에서 다음과 같이 requiretty 항목을 주석처리합니다. (CentOS 기준)
+            // #Defaults requiretty
+
+
+
+            // @@@ 서버에서 일단 orientdb로 폴더 다 복사한다음에
+            // @@@ 노드 3대에서 폴더 명 뒤에 ip숫자 붙여주기 !!
+        })
+
+
+
+
           //=====================================================================================================
           //일단 38에서 파일 다 변경하기 5개 : fs.read, fs.write 써서!
           // 1. /bin/server.sh : 수정(메모리크기)
@@ -370,99 +443,99 @@ function installDatabase(db, nodes, node_arr){
           //sed 명령어로 orient193, orient194, orient195로 이름 바꾸기!
           //===============================================================
 
-          // =====================1. server.sh==============================
-          let server =  fs.readFileSync('/home/yh/orientdb-community-2.2.29/bin/server.sh', 'utf-8');
-          let fixServer = server.replace(/ORIENTDB_OPTS_MEMORY="-Xms2G -Xmx2G"/gi, 'ORIENTDB_OPTS_MEMORY="-Xms256m -Xmx512m"');
-          fs.writeFileSync('./orientdb-community-2.2.29/bin/server.sh', fixServer, 'utf-8');
-          console.log(chalk.green.bold('[INFO]'), 'fix server.sh Complete!');
-
-          // =====================2. orientdb.sh==============================
-          let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/root/ssdStorage/orientdb194"');
-          fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixDir, 'utf-8');
-          let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb"');
-          fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixUser, 'utf-8');
-          console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh Complete!');
-
-          //이건 3대 다 권한설정 해줘야함
-          let chmodCmd = `sudo chmod 640 /home/yh/orientdb-community-2.2.29/config/orientdb-server-config.xml`
-          exec(chmodCmd)
-          console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete!');
-
-
-          // =============3. /config/hazelcast.xml===========================
-          let fixName = server.replace(/<name>orientdb/gi, '<name>project');
-          fs.writeFileSync('./orientdb-community-2.2.29/config/hazelcast.xml', fixName, 'utf-8');
-          let fixPass = server.replace(/<password>orientdb/gi, '<password>1234');
-          fs.writeFileSync('./orientdb-community-2.2.29/config/hazelcast.xml', fixPass, 'utf-8');
-
-          //!!!etri ip에서 하이닉스로 수정하기
-
-          //ip 추가하기
-          let fixtcp = server.replace(/</multicast>/gi, '</multicast>\n<tcp-ip enabled="true">\n<member>203.255.92.39</member>\n<member>203.255.92.40</member>\n<member>203.255.92.41</member>\n</tcp-ip>');
-          // fs.writeFileSync('./orientdb-community-2.2.29/config/hazelcast.xml', fixtcp, 'utf-8');
-          // console.log(chalk.green.bold('[INFO]'), 'fix name&pass in hazelcast.xml Complete!');
-
-
-
-          // </multicast>
+          // // =====================1. server.sh==============================
+          // let server =  fs.readFileSync('/home/yh/orientdb-community-2.2.29/bin/server.sh', 'utf-8');
+          // let fixServer = server.replace(/ORIENTDB_OPTS_MEMORY="-Xms2G -Xmx2G"/gi, 'ORIENTDB_OPTS_MEMORY="-Xms256m -Xmx512m"');
+          // fs.writeFileSync('./orientdb-community-2.2.29/bin/server.sh', fixServer, 'utf-8');
+          // console.log(chalk.green.bold('[INFO]'), 'fix server.sh Complete!');
           //
-          // ===>
+          // // =====================2. orientdb.sh==============================
+          // let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/root/ssdStorage/orientdb194"');
+          // fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixDir, 'utf-8');
+          // let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb"');
+          // fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixUser, 'utf-8');
+          // console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh Complete!');
           //
-          // </multicast>
-          // <tcp-ip enabled="true">
-          //   <member>203.255.92.39</member>
-          //   <member>203.255.92.40</member>
-          //   <member>203.255.92.41</member>
-          // </tcp-ip>
-
-
-          // ===========4. /config/default-distributed-db-config.json==========
-          let fixReadQuorum = server.replace(/"readQuorum": 1/gi, '"readQuorum": 2');
-          fs.writeFileSync('./orientdb-community-2.2.29/config/default-distributed-db-config.json', fixReadQuorum, 'utf-8');
-          console.log(chalk.green.bold('[INFO]'), 'fix ReadQuorum in default-distributed-db-config.json Complete!');
-
-          // "servers": {
-          //   "*": "master"
-          // },
+          // //이건 3대 다 권한설정 해줘야함
+          // let chmodCmd = `sudo chmod 640 /home/yh/orientdb-community-2.2.29/config/orientdb-server-config.xml`
+          // exec(chmodCmd)
+          // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete!');
           //
-          // ===>
           //
-          // "servers": {
-          //   "orientdb193" : "master"
-          //   "orientdb194" : "master"
-          //   "orientdb195" : "replica"
-          // },
-
-
-
-
-          // ==============5. /config/orientdb-server-config.xml============
-          let fixParameters = server.replace(/<parameter name="enabled" value="${distributed}"/>/gi, '<parameter name="enabled" value="true"/>');
-          fs.writeFileSync('./orientdb-community-2.2.29/config/orientdb-server-config.xml', fixParameters, 'utf-8');
-          console.log(chalk.green.bold('[INFO]'), 'fix parameters in orientdb-server-config.xml Complete!');
-
-
-          // <properties>
-          //   <!-- DATABASE POOL: size min/max -->
-          //   <entry name="db.pool.min" value="1"/>
-          //   <entry name="db.pool.max" value="50"/>
+          // // =============3. /config/hazelcast.xml===========================
+          // let fixName = server.replace(/<name>orientdb/gi, '<name>project');
+          // fs.writeFileSync('./orientdb-community-2.2.29/config/hazelcast.xml', fixName, 'utf-8');
+          // let fixPass = server.replace(/<password>orientdb/gi, '<password>1234');
+          // fs.writeFileSync('./orientdb-community-2.2.29/config/hazelcast.xml', fixPass, 'utf-8');
           //
-          //   <!-- PROFILER: configures the profiler as <seconds-for-snapshot>,<archive-snapshot-size>,<summary-size> -->
-          //   <entry name="profiler.enabled" value="false"/>
-          //   <!-- <entry name="profiler.config" value="30,10,10" /> -->
-          // </properties>
+          // //!!!etri ip에서 하이닉스로 수정하기
           //
-          // ===>
+          // //ip 추가하기
+          // let fixtcp = server.replace(/</multicast>/gi, '</multicast>\n<tcp-ip enabled="true">\n<member>203.255.92.39</member>\n<member>203.255.92.40</member>\n<member>203.255.92.41</member>\n</tcp-ip>');
+          // // fs.writeFileSync('./orientdb-community-2.2.29/config/hazelcast.xml', fixtcp, 'utf-8');
+          // // console.log(chalk.green.bold('[INFO]'), 'fix name&pass in hazelcast.xml Complete!');
           //
-          // <properties>
-          //   <!-- DATABASE POOL: size min/max -->
-          //   <entry name="db.pool.min" value="1"/>
-          //   <entry name="db.pool.max" value="50"/>
-          //   <entry name="profiler.enabled" value="false"/>
-          //   <entry name="cache.size" value="100000"/>
-          // </properties>
-
-          //===============================================================
+          //
+          //
+          // // </multicast>
+          // //
+          // // ===>
+          // //
+          // // </multicast>
+          // // <tcp-ip enabled="true">
+          // //   <member>203.255.92.39</member>
+          // //   <member>203.255.92.40</member>
+          // //   <member>203.255.92.41</member>
+          // // </tcp-ip>
+          //
+          //
+          // // ===========4. /config/default-distributed-db-config.json==========
+          // let fixReadQuorum = server.replace(/"readQuorum": 1/gi, '"readQuorum": 2');
+          // fs.writeFileSync('./orientdb-community-2.2.29/config/default-distributed-db-config.json', fixReadQuorum, 'utf-8');
+          // console.log(chalk.green.bold('[INFO]'), 'fix ReadQuorum in default-distributed-db-config.json Complete!');
+          //
+          // // "servers": {
+          // //   "*": "master"
+          // // },
+          // //
+          // // ===>
+          // //
+          // // "servers": {
+          // //   "orientdb193" : "master"
+          // //   "orientdb194" : "master"
+          // //   "orientdb195" : "replica"
+          // // },
+          //
+          //
+          //
+          //
+          // // ==============5. /config/orientdb-server-config.xml============
+          // let fixParameters = server.replace(/<parameter name="enabled" value="${distributed}"/>/gi, '<parameter name="enabled" value="true"/>');
+          // fs.writeFileSync('./orientdb-community-2.2.29/config/orientdb-server-config.xml', fixParameters, 'utf-8');
+          // console.log(chalk.green.bold('[INFO]'), 'fix parameters in orientdb-server-config.xml Complete!');
+          //
+          //
+          // // <properties>
+          // //   <!-- DATABASE POOL: size min/max -->
+          // //   <entry name="db.pool.min" value="1"/>
+          // //   <entry name="db.pool.max" value="50"/>
+          // //
+          // //   <!-- PROFILER: configures the profiler as <seconds-for-snapshot>,<archive-snapshot-size>,<summary-size> -->
+          // //   <entry name="profiler.enabled" value="false"/>
+          // //   <!-- <entry name="profiler.config" value="30,10,10" /> -->
+          // // </properties>
+          // //
+          // // ===>
+          // //
+          // // <properties>
+          // //   <!-- DATABASE POOL: size min/max -->
+          // //   <entry name="db.pool.min" value="1"/>
+          // //   <entry name="db.pool.max" value="50"/>
+          // //   <entry name="profiler.enabled" value="false"/>
+          // //   <entry name="cache.size" value="100000"/>
+          // // </properties>
+          //
+          // //===============================================================
 
 
 
