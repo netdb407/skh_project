@@ -356,7 +356,10 @@ function installDatabase(db, nodes, node_arr){
         case 'orient' :
         let etri_arr = ['203.255.92.39', '203.255.92.40', '203.255.92.41']
         etri_arr.forEach(i=>{
-            // exec(`scp -r /home/yh/orientdb root@${i}:/home/yh`)
+          //일단 scp로 그냥 보내 ! 서버컴에 orientdb 로 모두 설정 되어 있음 !! 폴더명, orientdb.sh도
+          //노드별로 for문 돌면서 폴더 명 변경, orientdb.sh 변경!!
+
+            exec(`scp -r /home/yh/orientdb root@${i}:/home/yh`)
             console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
 
 
@@ -366,13 +369,19 @@ function installDatabase(db, nodes, node_arr){
             // fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixUser, 'utf-8');
             // console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh Complete!');
 
+            //폴더명 변경 !!!!!!!
+            // exec(`ssh root@${i} 'mv /home/yh/orientdb /home/yh/orientdb39'`)
+
 
             if(i==etri_arr[0]){
               //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-              // let fixDir_cmd = `ssh root@${i} 'sed -i "s|ORIENTDB_DIR="/home/yh/orientdb"|ORIENTDB_DIR="/home/yh/orientdb39"|g"' /home/yh/orientdb39/bin/orientdb.sh`
+              let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb39`
+              exec(mv_cmd)
+              //ㅋㅋ숫자가 계속 append
+              let fixDir_cmd = `ssh root@${i} 'sed -i "s|"/home/yh/orientdb"|"/home/yh/orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
               // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
-              // exec(fixDir_cmd)
-              let fixUser_cmd = `ssh root@${i} 'sed -i "s|ORIENTDB_USER="orientdb"|ORIENTDB_USER="orientdb39"|' /home/yh/orientdb39/bin/orientdb.sh`
+              exec(fixDir_cmd)
+              let fixUser_cmd = `ssh root@${i} 'sed -i "s|"orientdb"|"orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
               exec(fixUser_cmd)
               console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
@@ -387,24 +396,19 @@ function installDatabase(db, nodes, node_arr){
             //   fs.writeFileSync('/home/yh/orientdb39/bin/orientdb.sh', fixUser, 'utf-8');
             //   console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
             }
-            // if(i==etri_arr[1]){
-            //   //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-            //   let server =  fs.readFileSync('/home/yh/orientdb40/bin/orientdb.sh', 'utf-8');
-            //   let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/home/yh/orientdb40"');
-            //   fs.writeFileSync('/home/yh/orientdb40/bin/orientdb.sh', fixDir, 'utf-8');
-            //   let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb40"');
-            //   fs.writeFileSync('/home/yh/orientdb40/bin/orientdb.sh', fixUser, 'utf-8');
-            //   console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
-            // }
-            // if(i==etri_arr[2]){
-            //   //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-            //   let server =  fs.readFileSync('/home/yh/orientdb41/bin/orientdb.sh', 'utf-8');
-            //   let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/home/yh/orientdb41"');
-            //   fs.writeFileSync('/home/yh/orientdb41/bin/orientdb.sh', fixDir, 'utf-8');
-            //   let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb41"');
-            //   fs.writeFileSync('/home/yh/orientdb41/bin/orientdb.sh', fixUser, 'utf-8');
-            //   console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
-            // }
+            if(i==etri_arr[1]){
+              exec(`ssh root@${i} 'mv /home/yh/orientdb /home/yh/orientdb40'`)
+              let fixUser_cmd = `ssh root@${i} 'sed -i "s|ORIENTDB_USER="orientdb"|ORIENTDB_USER="orientdb40"|' /home/yh/orientdb40/bin/orientdb.sh`
+              exec(fixUser_cmd)
+              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+            }
+            if(i==etri_arr[2]){
+              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
+              exec(`ssh root@${i} 'mv /home/yh/orientdb /home/yh/orientdb41'`)
+              let fixUser_cmd = `ssh root@${i} 'sed -i "s|ORIENTDB_USER="orientdb"|ORIENTDB_USER="orientdb41"|' /home/yh/orientdb41/bin/orientdb.sh`
+              exec(fixUser_cmd)
+              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+            }
 
 
             // let sudo =  fs.readFileSync('/etc/sudoers', 'utf-8');
