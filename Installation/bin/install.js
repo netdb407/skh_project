@@ -366,14 +366,15 @@ function installDatabase(db, nodes, node_arr){
             let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb39`
             exec(mv_cmd)
             //!!! ㅋㅋ숫자가 계속 append  ===> 파일 카피해서 쓰기?! 그리고 지우기 !!
-            let fixDir_cmd = `ssh root@${i} 'sed -i "s|"/home/yh/orientdb"|"/home/yh/orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
+            let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"/home/yh/orientdb"|"/home/yh/orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
             // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
             exec(fixDir_cmd)
-            let fixUser_cmd = `ssh root@${i} 'sed -i "s|"orientdb"|"orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
+            let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
             exec(fixUser_cmd)
             console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
             //!!! sudo가 ssh로는 안되고 직접 터미널에서만 쓸 수 있는거 같음 ..tty 근데 /etc/sudoers에 requiretty가 없어서... 쉘 파일 만들어서 써야함?
+            //유료라는데..?..;;;
             // let chmodCmd = `ssh -t root@${i} chmod 640 /home/yh/orientdb39/config/orientdb-server-config.xml`
             // exec(chmodCmd)
             // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
@@ -387,10 +388,36 @@ function installDatabase(db, nodes, node_arr){
 
           }
           if(i==etri_arr[1]){ //203.255.92.40
-            let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb40`
-            exec(mv_cmd)
-            let fixUser_cmd = `ssh root@${i} 'sed -i "s|"orientdb"|"orientdb40"|"' /home/yh/orientdb40/bin/orientdb.sh`
+            try{
+              //최초 시도 시 경우랑 두번째 시도 시 경우를 try catch로 분리해서 진행하기 ..... bak 옵션 들어간거는 재실행 시로 해야함 !!
+              let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb40`
+              exec(mv_cmd);
+            }catch(error){
+              console.log('maybe pre runned ...');
+            }
+            // let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb40`
+            // exec(mv_cmd)
+            //!!! append문제는 awk로 해결할까?
+            let fixDir_cmd = `ssh root@${i} 'sed -i.bak "10,11s|"/home/yh/orientdb"|"/home/yh/orientdb40"|"' /home/yh/orientdb40/bin/orientdb.sh`
+            //원본이 bak가 붙게되고 새로운게 기존 파일명이 되는데
+            // 그럼 기존 파일 지우고
+            // bak파일이름 변경하기 !!
+            // ㅋㅋㅋㅋㅋ
+
+            //
+
+            // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
+            exec(fixDir_cmd)
+            let fixUser_cmd = `ssh root@${i} 'sed -i.bak "12,13s|"orientdb"|"orientdb40"|"' /home/yh/orientdb40/bin/orientdb.sh`
             exec(fixUser_cmd)
+
+
+            let rm_appendfile = `ssh root@${i} 'rm -rf /home/yh/orientdb40/bin/orientdb.sh'`
+            exec(rm_appendfile)
+            let rename_bakfile = `ssh root@${i} 'mv /home/yh/orientdb40/bin/orientdb.sh.bak /home/yh/orientdb40/bin/orientdb.sh'`
+            exec(rename_bakfile)
+
+
             console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
             // let chmodCmd = `ssh -t root@${i} sudo chmod 640 /home/yh/orientdb40/config/orientdb-server-config.xml`
@@ -406,7 +433,10 @@ function installDatabase(db, nodes, node_arr){
             //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
             let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb41`
             exec(mv_cmd)
-            let fixUser_cmd = `ssh root@${i} 'sed -i "s|"orientdb"|"orientdb41"|"' /home/yh/orientdb41/bin/orientdb.sh`
+            let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"/home/yh/orientdb"|"/home/yh/orientdb41"|"' /home/yh/orientdb41/bin/orientdb.sh`
+            // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
+            exec(fixDir_cmd)
+            let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"orientdb41"|"' /home/yh/orientdb41/bin/orientdb.sh`
             exec(fixUser_cmd)
             console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
@@ -420,121 +450,7 @@ function installDatabase(db, nodes, node_arr){
             console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
           }
         console.log('----------------------------------------------------------');
-
         })
-
-
-
-
-          //=====================================================================================================
-          //일단 38에서 파일 다 변경하기 5개 : fs.read, fs.write 써서!
-          // 1. /bin/server.sh : 수정(메모리크기)
-          // 2. /bin/orientdb.sh : 수정(사용자계정등록)
-          // 3. /config/hazelcast.xml : 수정(사용자계정), 추가(ip)
-          // 4. /config/default-distributed-db-config.json : 수정, 추가(클러스터정보)
-          // 5. /config/orientdb-server-config.xml : 수정, 추가(클러스터정보)
-
-          //orientdb-community 폴더 통채로 노드에 전송
-
-          //sed 명령어로 orient193, orient194, orient195로 이름 바꾸기!
-          //===============================================================
-
-          // // =====================1. server.sh==============================
-          // let server =  fs.readFileSync('/home/yh/orientdb-community-2.2.29/bin/server.sh', 'utf-8');
-          // let fixServer = server.replace(/ORIENTDB_OPTS_MEMORY="-Xms2G -Xmx2G"/gi, 'ORIENTDB_OPTS_MEMORY="-Xms256m -Xmx512m"');
-          // fs.writeFileSync('./orientdb-community-2.2.29/bin/server.sh', fixServer, 'utf-8');
-          // console.log(chalk.green.bold('[INFO]'), 'fix server.sh Complete!');
-          //
-          // // =====================2. orientdb.sh==============================
-          // let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/root/ssdStorage/orientdb194"');
-          // fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixDir, 'utf-8');
-          // let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb"');
-          // fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixUser, 'utf-8');
-          // console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh Complete!');
-          //
-          // //이건 3대 다 권한설정 해줘야함
-          // let chmodCmd = `sudo chmod 640 /home/yh/orientdb-community-2.2.29/config/orientdb-server-config.xml`
-          // exec(chmodCmd)
-          // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete!');
-          //
-          //
-          // // =============3. /config/hazelcast.xml===========================
-          // let fixName = server.replace(/<name>orientdb/gi, '<name>project');
-          // fs.writeFileSync('./orientdb-community-2.2.29/config/hazelcast.xml', fixName, 'utf-8');
-          // let fixPass = server.replace(/<password>orientdb/gi, '<password>1234');
-          // fs.writeFileSync('./orientdb-community-2.2.29/config/hazelcast.xml', fixPass, 'utf-8');
-          //
-          // //!!!etri ip에서 하이닉스로 수정하기
-          //
-          // //ip 추가하기
-          // let fixtcp = server.replace(/</multicast>/gi, '</multicast>\n<tcp-ip enabled="true">\n<member>203.255.92.39</member>\n<member>203.255.92.40</member>\n<member>203.255.92.41</member>\n</tcp-ip>');
-          // // fs.writeFileSync('./orientdb-community-2.2.29/config/hazelcast.xml', fixtcp, 'utf-8');
-          // // console.log(chalk.green.bold('[INFO]'), 'fix name&pass in hazelcast.xml Complete!');
-          //
-          //
-          //
-          // // </multicast>
-          // //
-          // // ===>
-          // //
-          // // </multicast>
-          // // <tcp-ip enabled="true">
-          // //   <member>203.255.92.39</member>
-          // //   <member>203.255.92.40</member>
-          // //   <member>203.255.92.41</member>
-          // // </tcp-ip>
-          //
-          //
-          // // ===========4. /config/default-distributed-db-config.json==========
-          // let fixReadQuorum = server.replace(/"readQuorum": 1/gi, '"readQuorum": 2');
-          // fs.writeFileSync('./orientdb-community-2.2.29/config/default-distributed-db-config.json', fixReadQuorum, 'utf-8');
-          // console.log(chalk.green.bold('[INFO]'), 'fix ReadQuorum in default-distributed-db-config.json Complete!');
-          //
-          // // "servers": {
-          // //   "*": "master"
-          // // },
-          // //
-          // // ===>
-          // //
-          // // "servers": {
-          // //   "orientdb193" : "master"
-          // //   "orientdb194" : "master"
-          // //   "orientdb195" : "replica"
-          // // },
-          //
-          //
-          //
-          //
-          // // ==============5. /config/orientdb-server-config.xml============
-          // let fixParameters = server.replace(/<parameter name="enabled" value="${distributed}"/>/gi, '<parameter name="enabled" value="true"/>');
-          // fs.writeFileSync('./orientdb-community-2.2.29/config/orientdb-server-config.xml', fixParameters, 'utf-8');
-          // console.log(chalk.green.bold('[INFO]'), 'fix parameters in orientdb-server-config.xml Complete!');
-          //
-          //
-          // // <properties>
-          // //   <!-- DATABASE POOL: size min/max -->
-          // //   <entry name="db.pool.min" value="1"/>
-          // //   <entry name="db.pool.max" value="50"/>
-          // //
-          // //   <!-- PROFILER: configures the profiler as <seconds-for-snapshot>,<archive-snapshot-size>,<summary-size> -->
-          // //   <entry name="profiler.enabled" value="false"/>
-          // //   <!-- <entry name="profiler.config" value="30,10,10" /> -->
-          // // </properties>
-          // //
-          // // ===>
-          // //
-          // // <properties>
-          // //   <!-- DATABASE POOL: size min/max -->
-          // //   <entry name="db.pool.min" value="1"/>
-          // //   <entry name="db.pool.max" value="50"/>
-          // //   <entry name="profiler.enabled" value="false"/>
-          // //   <entry name="cache.size" value="100000"/>
-          // // </properties>
-          //
-          // //===============================================================
-
-
-
-            break;
+        break;
      }
   }
