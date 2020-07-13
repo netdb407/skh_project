@@ -81,6 +81,7 @@ var st = settime;
 var x = 1;
 var database = databases[0];
 var desc;
+let a = 0;
 try {
   desc = require('./' + database + '/description');
 } catch (err) {
@@ -98,43 +99,39 @@ var generateRandom = function (min, max) {
 // start database and check db status
 // .............................................................................
 async function dbstart(){
-  return new Promise(function(resolve,reject){
-    ip.forEach((i) => {
+  ip.forEach((i) => {
+    dirnum = i.split('.');
+    const std = exec(`ssh root@${i} ${IO_watch_dir}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`);
     console.log('--------------------------------------');
     console.log(chalk.green.bold('[INFO]'), 'orientdb run : ', chalk.blue.bold(i));
     console.log('--------------------------------------');
-    dirnum = i.split('.');
-    const std = exec(`ssh root@${i} nohup ${IO_watch_dir}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`);
-    });
-    return resolve();
-  })
+  });
+  setTimeout(statusCheck,1000*20);
 }
 
 async function statusCheck(){
   return new Promise(function(resolve,reject){
-    const stdout = exec(`ssh root@203.255.92.195 tail -20 ${IO_watch_dir}/orientdb195/log/orient-server.log.0`);
+    const stdout = exec(`curl --user root:1234 --header "Accept: text/csv" -d "HA STATUS -servers -output=text" "http://203.255.92.193:2480/command/GratefulDeadConcerts/sql"`);
     stdout.stdout.on('data', function(data) {
-      let a = 0
-      let a1 = data.toString().match(/ONLINE/gi)
-      if(a !== null){
-        a = a1.length
+      console.log(data);
+      let a1 = data.toString().match(/ONLINE/gi);
+      if(a1!=null){
+        if(a1.length==9){
+          a = a1.length;
+           console.log('Status is complete! ONLINE:', a);
+           start();
+        } else {
+            setTimeout(statusCheck,1000*10);
+        }
+      }else {
+        setTimeout(statusCheck,1000*10);
       }
-      console.log('Status is complete! ONLINE:', a)
-    })
+    });
   })
 }
 
-dbstart().then(function(result){
-  statuscheck().then(function(result){
+dbstart();
 
-
-    if(a=9){
-      start();
-    }else {
-      console.log('failed!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-    }
-  });
-})
 // .............................................................................
 // execute tests for the given database
 // .............................................................................
@@ -307,17 +304,15 @@ function start(){
                 tdata.push({'TIME':(settime*j/1000),'NAME':'NEIGHBORS','COUNT':neil,'AVG':neitime/neil?neitime/neil:0});
                 tdata.push({'TIME':(settime*j/1000),'NAME':'SHORTESTPATH','COUNT':ssspl,'AVG':sssptime/ssspl?sssptime/ssspl:0});
                 tdata.push({'TIME':(settime*j/1000),'NAME':'READ','COUNT':readl,'AVG':readtime/readl?readtime/readl:0});
-                cvll=ctime=uvll=dvll=dtime=cell=cetime=uell=uetime=dell=detime=aggl=aggtime=neil=neitime=ssspl=sssptime=readl=readtime=0;
+                cvll=ctime=uvll=utime=dvll=dtime=cell=cetime=uell=uetime=dell=detime=aggl=aggtime=neil=neitime=ssspl=sssptime=readl=readtime=0;
             }
 
               let opArr = ['CREATEVERTEX', 'UPDATEVERTEX','DELETEVERTEX','CREATEEDGE','UPDATEEDGE','DELETEEDGE','AGGREGATION','NEIGHBORS','SHORTESTPATH','READ'];
               let sortArr = [[],[],[],[],[],[],[],[],[],[]];
 
               for(i=0;i<tdata.length;i++){
-                let idx = opArr.indexOf(tdata[i]['NAME'])
-                if(tdata[i]['COUNT']!=0){
-                  sortArr[idx].push(tdata[i])
-                }
+                let idx = opArr.indexOf(tdata[i]['NAME']);
+                sortArr[idx].push(tdata[i]);
               }
 
               fs.readdir(dir2,function(err,filelist){
@@ -377,533 +372,477 @@ function start(){
       console.log(err);
     });
   });
-}
 
-
-// .............................................................................
-// random
-// .............................................................................
-
-async function benchmarkrandom(desc, db) {
-  return new Promise(function(resolve,reject){
-    var name = 'Profiles';
-    var start3 = Date.now();
-    try {
-      desc.getCollection(db, name, function (err, coll) {
-        if (err) return reject(err);
-        var rd = generateRandom(0,100);
-        var cv = parseInt(fileproperties._properties.Create_vertex);
-        var uv = parseInt(fileproperties._properties.Update_vertex);
-        var dv = parseInt(fileproperties._properties.Delete_vertex);
-        var ce = parseInt(fileproperties._properties.Create_edge);
-        var ue = parseInt(fileproperties._properties.Create_edge);
-        var de = parseInt(fileproperties._properties.Create_edge);
-        var sum = parseInt(cv+uv+dv+ce+ue+de);
-         async function randomreal(){
-          if(rd < (cv/sum*100)){
-            await createvertex(desc, db, resolve, reject);
-            funcname = 'Createvertex';
-          } else if(rd < (cv/sum*100)+(uv/sum*100)){
-            await updatevertex(desc, db, resolve, reject);
-            funcname = 'Updatevertex';
-          } else if(rd < (cv/sum*100)+(uv/sum*100)+(dv/sum*100)){
-            await deletevertex(desc, db, resolve, reject);
-            funcname = 'Deletevertex';
-          } else if(rd < (cv/sum*100)+(uv/sum*100)+(dv/sum*100)+(ce/sum*100)){
-            await createedge(desc, db, resolve, reject);
-            funcname = 'Createedge';
-          } else if(rd < (cv/sum*100)+(uv/sum*100)+(dv/sum*100)+(ce/sum*100)+(ue/sum*100)){
-            await updateedge(desc, db, resolve, reject);
-            funcname = 'Updateedge';
-          } else if(rd < (cv/sum*100)+(uv/sum*100)+(dv/sum*100)+(ce/sum*100)+(ue/sum*100)+(de/sum*100)){
-            await deleteedge(desc, db, resolve, reject);
-            funcname = 'Deleteedge';
-          }
-        };
-        var finish=Date.now()-start3;
-        if (debug) {
-          console.log('RESULT', result);
-        }
-        randomreal().then(function(result){
-          return resolve();
-        });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
-}
-// .............................................................................
-// createvertex
-// .............................................................................
- function createvertex(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var name = 'Profiles';
-    try {
-      desc.getCollection(db, name, function (err, coll) {
-        if (err) return reject(err);
-        desc.getid(db, coll, function(err, results){
-           for(i=0;i<Object(results).length;i++){
-             ids[i]+=results[i]['id']
-             ids[i] = ids[i].replace('undefined','');
-           }
-           var g = generateRandom(0,1);
-           var firstName =String.fromCharCode(generateRandom(65,90),generateRandom(97,122),generateRandom(97,122));
-           var lastName =String.fromCharCode(generateRandom(65,90),generateRandom(97,122),generateRandom(97,122));
-           var locationIP =generateRandom(0,300)+'.'+generateRandom(0,300)+'.'+generateRandom(0,300)+'.'+generateRandom(0,300);
-           var bu = generateRandom(0,4);
-           var bday = new Date(generateRandom(1985,1999),generateRandom(1,12),generateRandom(1,30));
-           var d = new Date(generateRandom(2000,2019),generateRandom(1,12),generateRandom(1,30));
-           function getTimeStamp(a) {
-             var d = a;
-             var s =
-                leadingZeros(d.getFullYear(), 4) + '-' +
-                leadingZeros(d.getMonth() + 1, 2) + '-' +
-                leadingZeros(d.getDate(), 2) + ' ' +
-                leadingZeros(d.getHours(), 2) + ':' +
-                leadingZeros(d.getMinutes(), 2) + ':' +
-                leadingZeros(d.getSeconds(), 2);
-                return s;
-            }
-          function leadingZeros(n, digits) {
-            var zero = '';
-            n = n.toString();
-            if (n.length < digits) {
-              for (i = 0; i < digits - n.length; i++)
-                zero += '0';
-            }
-            return zero + n;
-          }
-          var birthday = getTimeStamp(bday);
-          var creationDate =getTimeStamp(d);
-           if(g=1){
-             var gender = 'male';
-           } else {
-             var gender = 'female' ;
-           }
-           var flag = true;
-           while(flag){
-             var id = 'P'+generateRandom(10,10000000000);
-             for(var j=0;j<ids.length;j++){
-               if (id===ids[j]){
-                 break;
-               }
-             }
-             if(id!=ids[ids.length-1]){
-               flag=false;
-             }
-           }
-           if(bu=0){
-             var browserUsed = 'chrome';
-           } else if(bu=1){
-             var browserUsed = 'InternetExplorer';
-           } else if(bu=2){
-             var browserUsed = 'Firefox';
-           } else if(bu=3){
-             var browserUsed = 'Opera';
-           } else {
-             var browserUsed = 'Safari';
-           }
-           browserUsed =browserUsed;
-           desc.createvertex(db, coll,gender,firstName,lastName, id,locationIP,browserUsed,creationDate,birthday, function(err, doc){
-             if (err) return reject(err);
-             if (debug) {
-               console.log('RESULT', doc);
-             }
-             return resolve();
-           })
-         });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-    return resolve();
-  });
-}
-
-// .............................................................................
-// Updatevertex
-// .............................................................................
-
-function updatevertex(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var name = 'Profiles';
-    try {
-      desc.getCollection(db, name, function (err, coll) {
-        if (err) return reject(err);
-        desc.getid(db, name, function(err, results){
-           for(i=0;i<Object(results).length;i++){
-             ids[i]+=results[i]['id']
-             ids[i] = ids[i].replace('undefined','');
-           }
-           var g = generateRandom(0,1);
-           var firstName =String.fromCharCode(generateRandom(65,90),generateRandom(97,122),generateRandom(97,122));
-           var lastName =String.fromCharCode(generateRandom(65,90),generateRandom(97,122),generateRandom(97,122));
-           var locationIP =generateRandom(0,300)+'.'+generateRandom(0,300)+'.'+generateRandom(0,300)+'.'+generateRandom(0,300);
-           var bu = generateRandom(0,4);
-           var bday = new Date(generateRandom(1985,1999),generateRandom(1,12),generateRandom(1,30));
-           var d = new Date(generateRandom(2000,2019),generateRandom(1,12),generateRandom(1,30));
-           function getTimeStamp(a) {
-             var d = a;
-             var s =
-                leadingZeros(d.getFullYear(), 4) + '-' +
-                leadingZeros(d.getMonth() + 1, 2) + '-' +
-                leadingZeros(d.getDate(), 2) + ' ' +
-                leadingZeros(d.getHours(), 2) + ':' +
-                leadingZeros(d.getMinutes(), 2) + ':' +
-                leadingZeros(d.getSeconds(), 2);
-                return s;
-            }
-          function leadingZeros(n, digits) {
-            var zero = '';
-            n = n.toString();
-            if (n.length < digits) {
-              for (i = 0; i < digits - n.length; i++)
-                zero += '0';
-            }
-            return zero + n;
-          }
-          var birthday = getTimeStamp(bday);
-          var creationDate =getTimeStamp(d);
-           if(g=1){
-             var gender = 'male';
-           } else {
-             var gender = 'female' ;
-           }
-           var flag = true;
-           while(flag){
-             var id = 'P'+generateRandom(100,10000000000);
-             for(var j=0;j<ids.length;j++){
-               if (id===ids[j]){
-                 break;
-               }
-             }
-             if(id!=ids[ids.length-1]){
-               flag=false;
-             }
-           }
-           if(bu=0){
-             var browserUsed = 'chrome';
-           } else if(bu=1){
-             var browserUsed = 'InternetExplorer';
-           } else if(bu=2){
-             var browserUsed = 'Firefox';
-           } else if(bu=3){
-             var browserUsed = 'Opera';
-           } else {
-             var browserUsed = 'Safari';
-           }
-           browserUsed =browserUsed;
-           desc.updatevertex(db, coll,gender,firstName,lastName, id,locationIP,browserUsed,creationDate,birthday, function(err, doc){
-             if (err) return reject(err);
-             if (debug) {
-               console.log('RESULT', doc);
-             }
-             return resolve();
-           })
-         });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
-}
-// .............................................................................
-// deletevertex
-// .............................................................................
-
-function deletevertex(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var name = 'Profiles';
-
-    try {
-      desc.getCollection(db, name, function (err, coll) {
-        if (err) return reject(err);
-        desc.getid(db, name, function(err, results){
-           for(i=0;i<Object(results).length;i++){
-             ids[i]+=results[i]['id']
-             ids[i] = ids[i].replace('undefined','');
-           }
-           var j = generateRandom(0,ids.length);
-           var id = ids[j];
-           desc.deletevertex(db, coll,'P7339849119', function(err, doc){
-             if (err) return reject(err);
-             if (debug) {
-               console.log('RESULT', doc);
-             }
-             return resolve();
-           })
-         });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
-}
-// .............................................................................
-// createedge
-// .............................................................................
-
-function createedge(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var nameP = 'Relations';
-    var nameR = 'Profiles';
-
-    try {
-      desc.getCollection(db, nameP, function (err, collP) {
-        if (err) return reject(err);
-        desc.getCollection(db, nameR, function (err, collR) {
+  async function benchmarkrandom(desc, db) {
+    return new Promise(function(resolve,reject){
+      var name = 'Profiles';
+      var start3 = Date.now();
+      try {
+        desc.getCollection(db, name, function (err, coll) {
           if (err) return reject(err);
-          desc.getcount(db,collR,function(err,record){
-            if (err) return reject(err);
-            var record = record[0]['count'];
-            var a = generateRandom(0,record);
-            var flag = true;
-            while(flag){
-              var b = generateRandom(0,record);
-              if (a!=b){
-                flag = false;
-              }
+          var rd = generateRandom(0,100);
+          var cv = parseInt(fileproperties._properties.Create_vertex);
+          var uv = parseInt(fileproperties._properties.Update_vertex);
+          var dv = parseInt(fileproperties._properties.Delete_vertex);
+          var ce = parseInt(fileproperties._properties.Create_edge);
+          var ue = parseInt(fileproperties._properties.Create_edge);
+          var de = parseInt(fileproperties._properties.Create_edge);
+          var sum = parseInt(cv+uv+dv+ce+ue+de);
+           async function randomreal(){
+            if(rd < (cv/sum*100)){
+              await createvertex(desc, db, resolve, reject);
+              funcname = 'Createvertex';
+            } else if(rd < (cv/sum*100)+(uv/sum*100)){
+              await updatevertex(desc, db, resolve, reject);
+              funcname = 'Updatevertex';
+            } else if(rd < (cv/sum*100)+(uv/sum*100)+(dv/sum*100)){
+              await deletevertex(desc, db, resolve, reject);
+              funcname = 'Deletevertex';
+            } else if(rd < (cv/sum*100)+(uv/sum*100)+(dv/sum*100)+(ce/sum*100)){
+              await createedge(desc, db, resolve, reject);
+              funcname = 'Createedge';
+            } else if(rd < (cv/sum*100)+(uv/sum*100)+(dv/sum*100)+(ce/sum*100)+(ue/sum*100)){
+              await updateedge(desc, db, resolve, reject);
+              funcname = 'Updateedge';
+            } else if(rd < (cv/sum*100)+(uv/sum*100)+(dv/sum*100)+(ce/sum*100)+(ue/sum*100)+(de/sum*100)){
+              await deleteedge(desc, db, resolve, reject);
+              funcname = 'Deleteedge';
             }
-            desc.getrecord(db,collR,a,function(err,result1){
-              desc.getrecord(db,collR,b,function(err,result2){
-                var ida = result1[0]['id'];
-                var idb = result2[0]['id'];
-                desc.createedge(db, collP,collR,ida,idb, function(err, doc){
-                  if (err) return reject(err);
-                  if (debug) {
-                    console.log('RESULT', doc);
-                  }
-                  return resolve();
-                });
-              });
-            });
-           })
-         });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
-}
-// .............................................................................
-// updateedge
-// .............................................................................
-
-function updateedge(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var nameP = 'Relations';
-    var nameR = 'Profiles';
-    var rinfo = [];
-    try {
-      desc.getCollection(db, nameP, function (err, collP) {
-        if (err) return reject(err);
-        desc.getCollection(db, nameR, function (err, collR) {
-          if (err) return reject(err);
-          desc.getcount(db,collP,function(err,record1){
-            if (err) return reject(err);
-            var record1 = record1[0]['count'];
-            desc.getcount(db,collR,function(err,record2){
-              var record2 = record2[0]['count'];
-              if (err) return reject(err);
-              var a = generateRandom(0,record1-1);
-              var b = generateRandom(0,record2-1);
-              desc.getrecordR(db,collP,a,function(err,result1){
-                desc.getrecord(db,collR,b,function(err,result2){
-                  var ida = result1[0]['ID1'];
-                  var idb = result2[0]['id'];
-                  desc.deleteedge(db, collP,a,function(err, doc){
-                    desc.createedge(db, collP,collR,ida,idb, function(err, doc){
-                      if (err) return reject(err);
-                      if (debug) {
-                        console.log('RESULT', doc);
-                      }
-                      return resolve();
-                    });
-                  });
-                });
-              });
-            })
-           })
-         });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
-}
-// .............................................................................
-// deleteedge
-// .............................................................................
-
-function deleteedge(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var nameP = 'Relations';
-    var nameR = 'Profiles';
-    var rinfo = [];
-    try {
-      desc.getCollection(db, nameP, function (err, collP) {
-        if (err) return reject(err);
-        desc.getCollection(db, nameR, function (err, collR) {
-          if (err) return reject(err);
-          desc.getcount(db,collR,function(err,record){
-            if (err) return reject(err);
-            var record = record[0]['count'];
-            var a = generateRandom(0,record-1);
-            desc.deleteedge(db, collP,a ,function(err, doc){
-              if (err) return reject(err);
-              if (debug) {
-                console.log('RESULT', doc);
-              }
-              return resolve();
-            });
-           })
-         });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
-}
-// .............................................................................
-// signle read
-// .............................................................................
-
-function benchmarkSingleRead(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var name = 'Profiles';
-    try {
-      desc.getCollection(db, name, function (err, coll) {
-        if (err) return reject(err);
-        desc.getcount(db,coll,function(err,record){
-          var record = record[0]['count'];
-          if (err) return reject(err);
-          var b = generateRandom(0,record-1);
-          desc.getrecord(db,coll,b,function(err,result){
-            var id = result[0]['id'];
-            desc.getDocument(db, coll, id, function (err, doc) {
-              if (err) return reject(err);
-              if (debug) {
-                console.log('RESULT', doc);
-              }
-              return resolve();
-            });
-          });
-        });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
-}
-
-// .............................................................................
-// aggregation
-// .............................................................................
-
-function benchmarkAggregation(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var name = 'Profiles';
-
-    try {
-      desc.getCollection(db, name, function (err, coll) {
-        if (err) return reject(err);
-
-        desc.aggregate(db, coll, function (err, result) {
-          if (err) return reject(err);
+          };
+          var finish=Date.now()-start3;
           if (debug) {
             console.log('RESULT', result);
           }
-          return resolve();
+          randomreal().then(function(result){
+            return resolve();
+          });
         });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
-}
-
-// .............................................................................
-// neighbors
-// .............................................................................
-
-function benchmarkNeighbors(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var nameP = 'Profiles';
-    var nameR = 'Relations';
-
-    try {
-      desc.getCollection(db, nameP, function (err, collP) {
-        if (err) return reject(err);
-        desc.getCollection(db, nameR, function (err, collR) {
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
+  // .............................................................................
+  // createvertex
+  // .............................................................................
+   function createvertex(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var name = 'Profiles';
+      try {
+        desc.getCollection(db, name, function (err, coll) {
           if (err) return reject(err);
-          desc.getcount(db,collP,function(err,record){
+          desc.getid(db, coll, function(err, results){
+             for(i=0;i<Object(results).length;i++){
+               ids[i]+=results[i]['id']
+               ids[i] = ids[i].replace('undefined','');
+             }
+             var g = generateRandom(0,1);
+             var firstName =String.fromCharCode(generateRandom(65,90),generateRandom(97,122),generateRandom(97,122));
+             var lastName =String.fromCharCode(generateRandom(65,90),generateRandom(97,122),generateRandom(97,122));
+             var locationIP =generateRandom(0,300)+'.'+generateRandom(0,300)+'.'+generateRandom(0,300)+'.'+generateRandom(0,300);
+             var bu = generateRandom(0,4);
+             var bday = new Date(generateRandom(1985,1999),generateRandom(1,12),generateRandom(1,30));
+             var d = new Date(generateRandom(2000,2019),generateRandom(1,12),generateRandom(1,30));
+             function getTimeStamp(a) {
+               var d = a;
+               var s =
+                  leadingZeros(d.getFullYear(), 4) + '-' +
+                  leadingZeros(d.getMonth() + 1, 2) + '-' +
+                  leadingZeros(d.getDate(), 2) + ' ' +
+                  leadingZeros(d.getHours(), 2) + ':' +
+                  leadingZeros(d.getMinutes(), 2) + ':' +
+                  leadingZeros(d.getSeconds(), 2);
+                  return s;
+              }
+            function leadingZeros(n, digits) {
+              var zero = '';
+              n = n.toString();
+              if (n.length < digits) {
+                for (i = 0; i < digits - n.length; i++)
+                  zero += '0';
+              }
+              return zero + n;
+            }
+            var birthday = getTimeStamp(bday);
+            var creationDate =getTimeStamp(d);
+             if(g=1){
+               var gender = 'male';
+             } else {
+               var gender = 'female' ;
+             }
+             var flag = true;
+             while(flag){
+               var id = 'P'+generateRandom(10,10000000000);
+               for(var j=0;j<ids.length;j++){
+                 if (id===ids[j]){
+                   break;
+                 }
+               }
+               if(id!=ids[ids.length-1]){
+                 flag=false;
+               }
+             }
+             if(bu=0){
+               var browserUsed = 'chrome';
+             } else if(bu=1){
+               var browserUsed = 'InternetExplorer';
+             } else if(bu=2){
+               var browserUsed = 'Firefox';
+             } else if(bu=3){
+               var browserUsed = 'Opera';
+             } else {
+               var browserUsed = 'Safari';
+             }
+             browserUsed =browserUsed;
+             desc.createvertex(db, coll,gender,firstName,lastName, id,locationIP,browserUsed,creationDate,birthday, function(err, doc){
+               if (err) return reject(err);
+               if (debug) {
+                 console.log('RESULT', doc);
+               }
+               return resolve();
+             })
+           });
+        });
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+      return resolve();
+    });
+  }
+
+  // .............................................................................
+  // Updatevertex
+  // .............................................................................
+
+  function updatevertex(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var name = 'Profiles';
+      try {
+        desc.getCollection(db, name, function (err, coll) {
+          if (err) return reject(err);
+          desc.getid(db, name, function(err, results){
+             for(i=0;i<Object(results).length;i++){
+               ids[i]+=results[i]['id']
+               ids[i] = ids[i].replace('undefined','');
+             }
+             var g = generateRandom(0,1);
+             var firstName =String.fromCharCode(generateRandom(65,90),generateRandom(97,122),generateRandom(97,122));
+             var lastName =String.fromCharCode(generateRandom(65,90),generateRandom(97,122),generateRandom(97,122));
+             var locationIP =generateRandom(0,300)+'.'+generateRandom(0,300)+'.'+generateRandom(0,300)+'.'+generateRandom(0,300);
+             var bu = generateRandom(0,4);
+             var bday = new Date(generateRandom(1985,1999),generateRandom(1,12),generateRandom(1,30));
+             var d = new Date(generateRandom(2000,2019),generateRandom(1,12),generateRandom(1,30));
+             function getTimeStamp(a) {
+               var d = a;
+               var s =
+                  leadingZeros(d.getFullYear(), 4) + '-' +
+                  leadingZeros(d.getMonth() + 1, 2) + '-' +
+                  leadingZeros(d.getDate(), 2) + ' ' +
+                  leadingZeros(d.getHours(), 2) + ':' +
+                  leadingZeros(d.getMinutes(), 2) + ':' +
+                  leadingZeros(d.getSeconds(), 2);
+                  return s;
+              }
+            function leadingZeros(n, digits) {
+              var zero = '';
+              n = n.toString();
+              if (n.length < digits) {
+                for (i = 0; i < digits - n.length; i++)
+                  zero += '0';
+              }
+              return zero + n;
+            }
+            var birthday = getTimeStamp(bday);
+            var creationDate =getTimeStamp(d);
+             if(g=1){
+               var gender = 'male';
+             } else {
+               var gender = 'female' ;
+             }
+             var flag = true;
+             while(flag){
+               var id = 'P'+generateRandom(100,10000000000);
+               for(var j=0;j<ids.length;j++){
+                 if (id===ids[j]){
+                   break;
+                 }
+               }
+               if(id!=ids[ids.length-1]){
+                 flag=false;
+               }
+             }
+             if(bu=0){
+               var browserUsed = 'chrome';
+             } else if(bu=1){
+               var browserUsed = 'InternetExplorer';
+             } else if(bu=2){
+               var browserUsed = 'Firefox';
+             } else if(bu=3){
+               var browserUsed = 'Opera';
+             } else {
+               var browserUsed = 'Safari';
+             }
+             browserUsed =browserUsed;
+             desc.updatevertex(db, coll,gender,firstName,lastName, id,locationIP,browserUsed,creationDate,birthday, function(err, doc){
+               if (err) return reject(err);
+               if (debug) {
+                 console.log('RESULT', doc);
+               }
+               return resolve();
+             })
+           });
+        });
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
+  // .............................................................................
+  // deletevertex
+  // .............................................................................
+
+  function deletevertex(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var name = 'Profiles';
+
+      try {
+        desc.getCollection(db, name, function (err, coll) {
+          if (err) return reject(err);
+          desc.getid(db, name, function(err, results){
+             for(i=0;i<Object(results).length;i++){
+               ids[i]+=results[i]['id']
+               ids[i] = ids[i].replace('undefined','');
+             }
+             var j = generateRandom(0,ids.length);
+             var id = ids[j];
+             desc.deletevertex(db, coll,'P7339849119', function(err, doc){
+               if (err) return reject(err);
+               if (debug) {
+                 console.log('RESULT', doc);
+               }
+               return resolve();
+             })
+           });
+        });
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
+  // .............................................................................
+  // createedge
+  // .............................................................................
+
+  function createedge(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var nameP = 'Relations';
+      var nameR = 'Profiles';
+
+      try {
+        desc.getCollection(db, nameP, function (err, collP) {
+          if (err) return reject(err);
+          desc.getCollection(db, nameR, function (err, collR) {
             if (err) return reject(err);
-            var record = record[0]['count'];
-            var myPaths = 0;
-            var a = generateRandom(0,record);
-            desc.getrecord(db,collP,a,function(err,result1){
-              var ida = result1[0]['id'];
-              desc.neighbors(db, collP, collR,ida, function (err, result) {
+            desc.getcount(db,collR,function(err,record){
+              if (err) return reject(err);
+              var record = record[0]['count'];
+              var a = generateRandom(0,record);
+              var flag = true;
+              while(flag){
+                var b = generateRandom(0,record);
+                if (a!=b){
+                  flag = false;
+                }
+              }
+              desc.getrecord(db,collR,a,function(err,result1){
+                desc.getrecord(db,collR,b,function(err,result2){
+                  var ida = result1[0]['id'];
+                  var idb = result2[0]['id'];
+                  desc.createedge(db, collP,collR,ida,idb, function(err, doc){
+                    if (err) return reject(err);
+                    if (debug) {
+                      console.log('RESULT', doc);
+                    }
+                    return resolve();
+                  });
+                });
+              });
+             })
+           });
+        });
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
+  // .............................................................................
+  // updateedge
+  // .............................................................................
+
+  function updateedge(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var nameP = 'Relations';
+      var nameR = 'Profiles';
+      var rinfo = [];
+      try {
+        desc.getCollection(db, nameP, function (err, collP) {
+          if (err) return reject(err);
+          desc.getCollection(db, nameR, function (err, collR) {
+            if (err) return reject(err);
+            desc.getcount(db,collP,function(err,record1){
+              if (err) return reject(err);
+              var record1 = record1[0]['count'];
+              desc.getcount(db,collR,function(err,record2){
+                var record2 = record2[0]['count'];
+                if (err) return reject(err);
+                var a = generateRandom(0,record1-1);
+                var b = generateRandom(0,record2-1);
+                desc.getrecordR(db,collP,a,function(err,result1){
+                  desc.getrecord(db,collR,b,function(err,result2){
+                    var ida = result1[0]['ID1'];
+                    var idb = result2[0]['id'];
+                    desc.deleteedge(db, collP,a,function(err, doc){
+                      desc.createedge(db, collP,collR,ida,idb, function(err, doc){
+                        if (err) return reject(err);
+                        if (debug) {
+                          console.log('RESULT', doc);
+                        }
+                        return resolve();
+                      });
+                    });
+                  });
+                });
+              })
+             })
+           });
+        });
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
+  // .............................................................................
+  // deleteedge
+  // .............................................................................
+
+  function deleteedge(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var nameP = 'Relations';
+      var nameR = 'Profiles';
+      var rinfo = [];
+      try {
+        desc.getCollection(db, nameP, function (err, collP) {
+          if (err) return reject(err);
+          desc.getCollection(db, nameR, function (err, collR) {
+            if (err) return reject(err);
+            desc.getcount(db,collR,function(err,record){
+              if (err) return reject(err);
+              var record = record[0]['count'];
+              var a = generateRandom(0,record-1);
+              desc.deleteedge(db, collP,a ,function(err, doc){
                 if (err) return reject(err);
                 if (debug) {
-                  console.log('RESULT', result);
+                  console.log('RESULT', doc);
+                }
+                return resolve();
+              });
+             })
+           });
+        });
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
+  // .............................................................................
+  // signle read
+  // .............................................................................
+
+  function benchmarkSingleRead(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var name = 'Profiles';
+      try {
+        desc.getCollection(db, name, function (err, coll) {
+          if (err) return reject(err);
+          desc.getcount(db,coll,function(err,record){
+            var record = record[0]['count'];
+            if (err) return reject(err);
+            var b = generateRandom(0,record-1);
+            desc.getrecord(db,coll,b,function(err,result){
+              var id = result[0]['id'];
+              desc.getDocument(db, coll, id, function (err, doc) {
+                if (err) return reject(err);
+                if (debug) {
+                  console.log('RESULT', doc);
                 }
                 return resolve();
               });
             });
-          })
+          });
         });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
-}
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
 
-// .............................................................................
-// shortest path
-// .............................................................................
+  // .............................................................................
+  // aggregation
+  // .............................................................................
 
-function benchmarkShortestPath(desc, db, resolve, reject) {
-  return new Promise(function(resolve,reject){
-    var nameP = 'Profiles';
-    var nameR = 'Relations';
+  function benchmarkAggregation(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var name = 'Profiles';
 
-    try {
-
-      desc.getCollection(db, nameP, function (err, collP) {
-        if (err) return reject(err);
-
-        desc.getCollection(db, nameR, function (err, collR) {
+      try {
+        desc.getCollection(db, name, function (err, coll) {
           if (err) return reject(err);
-          desc.getcount(db,collP,function(err,record){
+
+          desc.aggregate(db, coll, function (err, result) {
             if (err) return reject(err);
-            var record = record[0]['count'];
-            var myPaths = 0;
-            var a = generateRandom(0,record);
-            var flag = true;
-            while(flag){
-              var b = generateRandom(0,record);
-              if (a!=b){
-                flag = false;
-              }
+            if (debug) {
+              console.log('RESULT', result);
             }
-            desc.getrecord(db,collP,a,function(err,result1){
-              desc.getrecord(db,collP,b,function(err,result2){
+            return resolve();
+          });
+        });
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
+
+  // .............................................................................
+  // neighbors
+  // .............................................................................
+
+  function benchmarkNeighbors(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var nameP = 'Profiles';
+      var nameR = 'Relations';
+
+      try {
+        desc.getCollection(db, nameP, function (err, collP) {
+          if (err) return reject(err);
+          desc.getCollection(db, nameR, function (err, collR) {
+            if (err) return reject(err);
+            desc.getcount(db,collP,function(err,record){
+              if (err) return reject(err);
+              var record = record[0]['count'];
+              var myPaths = 0;
+              var a = generateRandom(0,record);
+              desc.getrecord(db,collP,a,function(err,result1){
                 var ida = result1[0]['id'];
-                var idb = result2[0]['id'];
-                desc.shortestPath(db, collP, collR,ida, idb, function (err, result) {
+                desc.neighbors(db, collP, collR,ida, function (err, result) {
                   if (err) return reject(err);
                   if (debug) {
                     console.log('RESULT', result);
@@ -911,13 +850,64 @@ function benchmarkShortestPath(desc, db, resolve, reject) {
                   return resolve();
                 });
               });
-            });
-          })
+            })
+          });
         });
-      });
-    } catch (err) {
-      console.log('ERROR %s', err.stack);
-      return reject(err);
-    }
-  })
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
+
+  // .............................................................................
+  // shortest path
+  // .............................................................................
+
+  function benchmarkShortestPath(desc, db, resolve, reject) {
+    return new Promise(function(resolve,reject){
+      var nameP = 'Profiles';
+      var nameR = 'Relations';
+
+      try {
+
+        desc.getCollection(db, nameP, function (err, collP) {
+          if (err) return reject(err);
+
+          desc.getCollection(db, nameR, function (err, collR) {
+            if (err) return reject(err);
+            desc.getcount(db,collP,function(err,record){
+              if (err) return reject(err);
+              var record = record[0]['count'];
+              var myPaths = 0;
+              var a = generateRandom(0,record);
+              var flag = true;
+              while(flag){
+                var b = generateRandom(0,record);
+                if (a!=b){
+                  flag = false;
+                }
+              }
+              desc.getrecord(db,collP,a,function(err,result1){
+                desc.getrecord(db,collP,b,function(err,result2){
+                  var ida = result1[0]['id'];
+                  var idb = result2[0]['id'];
+                  desc.shortestPath(db, collP, collR,ida, idb, function (err, result) {
+                    if (err) return reject(err);
+                    if (debug) {
+                      console.log('RESULT', result);
+                    }
+                    return resolve();
+                  });
+                });
+              });
+            })
+          });
+        });
+      } catch (err) {
+        console.log('ERROR %s', err.stack);
+        return reject(err);
+      }
+    })
+  }
 }
