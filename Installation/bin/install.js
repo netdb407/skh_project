@@ -356,79 +356,71 @@ function installDatabase(db, nodes, node_arr){
         case 'orient' :
         let etri_arr = ['203.255.92.39', '203.255.92.40', '203.255.92.41']
         etri_arr.forEach(i=>{
-          //일단 scp로 그냥 보내 ! 서버컴에 orientdb 로 모두 설정 되어 있음 !! 폴더명, orientdb.sh도
-          //노드별로 for문 돌면서 폴더 명 변경, orientdb.sh 변경!!
+          //!!! 노드별로 for문 돌면서 폴더 명 변경, orientdb.sh 변경!!
 
-            exec(`scp -r /home/yh/orientdb root@${i}:/home/yh`)
-            console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
+          exec(`scp -r /home/yh/orientdb root@${i}:/home/yh`)
+          console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
 
+          if(i==etri_arr[0]){ //203.255.92.39
+            //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
+            let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb39`
+            exec(mv_cmd)
+            //!!! ㅋㅋ숫자가 계속 append  ===> 파일 카피해서 쓰기?! 그리고 지우기 !!
+            let fixDir_cmd = `ssh root@${i} 'sed -i "s|"/home/yh/orientdb"|"/home/yh/orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
+            // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
+            exec(fixDir_cmd)
+            let fixUser_cmd = `ssh root@${i} 'sed -i "s|"orientdb"|"orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
+            exec(fixUser_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
-            // let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/root/ssdStorage/orientdb194"');
-            // fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixDir, 'utf-8');
-            // let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb"');
-            // fs.writeFileSync('./orientdb-community-2.2.29/bin/orientdb.sh', fixUser, 'utf-8');
-            // console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh Complete!');
-
-            //폴더명 변경 !!!!!!!
-            // exec(`ssh root@${i} 'mv /home/yh/orientdb /home/yh/orientdb39'`)
-
-
-            if(i==etri_arr[0]){
-              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-              let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb39`
-              exec(mv_cmd)
-              //ㅋㅋ숫자가 계속 append
-              let fixDir_cmd = `ssh root@${i} 'sed -i "s|"/home/yh/orientdb"|"/home/yh/orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
-              // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
-              exec(fixDir_cmd)
-              let fixUser_cmd = `ssh root@${i} 'sed -i "s|"orientdb"|"orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
-              exec(fixUser_cmd)
-              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
-
-
-
-
-            //
-            //   let server =  fs.readFileSync('/home/yh/orientdb39/bin/orientdb.sh', 'utf-8');
-            //   let fixDir = server.replace(/ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"/gi, 'ORIENTDB_DIR="/home/yh/orientdb39"');
-            //   fs.writeFileSync('/home/yh/orientdb39/bin/orientdb.sh', fixDir, 'utf-8');
-            //   let fixUser = server.replace(/ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"/gi, 'ORIENTDB_USER="orientdb39"');
-            //   fs.writeFileSync('/home/yh/orientdb39/bin/orientdb.sh', fixUser, 'utf-8');
-            //   console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
-            }
-            if(i==etri_arr[1]){
-              exec(`ssh root@${i} 'mv /home/yh/orientdb /home/yh/orientdb40'`)
-              let fixUser_cmd = `ssh root@${i} 'sed -i "s|ORIENTDB_USER="orientdb"|ORIENTDB_USER="orientdb40"|' /home/yh/orientdb40/bin/orientdb.sh`
-              exec(fixUser_cmd)
-              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
-            }
-            if(i==etri_arr[2]){
-              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-              exec(`ssh root@${i} 'mv /home/yh/orientdb /home/yh/orientdb41'`)
-              let fixUser_cmd = `ssh root@${i} 'sed -i "s|ORIENTDB_USER="orientdb"|ORIENTDB_USER="orientdb41"|' /home/yh/orientdb41/bin/orientdb.sh`
-              exec(fixUser_cmd)
-              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
-            }
-
-
-            // let sudo =  fs.readFileSync('/etc/sudoers', 'utf-8');
-            // let fixSudo = sudo.replace(/Defaults requiretty/gi, '#Defaults requiretty"');
-            // fs.writeFileSync('/etc/suconsole.log(JSON.stringify())doers', fixSudo, 'utf-8');
-            // console.log(chalk.green.bold('[INFO]'), 'fix /etc/sudoers Complete!');
-            //
-            // let chmodCmd = `ssh -t root@${i} sudo chmod 640 /home/yh/orientdb/config/orientdb-server-config.xml`
+            //!!! sudo가 ssh로는 안되고 직접 터미널에서만 쓸 수 있는거 같음 ..tty 근데 /etc/sudoers에 requiretty가 없어서... 쉘 파일 만들어서 써야함?
+            // let chmodCmd = `ssh -t root@${i} chmod 640 /home/yh/orientdb39/config/orientdb-server-config.xml`
             // exec(chmodCmd)
-            // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete!');
+            // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
 
 
-            // sudo: sorry, you must have a tty to run sudo
-            // 2.1 remote 서버의 /etc/sudoers 파일 에서 다음과 같이 requiretty 항목을 주석처리합니다. (CentOS 기준)
-            // #Defaults requiretty
+            //!!!계속 append ㅎ..
+            let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|orientdb39|"' /home/yh/orientdb39/config/orientdb-server-config.xml`
+            exec(fixNodeName_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
 
 
+          }
+          if(i==etri_arr[1]){ //203.255.92.40
+            let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb40`
+            exec(mv_cmd)
+            let fixUser_cmd = `ssh root@${i} 'sed -i "s|"orientdb"|"orientdb40"|"' /home/yh/orientdb40/bin/orientdb.sh`
+            exec(fixUser_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
-            // @@@ 서버에서 일단 orientdb로 폴더 다 복사한다음에
-            // @@@ 노드 3대에서 폴더 명 뒤에 ip숫자 붙여주기 !!
+            // let chmodCmd = `ssh -t root@${i} sudo chmod 640 /home/yh/orientdb40/config/orientdb-server-config.xml`
+            // exec(chmodCmd)
+            // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
+
+
+            let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|orientdb40|"' /home/yh/orientdb40/config/orientdb-server-config.xml`
+            exec(fixNodeName_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+          }
+          if(i==etri_arr[2]){ //203.255.92.41
+            //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
+            let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb41`
+            exec(mv_cmd)
+            let fixUser_cmd = `ssh root@${i} 'sed -i "s|"orientdb"|"orientdb41"|"' /home/yh/orientdb41/bin/orientdb.sh`
+            exec(fixUser_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+
+            // let chmodCmd = `ssh -t root@${i} sudo chmod 640 /home/yh/orientdb41/config/orientdb-server-config.xml`
+            // exec(chmodCmd)
+            // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
+
+
+            let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|orientdb41|"' /home/yh/orientdb41/config/orientdb-server-config.xml`
+            exec(fixNodeName_cmd)
+            console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+          }
+        console.log('----------------------------------------------------------');
+
         })
 
 
