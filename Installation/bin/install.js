@@ -334,154 +334,131 @@ function installDatabase(db, nodes, node_arr){
 
         case 'arango' :
         //193,194,195에 설치
-        //!!!ETRI 컴터로 돌리는동안 주석처리..
-        console.log('ETRI 컴터로 돌리는동안 주석처리..');
-          // node_arr.forEach(i=>{
-          //   console.log(chalk.green.bold('[INFO]'), 'Check if ArangoDB is installed in', chalk.blue.bold(i));
-          //   try{
-          //     stdout = exec(`ssh root@${i} "rpm -qa|grep arango"`).toString();
-          //     if(stdout!=null){
-          //       console.log(chalk.green.bold('[INFO]'),'ArangoDB is already installed in', chalk.blue.bold(i));
-          //     }
-          //   }
-          //   catch{
-          //     exec(`ssh root@${i} wget -P /root/ https://download.arangodb.com/9c169fe900ff79790395784287bfa82f0dc0059375a34a2881b9b745c8efd42e/arangodb36/Enterprise/Linux/arangodb3e-3.6.3-1.1.x86_64.rpm`)
-          //     exec(`ssh root@${i} rpm -ivh /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
-          //     exec(`ssh root@${i} rm -rf /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
-          //     console.log(chalk.green.bold('[INFO]'), 'Install ArangoDB Complete!');
-          //   }
-          // })
+          node_arr.forEach(i=>{
+            console.log(chalk.green.bold('[INFO]'), 'Check if ArangoDB is installed in', chalk.blue.bold(i));
+            try{
+              stdout = exec(`ssh root@${i} "rpm -qa|grep arango"`).toString();
+              if(stdout!=null){
+                console.log(chalk.green.bold('[INFO]'),'ArangoDB is already installed in', chalk.blue.bold(i));
+              }
+            }catch(error){
+              exec(`ssh root@${i} wget -P /root/ https://download.arangodb.com/9c169fe900ff79790395784287bfa82f0dc0059375a34a2881b9b745c8efd42e/arangodb36/Enterprise/Linux/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+              exec(`ssh root@${i} rpm -ivh /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+              exec(`ssh root@${i} rm -rf /root/arangodb3e-3.6.3-1.1.x86_64.rpm`)
+              console.log(chalk.green.bold('[INFO]'), 'Install ArangoDB Complete!');
+            }
+          })
         break;
 
         case 'orient' :
-        let homedir = '/home/yh'
-        let home_arr = ['orientdb39', 'orientdb40', 'orientdb41']
-        let etri_arr = ['203.255.92.39', '203.255.92.40', '203.255.92.41']
-        etri_arr.forEach(i=>{
-          //!!! 노드별로 for문 돌면서 폴더 명 변경, orientdb.sh 변경!!
-          //!!!scp도 존재유무확인해서 처리하기 !~~!!!!
+          //노드에 설치하기 위해 서버에서 미리 orientdb 만들어놓고 보낸 후 수정
+          let homedir = '/home/yh' // /root/ssdStorage 로 변경!
+          let home_arr = ['orientdb39', 'orientdb40', 'orientdb41']   // 'orientdb193', 'orientdb194', 'orientdb195' 로 변경
+          let etri_arr = ['203.255.92.39', '203.255.92.40', '203.255.92.41'] // '203.255.92.193', '203.255.92.194', '203.255.92.195' 로 변경
+          etri_arr.forEach(i=>{
+            if(i==etri_arr[0]){ //203.255.92.39
+              try{
+                let checkdir_cmd = `ssh root@${i} ls -l ${homedir}/${home_arr[0]}`
+                let dir1 = exec(checkdir_cmd);
+                //파일이 이미 존재 => 재실행임
+                console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
+                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+              }catch(error){
+                //없으면 No such file or directory
+                //존재하지 않음 => 최초 실행
+                console.log(chalk.green.bold('[INFO]'), 'This is the first run');
 
-          //존재유무 확인해서 디렉토리가 있으면 재실행이라 보내지 않고
-          //없으면 최초 실행이니까 scp로 전송하기 !
+                exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
+                console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
 
-          // try{
-          //   let checkdir_scp = `ssh root@${i} ls -l ${homedir}/${home_arr[0]}`
-          // }
+                let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[0]}`
+                exec(mv_cmd)
+                let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${homedir}/orientdb"|"${homedir}/${home_arr[0]}"|"' ${homedir}/${home_arr[0]}/bin/orientdb.sh`
+                exec(fixDir_cmd)
+                let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${home_arr[0]}"|"' ${homedir}/${home_arr[0]}/bin/orientdb.sh`
+                exec(fixUser_cmd)
+                console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
+                let chmodCmd = `ssh -t root@${i} chmod 640 ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
+                exec(chmodCmd)
+                console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
 
-
-          // exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
-          // console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
-
-          if(i==etri_arr[0]){ //203.255.92.39
-            try{
-              let checkdir_cmd = `ssh root@${i} ls -l ${homedir}/${home_arr[0]}`
-              let dir1 = exec(checkdir_cmd);
-              //파일이 이미 존재 => 재실행임
-              console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
-              console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
-            }catch(error){
-              //없으면 No such file or directory
-              //존재하지 않음 => 최초 실행
-              console.log(chalk.green.bold('[INFO]'), 'This is the first run');
-
-              exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
-              console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
-
-              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-              let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[0]}`
-              exec(mv_cmd)
-              let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${homedir}/orientdb"|"${homedir}/${home_arr[0]}"|"' ${homedir}/${home_arr[0]}/bin/orientdb.sh`
-              exec(fixDir_cmd)
-              let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${home_arr[0]}"|"' ${homedir}/${home_arr[0]}/bin/orientdb.sh`
-              exec(fixUser_cmd)
-              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
-
-              let chmodCmd = `ssh -t root@${i} chmod 640 ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
-              exec(chmodCmd)
-              console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
-
-              let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[0]}|"' ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
-              exec(fixNodeName_cmd)
-              console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+                let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[0]}|"' ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
+                exec(fixNodeName_cmd)
+                console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+              }
             }
-          }
 
 
+            if(i==etri_arr[1]){ //203.255.92.40
+              try{
+                let checkdir_cmd = `ssh root@${i} ls -l ${homedir}/${home_arr[1]}`
+                let dir1 = exec(checkdir_cmd);
+                //파일이 이미 존재 => 재실행임
+                console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
+                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+              }catch(error){
+                //없으면 No such file or directory
+                //존재하지 않음 => 최초 실행
+                console.log(chalk.green.bold('[INFO]'), 'This is the first run');
 
-          if(i==etri_arr[1]){ //203.255.92.40
-            try{
-              let checkdir_cmd = `ssh root@${i} ls -l ${homedir}/${home_arr[1]}`
-              let dir1 = exec(checkdir_cmd);
-              //파일이 이미 존재 => 재실행임
-              console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
-              console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
-            }catch(error){
-              //없으면 No such file or directory
-              //존재하지 않음 => 최초 실행
-              console.log(chalk.green.bold('[INFO]'), 'This is the first run');
+                exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
+                console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
 
-              exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
-              console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
+                let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[1]}`
+                exec(mv_cmd)
+                let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${homedir}/orientdb"|"${homedir}/${home_arr[1]}"|"' ${homedir}/${home_arr[1]}/bin/orientdb.sh`
+                exec(fixDir_cmd)
+                let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${home_arr[1]}"|"' ${homedir}/${home_arr[1]}/bin/orientdb.sh`
+                exec(fixUser_cmd)
+                console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
+                let chmodCmd = `ssh -t root@${i} chmod 640 ${homedir}/${home_arr[1]}/config/orientdb-server-config.xml`
+                exec(chmodCmd)
+                console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
 
-              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-              let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[1]}`
-              exec(mv_cmd)
-              let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${homedir}/orientdb"|"${homedir}/${home_arr[1]}"|"' ${homedir}/${home_arr[1]}/bin/orientdb.sh`
-              exec(fixDir_cmd)
-              let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${home_arr[1]}"|"' ${homedir}/${home_arr[1]}/bin/orientdb.sh`
-              exec(fixUser_cmd)
-              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
-
-              let chmodCmd = `ssh -t root@${i} chmod 640 ${homedir}/${home_arr[1]}/config/orientdb-server-config.xml`
-              exec(chmodCmd)
-              console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
-
-              let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[1]}|"' ${homedir}/${home_arr[1]}/config/orientdb-server-config.xml`
-              exec(fixNodeName_cmd)
-              console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+                let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[1]}|"' ${homedir}/${home_arr[1]}/config/orientdb-server-config.xml`
+                exec(fixNodeName_cmd)
+                console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+              }
             }
-          }
 
 
 
-          if(i==etri_arr[2]){ //203.255.92.41
-            try{
-              let checkdir_cmd = `ssh root@${i} ls -l ${homedir}/${home_arr[2]}`
-              let dir1 = exec(checkdir_cmd);
-              //파일이 이미 존재 => 재실행임
-              console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
-              console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
-            }catch(error){
-              //없으면 No such file or directory
-              //존재하지 않음 => 최초 실행
-              console.log(chalk.green.bold('[INFO]'), 'This is the first run');
+            if(i==etri_arr[2]){ //203.255.92.41
+              try{
+                let checkdir_cmd = `ssh root@${i} ls -l ${homedir}/${home_arr[2]}`
+                let dir1 = exec(checkdir_cmd);
+                //파일이 이미 존재 => 재실행임
+                console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
+                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+              }catch(error){
+                //없으면 No such file or directory
+                //존재하지 않음 => 최초 실행
+                console.log(chalk.green.bold('[INFO]'), 'This is the first run');
 
-              exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
-              console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
+                exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
+                console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
 
+                let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[2]}`
+                exec(mv_cmd)
+                let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${homedir}/orientdb"|"${homedir}/${home_arr[2]}"|"' ${homedir}/${home_arr[2]}/bin/orientdb.sh`
+                exec(fixDir_cmd)
+                let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${home_arr[2]}"|"' ${homedir}/${home_arr[2]}/bin/orientdb.sh`
+                exec(fixUser_cmd)
+                console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
-              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-              let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[2]}`
-              exec(mv_cmd)
-              let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${homedir}/orientdb"|"${homedir}/${home_arr[2]}"|"' ${homedir}/${home_arr[2]}/bin/orientdb.sh`
-              exec(fixDir_cmd)
-              let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${home_arr[2]}"|"' ${homedir}/${home_arr[2]}/bin/orientdb.sh`
-              exec(fixUser_cmd)
-              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+                let chmodCmd = `ssh -t root@${i} chmod 640 ${homedir}/${home_arr[2]}/config/orientdb-server-config.xml`
+                exec(chmodCmd)
+                console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
 
-              let chmodCmd = `ssh -t root@${i} chmod 640 ${homedir}/${home_arr[2]}/config/orientdb-server-config.xml`
-              exec(chmodCmd)
-              console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
-
-              let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[2]}|"' ${homedir}/${home_arr[2]}/config/orientdb-server-config.xml`
-              exec(fixNodeName_cmd)
-              console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+                let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[2]}|"' ${homedir}/${home_arr[2]}/config/orientdb-server-config.xml`
+                exec(fixNodeName_cmd)
+                console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+              }
             }
-          }
-        console.log('----------------------------------------------------------');
-        })
+          console.log('----------------------------------------------------------');
+          })
         break;
      }
   }
