@@ -22,7 +22,6 @@ const error = chalk.red('ERR!')
 let dbtypeLine = '', runtypeLine = '', wlfileLine = '', loadsizeLine = '', loadsizeCmd = '',
 threadLine = '', timewindowLine = '', cassandraTracingLine = '', cassandraTracingCmd = ''
 
-
 /* ################################################################################################################# */
 
 module.exports.ycsb = (opt) => {
@@ -40,15 +39,15 @@ module.exports.ycsb = (opt) => {
 
     if(opt.runtype == 'load' || opt.runtype == 'run'){
       // console.log('adsfasdf');
-      if(opt.dbtype == 'cassandra-cql' && opt.runtype == 'load' && opt.remove == true){
-        // remove data 옵션이 있는 경우 데이터를 삭제함 (노드 3대)
-
-         dropData()
-         .then( createData())
-         // createData()
-      }else if(opt.dbtype == 'cassandra-cql' && opt.runtype == 'load' && opt.remove == null){
-        createData()
-      }
+      // if(opt.dbtype == 'cassandra-cql' && opt.runtype == 'load' && opt.remove == true){
+      //   // remove data 옵션이 있는 경우 데이터를 삭제함 (노드 3대)
+      //
+      //    dropData()
+      //    .then( createData())
+      //    // createData()
+      // }else if(opt.dbtype == 'cassandra-cql' && opt.runtype == 'load' && opt.remove == null){
+      //   createData()
+      // }
       runYCSB(opt, opt.runtype)
     }else if(opt.runtype == 'loadrun'){
       let runtype1 = opt.runtype.substring(0,4)
@@ -58,6 +57,16 @@ module.exports.ycsb = (opt) => {
       //    ip.forEach((i) => {
       //       DropAndCreate(i, nodetool_ip, node_cassandra_dir)
       //    })
+      // }
+      //
+      // if(opt.dbtype == 'cassandra-cql' && opt.remove == true){
+      //   // remove data 옵션이 있는 경우 데이터를 삭제함 (노드 3대)
+      //
+      //    dropData()
+      //    .then( createData())
+      //    // createData()
+      // }else if(opt.dbtype == 'cassandra-cql' && opt.remove == null){
+      //   createData()
       // }
 
       runYCSB(opt, runtype1)
@@ -145,8 +154,6 @@ module.exports.ycsb = (opt) => {
     })
 
 
-
-
     const runYCSB = (opt, runtype) => new Promise( resolve => {
 
       if(opt.iotracer == true){ // IOracer 옵션이 있을 경우Otracer 를 실행함
@@ -201,7 +208,7 @@ module.exports.ycsb = (opt) => {
       let runtype1 = opt.runtype.substring(0,4)
       let runtype2 = opt.runtype.substring(4,7)
 
-      if((dbtypeLine.indexOf('ERR')!=-1)||(runtypeLine.indexOf('ERR')!=-1)||(wlfileLine.indexOf('ERR')!=-1)||(loadsizeLine.indexOf('ERR')!=-1)||(threadLine.indexOf('ERR')!=-1)||(timewindowLine.indexOf('ERR')!=-1)||(cassandraTracingLine.indexOf('ERR')!=-1)){
+      if((dbtypeLine.match('ERR'))||(runtypeLine.match('ERR'))||(wlfileLine.match('ERR'))||(loadsizeLine.match('ERR'))||(threadLine.match('ERR'))||(timewindowLine.match('ERR'))||(cassandraTracingLine.match('ERR'))){
         console.log(chalk.red.bold('[ERROR]'),'There was an error and could not be executed.')
 
         if(opt.iotracer == true){ // error가 있는 경우 io tracer 를 종료해줌
@@ -220,10 +227,22 @@ module.exports.ycsb = (opt) => {
 
       }else{
           try { // error가 없는 경우 벤치마킹을 수행함
+            if(opt.dbtype == 'cassandra-cql' && opt.remove == true && runtype == 'load'){
+              // remove data 옵션이 있는 경우 데이터를 삭제함 (노드 3대)
+
+               dropData()
+               .then( createData())
+               // createData()
+            }else if(opt.dbtype == 'cassandra-cql' && opt.remove == null && runtype == 'load'){
+              createData()
+            }
+
+
             let cmd = `cd YCSB && \
             ./bin/ycsb ${runtype} ${opt.dbtype} -P ${server_wlfile_dir}/${opt.wlfile} -p hosts=${nodes_IP} ${loadsizeCmd} \
             -p export=${ycsb_exporter} -p exportfile=${ycsb_exportfile_dir}/${opt.name}/bm_${runtype}_result \
             -p timeseries.granularity=${timewindow} -threads ${opt.threads} ${cassandraTracingCmd} -s`
+            console.log(cmd);
             let cmdexec = exec(cmd)
             console.log('--------------------------------------')
             console.log(chalk.green.bold('[INFO]'),`ycsb ${runtype} started.`)
@@ -263,12 +282,10 @@ module.exports.ycsb = (opt) => {
                     // console.log('kill end');
                   }
                 })
-
-
               }
 
               // console.log('end');
-              resolve(opt, runtype2)
+              resolve(opt, runtype)
             })
 
           } catch (err) {
@@ -350,6 +367,7 @@ module.exports.ycsb = (opt) => {
       const shadowContent = await execute(createCmd);
       // console.log(shadowContent);
     } catch (error) {
+
       // console.error(error);
     }
   }

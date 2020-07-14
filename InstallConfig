@@ -37,7 +37,9 @@ home_exporter = export JAVA_HOME=/root/ssdStorage/skh_project/package/java && ex
 
 
 # [IO Tracer 관련 설정]
-IO_output_dir = /root/ssdStorage/output
+#IO_output_dir = /root/ssdStorage/output
+IO_output_dir = /root/output
+
 IO_driverManager_dir =
 IO_tracer_dir = /root/iotracer
 IO_watch_dir = /root/ssdStorage
@@ -55,14 +57,18 @@ server_cassandra_dir = /root/ssdStorage/skh_project/
 
 #directory_node
 #node_cassandra_dir = /root/ssdStorage/skh_project/dk
-#node_cassandra_dir = /root/ssdStorage/cassandra
+#node_cassandra_dir = /home/cassandra
 node_cassandra_dir = /root/ssdStorage/KNUT/test/cassandra
 
 
 #update_configuration_path_server
 update_conf_path = /root/ssdStorage/skh_project/Update/
 
-cassandra_tracing_option = false
 
 # [orientdb 관련 설정]
 server_orientdb_dir = orientdb193,orientdb194,orientdb195
+load_profile_dir = /root/ssdStorage/orientdb195/person/person_0_0.csv
+load_relation_dir = /root/ssdStorage/orientdb195/person/person_knows_person_0_0.csv
+
+# [arangodb 관련 설정]
+node_arangodb_dir = /root/ssdStorage/arangodb3e-3.6.3-1
