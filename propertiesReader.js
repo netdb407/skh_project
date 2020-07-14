@@ -74,6 +74,11 @@ module.exports = {
   get_server_file3_dir(){
     return properties.get("server_file3_dir")
   },
+  get_node_arangodb_dir(){
+    return properties.get("node_arangodb_dir")
+  },
+
+
 
 
   //ycsb
@@ -148,5 +153,13 @@ module.exports = {
 server_orientdb_dir(){
   return properties.get("server_orientdb_dir")
  },
+get_profile_dir(){
+  return properties.get("load_profile_dir")
+ },
+
+get_relation_dir(){
+  return properties.get("load_relation_dir")
+ },
+
 
 }
