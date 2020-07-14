@@ -54,11 +54,10 @@ program
   .option('-n, --name <name>', `insert workload file name`)
   .option('-t, --time <time>', `insert set time`)
   .option('-s, --size <size>', `insert load size`)
-  .option('-r, --remove <remove>', `remove data`)
   .action(function(opt){
     exec('chmod -R +x .')
 
-    if((typeof(opt.name)== 'string') && (typeof(opt.time)) =='string'){ // 필수 옵션이 있으면 실행 ,, 
+    if((typeof(opt.name)== 'string') && (typeof(opt.time)) =='string'){ // 필수 옵션이 있으면 실행 ,,
       nosqlTests.graphbench(opt);
     }else{
       console.log('----------------------------------------------------------');

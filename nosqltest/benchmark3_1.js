@@ -312,7 +312,9 @@ function start(){
 
               for(i=0;i<tdata.length;i++){
                 let idx = opArr.indexOf(tdata[i]['NAME']);
-                sortArr[idx].push(tdata[i]);
+                if(tdata[i]['COUNT']!=0){
+                  sortArr[idx].push(tdata[i])
+                }
               }
 
               fs.readdir(dir2,function(err,filelist){

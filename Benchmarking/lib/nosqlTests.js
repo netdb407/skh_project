@@ -22,14 +22,14 @@ module.exports.graphbench = (opt) => {
     let time_status = await checkStatus_time(status, opt.time)
     // console.log('TIME', time)
 
-    // name, time 등 등 옵션의 값들이 1일 때 =>
+    // name, time 등 등 옵션의 값들이 1일 때 (success) =>
     if (name_status == 1 && time_status == 1) { //
       try {
         // console.log(`nosqltest1 orientdb -n ${opt.name} -t ${opt.time}`);
         console.log('----------------------------------------------------------');
         console.log(chalk.green.bold('[INFO]'), 'Start orientdb benchmarking');
         console.log('----------------------------------------------------------');
-        let runexec = exec(`nosqltest1 orientdb -n ${opt.name} -t ${opt.time}`)
+        let runexec = exec(`nosqltest orientdb -n ${opt.name} -t ${opt.time}`)
 
         runexec.stdout.on('data', function(data){
           console.log(data);
@@ -40,7 +40,7 @@ module.exports.graphbench = (opt) => {
               dirnum = i.split('.');
               const std = exec(`ssh root@${i} ${ssdStorage_dir}/orientdb${dirnum[dirnum.length-1]}/killOrient.sh`);
               console.log('--------------------------------------');
-              console.log(chalk.green.bold('[INFO]'), 'orientdb run : ', chalk.blue.bold(i));
+              console.log(chalk.green.bold('[INFO]'), 'orientdb kill : ', chalk.blue.bold(i));
               console.log('--------------------------------------');
             });
 
@@ -68,13 +68,13 @@ function checkStatus_name(status, name) {
     try {
       fs.statSync(file);
       console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'workload name :', chalk.blue.bold(name));
+      console.log(chalk.green.bold('[INFO]'), 'workload file :', chalk.blue.bold(name));
       console.log('----------------------------------------------------------');
       return resolve(status * -1) //success : 1
     } catch (err) {
       // console.error(err);
       console.log('----------------------------------------------------------');
-      console.log(chalk.red.bold('[ERROR]'), 'workload name :', 'invalid workload name', `'${name}'`)
+      console.log(chalk.red.bold('[ERROR]'), 'workload name :', 'invalid workload file', `'${name}'`)
       console.log('----------------------------------------------------------');
       return resolve(status) //fail : -1
     }
