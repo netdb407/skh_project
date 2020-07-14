@@ -472,6 +472,8 @@ function installDatabase(db, nodes, node_arr){
 
 
   function installTool(tool){
-    console.log('tool :', tool);
-    console.log(chalk.green.bold('[INFO]'), 'Installation', chalk.blue.bold(tool), 'into IP address', chalk.blue.bold(i));
+    console.log('----------------------------------------------------------');
+    console.log(chalk.green.bold('[INFO]'), 'Installation', chalk.blue.bold(tool), 'into Server');
+    console.log(chalk.green.bold('[INFO]'), 'Change', chalk.blue.bold(tool), 'config Complete!');
+    console.log('----------------------------------------------------------');
   }
