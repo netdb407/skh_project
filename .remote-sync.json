@@ -5,9 +5,9 @@
   "uploadOnSave": true,
   "useAtomicWrites": false,
   "deleteLocal": true,
-  "hostname": "203.255.92.192",
+  "hostname": "203.255.92.38",
   "port": "22",
-  "target": "/root/ssdStorage/skh_project_ya",
+  "target": "/home/yh/skh_project",
   "ignore": [
     ".remote-sync.json",
     ".git/**"
