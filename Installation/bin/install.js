@@ -9,6 +9,7 @@ const property = require('../../propertiesReader.js');
 const cmds = require('../lib/cmds.js');
 const cassandraAction = require('../lib/cassandra.js')
 const fs = require('fs');
+const yuna = require('../../nosqltest/')
 
 
 let ip;
@@ -22,8 +23,8 @@ let version;
 
 program
   .command('install')
-  .option('-p, --package <pkgname>', `Install Package (Java, Python, Maven)`)
-  .option('-d, --database <dbname>', `Install Database (Cassandra, Orient, Arango)`)
+  .option('-p, --package <pkgname>', `Install Package (Java | Python | Maven)`)
+  .option('-d, --database <dbname>', `Install Database (Cassandra | Orient | Arango)`)
   .option('-s, --server', `Install into server, only can use with -p option`)
   .option('-n, --node', `Install into node, only can use with -p option`)
   .option('-a, --all', `Install all into server & node`)
@@ -369,13 +370,22 @@ function installDatabase(db, nodes, node_arr){
                 let dir1 = exec(checkdir_cmd);
                 //파일이 이미 존재 => 재실행임
                 console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
-                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists');
               }catch(error){
                 //없으면 No such file or directory
                 //존재하지 않음 => 최초 실행
                 console.log(chalk.green.bold('[INFO]'), 'This is the first run');
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', i, '... It takes about 10 min');
 
                 exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
+                // !!! /databases 안에 데이터 사이즈가 6기가가 넘어서 scp로 보내는데 오래 걸리니 tar로 압축하고 푸는 작업 필요??
+                // tar -cvf databases.tar databases/
+                //
+                // tar -svf databases.tar /home/yh/orientdb38
+                // tar -svf databases.tar ${homedir}/${home_arr[0]}
+                //
+                // rm -rf databases.tar
+
                 console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
 
                 let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[0]}`
@@ -403,11 +413,12 @@ function installDatabase(db, nodes, node_arr){
                 let dir1 = exec(checkdir_cmd);
                 //파일이 이미 존재 => 재실행임
                 console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
-                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists');
               }catch(error){
                 //없으면 No such file or directory
                 //존재하지 않음 => 최초 실행
                 console.log(chalk.green.bold('[INFO]'), 'This is the first run');
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', i, '... It takes about 10 min');
 
                 exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
                 console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
@@ -438,11 +449,12 @@ function installDatabase(db, nodes, node_arr){
                 let dir1 = exec(checkdir_cmd);
                 //파일이 이미 존재 => 재실행임
                 console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
-                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists');
               }catch(error){
                 //없으면 No such file or directory
                 //존재하지 않음 => 최초 실행
                 console.log(chalk.green.bold('[INFO]'), 'This is the first run');
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', i, '... It takes about 10 min');
 
                 exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
                 console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
