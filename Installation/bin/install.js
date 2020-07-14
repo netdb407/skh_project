@@ -9,7 +9,7 @@ const property = require('../../propertiesReader.js');
 const cmds = require('../lib/cmds.js');
 const cassandraAction = require('../lib/cassandra.js')
 const fs = require('fs');
-const yuna = require('../../nosqltest/')
+const yuna = require('../../nosqltest/sed.js')
 
 
 let ip;
@@ -92,7 +92,6 @@ program
     if(opt.tool){
       let tool = ['nosqltest']
       installTool(tool[0]);
-      //윤아가 만드는 함수 실행 ..
     }
  })
 program.parse(process.argv)
@@ -375,17 +374,9 @@ function installDatabase(db, nodes, node_arr){
                 //없으면 No such file or directory
                 //존재하지 않음 => 최초 실행
                 console.log(chalk.green.bold('[INFO]'), 'This is the first run');
-                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', i, '... It takes about 10 min');
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i), '... It takes about 10 min');
 
                 exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
-                // !!! /databases 안에 데이터 사이즈가 6기가가 넘어서 scp로 보내는데 오래 걸리니 tar로 압축하고 푸는 작업 필요??
-                // tar -cvf databases.tar databases/
-                //
-                // tar -svf databases.tar /home/yh/orientdb38
-                // tar -svf databases.tar ${homedir}/${home_arr[0]}
-                //
-                // rm -rf databases.tar
-
                 console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
 
                 let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[0]}`
@@ -402,6 +393,8 @@ function installDatabase(db, nodes, node_arr){
 
                 let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[0]}|"' ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
                 exec(fixNodeName_cmd)
+                let fixdatabases_cmd = `ssh root@${i} 'sed -i "93,94s|"${homedir}/orientdb/databases"|${homedir}/${home_arr[0]}/databases|"' ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
+                exec(fixdatabases_cmd)
                 console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
               }
             }
@@ -418,7 +411,7 @@ function installDatabase(db, nodes, node_arr){
                 //없으면 No such file or directory
                 //존재하지 않음 => 최초 실행
                 console.log(chalk.green.bold('[INFO]'), 'This is the first run');
-                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', i, '... It takes about 10 min');
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i), '... It takes about 10 min');
 
                 exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
                 console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
@@ -437,6 +430,8 @@ function installDatabase(db, nodes, node_arr){
 
                 let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[1]}|"' ${homedir}/${home_arr[1]}/config/orientdb-server-config.xml`
                 exec(fixNodeName_cmd)
+                let fixdatabases_cmd = `ssh root@${i} 'sed -i "93,94s|"${homedir}/orientdb/databases"|${homedir}/${home_arr[1]}/databases|"' ${homedir}/${home_arr[1]}/config/orientdb-server-config.xml`
+                exec(fixdatabases_cmd)
                 console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
               }
             }
@@ -454,7 +449,7 @@ function installDatabase(db, nodes, node_arr){
                 //없으면 No such file or directory
                 //존재하지 않음 => 최초 실행
                 console.log(chalk.green.bold('[INFO]'), 'This is the first run');
-                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', i, '... It takes about 10 min');
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i), '... It takes about 10 min');
 
                 exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
                 console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
@@ -473,6 +468,8 @@ function installDatabase(db, nodes, node_arr){
 
                 let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[2]}|"' ${homedir}/${home_arr[2]}/config/orientdb-server-config.xml`
                 exec(fixNodeName_cmd)
+                let fixdatabases_cmd = `ssh root@${i} 'sed -i "93,94s|"${homedir}/orientdb/databases"|${homedir}/${home_arr[2]}/databases|"' ${homedir}/${home_arr[2]}/config/orientdb-server-config.xml`
+                exec(fixdatabases_cmd)
                 console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
               }
             }
@@ -484,6 +481,7 @@ function installDatabase(db, nodes, node_arr){
 
 
   function installTool(tool){
+    yuna.change_NoSQLconfig();
     console.log('----------------------------------------------------------');
     console.log(chalk.green.bold('[INFO]'), 'Installation', chalk.blue.bold(tool), 'into Server');
     console.log(chalk.green.bold('[INFO]'), 'Change', chalk.blue.bold(tool), 'config Complete!');
