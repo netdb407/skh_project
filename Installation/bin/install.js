@@ -27,6 +27,7 @@ program
   .option('-s, --server', `Install into server, only can use with -p option`)
   .option('-n, --node', `Install into node, only can use with -p option`)
   .option('-a, --all', `Install all into server & node`)
+  .option('-t, --tool <toolname>', `Install Benchmarking tool (NoSQL-tests)`)
   .action(function Action(opt){
     //case 1. -p + -s||-n
 
@@ -85,6 +86,12 @@ program
       for(var db of databaseAll){
         installDatabase(db, nodes, node_arr);
       }
+    }
+    //case 4. -t
+    if(opt.tool){
+      let tool = ['nosqltest']
+      installTool(tool[0]);
+      //윤아가 만드는 함수 실행 ..
     }
  })
 program.parse(process.argv)
@@ -461,4 +468,10 @@ function installDatabase(db, nodes, node_arr){
           })
         break;
      }
+  }
+
+
+  function installTool(tool){
+    console.log('tool :', tool);
+    console.log(chalk.green.bold('[INFO]'), 'Installation', chalk.blue.bold(tool), 'into IP address', chalk.blue.bold(i));
   }
