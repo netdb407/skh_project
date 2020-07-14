@@ -362,92 +362,97 @@ function installDatabase(db, nodes, node_arr){
           console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
 
           if(i==etri_arr[0]){ //203.255.92.39
-            //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-            let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb39`
-            exec(mv_cmd)
-            //!!! ㅋㅋ숫자가 계속 append  ===> 파일 카피해서 쓰기?! 그리고 지우기 !!
-            let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"/home/yh/orientdb"|"/home/yh/orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
-            // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
-            exec(fixDir_cmd)
-            let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
-            exec(fixUser_cmd)
-            console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+            try{
+              let checkdir_cmd = `ssh root@${i} ls -l /home/yh/orientdb39`
+              let dir1 = exec(checkdir_cmd);
+              //파일이 이미 존재 => 재실행임
+              console.log('this is second try');
+              console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+            }catch(error){
+              //없으면 No such file or directory
+              //존재하지 않음 => 최초 실행
+              console.log('this is first try.');
+              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
+              let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb39`
+              exec(mv_cmd)
+              let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"/home/yh/orientdb"|"/home/yh/orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
+              exec(fixDir_cmd)
+              let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"orientdb39"|"' /home/yh/orientdb39/bin/orientdb.sh`
+              exec(fixUser_cmd)
+              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
-            //!!! sudo가 ssh로는 안되고 직접 터미널에서만 쓸 수 있는거 같음 ..tty 근데 /etc/sudoers에 requiretty가 없어서... 쉘 파일 만들어서 써야함?
-            //유료라는데..?..;;;
-            // let chmodCmd = `ssh -t root@${i} chmod 640 /home/yh/orientdb39/config/orientdb-server-config.xml`
-            // exec(chmodCmd)
-            // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
+              let chmodCmd = `ssh -t root@${i} chmod 640 /home/yh/orientdb39/config/orientdb-server-config.xml`
+              exec(chmodCmd)
+              console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
 
-
-            //!!!계속 append ㅎ..
-            let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|orientdb39|"' /home/yh/orientdb39/config/orientdb-server-config.xml`
-            exec(fixNodeName_cmd)
-            console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
-
-
+              let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|orientdb39|"' /home/yh/orientdb39/config/orientdb-server-config.xml`
+              exec(fixNodeName_cmd)
+              console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+            }
           }
+
+
+
+
+
+
           if(i==etri_arr[1]){ //203.255.92.40
             try{
-              //최초 시도 시 경우랑 두번째 시도 시 경우를 try catch로 분리해서 진행하기 ..... bak 옵션 들어간거는 재실행 시로 해야함 !!
-              let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb40`
-              exec(mv_cmd);
+              let checkdir_cmd = `ssh root@${i} ls -l /home/yh/orientdb40`
+              let dir1 = exec(checkdir_cmd);
+              //파일이 이미 존재 => 재실행임
+              console.log('this is second try');
+              console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
             }catch(error){
-              console.log('maybe pre runned ...');
+              //없으면 No such file or directory
+              //존재하지 않음 => 최초 실행
+              console.log('this is first try.');
+              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
+              let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb40`
+              exec(mv_cmd)
+              let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"/home/yh/orientdb"|"/home/yh/orientdb40"|"' /home/yh/orientdb40/bin/orientdb.sh`
+              exec(fixDir_cmd)
+              let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"orientdb40"|"' /home/yh/orientdb40/bin/orientdb.sh`
+              exec(fixUser_cmd)
+              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+
+              let chmodCmd = `ssh -t root@${i} chmod 640 /home/yh/orientdb40/config/orientdb-server-config.xml`
+              exec(chmodCmd)
+              console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
+
+              let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|orientdb40|"' /home/yh/orientdb40/config/orientdb-server-config.xml`
+              exec(fixNodeName_cmd)
+              console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
             }
-            // let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb40`
-            // exec(mv_cmd)
-            //!!! append문제는 awk로 해결할까?
-            let fixDir_cmd = `ssh root@${i} 'sed -i.bak "10,11s|"/home/yh/orientdb"|"/home/yh/orientdb40"|"' /home/yh/orientdb40/bin/orientdb.sh`
-            //원본이 bak가 붙게되고 새로운게 기존 파일명이 되는데
-            // 그럼 기존 파일 지우고
-            // bak파일이름 변경하기 !!
-            // ㅋㅋㅋㅋㅋ
-
-            //
-
-            // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
-            exec(fixDir_cmd)
-            let fixUser_cmd = `ssh root@${i} 'sed -i.bak "12,13s|"orientdb"|"orientdb40"|"' /home/yh/orientdb40/bin/orientdb.sh`
-            exec(fixUser_cmd)
-
-
-            let rm_appendfile = `ssh root@${i} 'rm -rf /home/yh/orientdb40/bin/orientdb.sh'`
-            exec(rm_appendfile)
-            let rename_bakfile = `ssh root@${i} 'mv /home/yh/orientdb40/bin/orientdb.sh.bak /home/yh/orientdb40/bin/orientdb.sh'`
-            exec(rename_bakfile)
-
-
-            console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
-
-            // let chmodCmd = `ssh -t root@${i} sudo chmod 640 /home/yh/orientdb40/config/orientdb-server-config.xml`
-            // exec(chmodCmd)
-            // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
-
-
-            let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|orientdb40|"' /home/yh/orientdb40/config/orientdb-server-config.xml`
-            exec(fixNodeName_cmd)
-            console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
           }
           if(i==etri_arr[2]){ //203.255.92.41
-            //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
-            let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb41`
-            exec(mv_cmd)
-            let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"/home/yh/orientdb"|"/home/yh/orientdb41"|"' /home/yh/orientdb41/bin/orientdb.sh`
-            // let fixDir_cmd = `ssh root@${i} 'sed '11a\\39'' /home/yh/orientdb39/bin/orientdb.sh`
-            exec(fixDir_cmd)
-            let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"orientdb41"|"' /home/yh/orientdb41/bin/orientdb.sh`
-            exec(fixUser_cmd)
-            console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
+            try{
+              let checkdir_cmd = `ssh root@${i} ls -l /home/yh/orientdb41`
+              let dir1 = exec(checkdir_cmd);
+              //파일이 이미 존재 => 재실행임
+              console.log('this is second try');
+              console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+            }catch(error){
+              //없으면 No such file or directory
+              //존재하지 않음 => 최초 실행
+              console.log('this is first try.');
+              //!!!DIR /home/yh -> /root/ssdStorage 로 변경하기 !
+              let mv_cmd = `ssh root@${i} mv /home/yh/orientdb /home/yh/orientdb41`
+              exec(mv_cmd)
+              let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"/home/yh/orientdb"|"/home/yh/orientdb41"|"' /home/yh/orientdb41/bin/orientdb.sh`
+              exec(fixDir_cmd)
+              let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"orientdb41"|"' /home/yh/orientdb41/bin/orientdb.sh`
+              exec(fixUser_cmd)
+              console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh in', chalk.blue.bold(i));
 
-            // let chmodCmd = `ssh -t root@${i} sudo chmod 640 /home/yh/orientdb41/config/orientdb-server-config.xml`
-            // exec(chmodCmd)
-            // console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
+              let chmodCmd = `ssh -t root@${i} chmod 640 /home/yh/orientdb41/config/orientdb-server-config.xml`
+              exec(chmodCmd)
+              console.log(chalk.green.bold('[INFO]'), 'exec chmod Complete in', chalk.blue.bold(i));
 
-
-            let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|orientdb41|"' /home/yh/orientdb41/config/orientdb-server-config.xml`
-            exec(fixNodeName_cmd)
-            console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+              let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|orientdb41|"' /home/yh/orientdb41/config/orientdb-server-config.xml`
+              exec(fixNodeName_cmd)
+              console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+            }
           }
         console.log('----------------------------------------------------------');
         })
