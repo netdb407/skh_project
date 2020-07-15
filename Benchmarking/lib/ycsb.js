@@ -5,6 +5,7 @@ const exec = require('child_process').exec
 const fs = require('fs')
 const chalk = require('chalk')
 let Promise = require('promise')
+const home_dir = property.get_home_dir()
 const server_ycsb_dir = property.get_server_ycsb_dir()
 const server_wlfile_dir = property.get_server_wlfile_dir()
 const server_IP = property.get_server_IP()
@@ -270,7 +271,7 @@ module.exports.ycsb = (opt) => {
     // let resTemp = await stdout_results(status, nodeIPArr, nodetool_ip)
     // console.log('resTemp : ', resTemp);
     let isOK = await arango_status(status) //success: 1, failed: -1, stederr: 0
-    console.log(isOK);
+    // console.log(isOK);
     console.log(chalk.green.bold('[INFO]'), 'ArangoDB is OK? :', isOK, '(Success:1, Failed:-1)');
     if (isOK == 1) {
       console.log('----------------------------------------------------------');
@@ -317,9 +318,9 @@ const dropData = () => new Promise(resolve => {
     // removeCmd = `ssh root@${i} ${node_cassandra_dir}/bin/nodetool clearsnapshot`
     try {
       const stdout = exec(dropCmd)
-      console.log('--------------------------------------');
+      console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'remove cassandra data : ', chalk.blue.bold(i));
-      console.log('--------------------------------------');
+      // console.log('----------------------------------------------------------');
     } catch (err) {
       // console.error(err);
     }
@@ -332,12 +333,12 @@ const createData = () => new Promise(resolve => {
   createCmd = `ssh root@${nodetool_ip} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/createKeyspace.cql ${nodetool_ip}`
   try {
     const stdout = exec(createCmd);
-    console.log('--------------------------------------');
+    console.log('----------------------------------------------------------');
     console.log(chalk.green.bold('[INFO]'), 'careate cassandra table : ', chalk.blue.bold(nodetool_ip));
-    console.log('--------------------------------------');
+    console.log('----------------------------------------------------------');
     // console.log(shadowContent);
   } catch (err) {
-    // console.error(err);
+    console.error(err);
   }
   resolve()
 })
@@ -352,9 +353,9 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
           // const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -d -p 1048576 ${IO_watch_dir}`)
           const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -d -p 1048576 ${IO_watch_dir}`)
           // console.log(`stdout: ${stdout}`);
-          console.log('--------------------------------------');
+          console.log('----------------------------------------------------------');
           console.log(chalk.green.bold('[INFO]'), 'iotracer run : ', chalk.blue.bold(i));
-          console.log('--------------------------------------');
+          // console.log('----------------------------------------------------------');
           // exec(`ssh root@${i} ${IO_tracer_dir} -d ${IO_watch_dir}`)
         } catch (err) {
           console.log(err);
@@ -399,10 +400,16 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
       cmd = 'ls'
       // cmdexec = exec(cmd)
     }
-    console.log('--------------------------------------');
-    console.log(chalk.green.bold('[INFO]'), `ycsb ${runtype} started.`);
-    console.log('--------------------------------------');
-    cmdexec = exec(cmd)
+
+    try {
+      cmdexec = exec(cmd)
+      console.log('----------------------------------------------------------');
+      console.log(chalk.green.bold('[INFO]'), `ycsb ${runtype} started.`);
+      console.log('----------------------------------------------------------');
+    } catch (err) {
+      console.log(err);
+    }
+
     // else
     //   cmdexec = 'ls'
 
@@ -414,10 +421,9 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
       recordcount = properties.get('recordcount')
       operationcount = properties.get('operationcount')
     } catch (err) {
-      if (err.code === 'ENOENT') {
-        console.log(err);
-      }
+      console.log(err);
     }
+
     let flag = true
 
     cmdexec.stderr.on('data', function(data) {
@@ -457,21 +463,30 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
 
     cmdexec.on('exit', function(code) {
 
-      console.log('--------------------------------------');
+      console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), `ycsb ${runtype} completed.`);
-      console.log('--------------------------------------');
+      console.log('----------------------------------------------------------');
       // console.log('start');
-      exec(`/root/ssdStorage/skh_project/json2csv.sh ${ycsb_exportfile_dir}/${opt.name}/${runtype}_result`);
 
+      let file = `${ycsb_exportfile_dir}/${opt.name}/${runtype}_result`
+      try {
+        fs.statSync(file);
+        exec(`${home_dir}/json2csv.sh ${file}`);
+        console.log('----------------------------------------------------------');
+        console.log(chalk.green.bold('[INFO]'), `convert json2csv completed.`);
+        console.log('----------------------------------------------------------');
+      } catch (err) {
+        // console.log(err);
+      }
 
       if (opt.dbtype == 'cassandra') {
         if (((opt.runtype == 'load') || (opt.runtype == 'run')) || ((opt.runtype == 'loadrun') && (runtype == 'run'))) {
           ip.forEach((i) => {
             try {
               exec(`ssh root@${i} ${node_cassandra_dir}/killCass.sh`);
-              console.log('--------------------------------------');
+              console.log('----------------------------------------------------------');
               console.log(chalk.green.bold('[INFO]'), 'kill cassandra : ', chalk.blue.bold(i));
-              console.log('--------------------------------------');
+              // console.log('----------------------------------------------------------');
             } catch (err) {
               console.log(err);
             }
@@ -481,38 +496,46 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
           if (opt.iotracer == true) { // 벤치마킹 종료 후 iotracer 결과를 저장함
             if ((opt.runtype == 'load') || (opt.runtype == 'run') || ((opt.runtype == 'loadrun') && (runtype == 'run'))) {
               get_IO_results(opt.name, ip, opt.runtype)
+
+
+              setTimeout(function() {
+                ip.forEach((i) => {
+                  try {
+                    // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
+                    // const stdout = exec(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`)
+                    const stdout2 = exec(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}`)
+                    // console.log(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`);
+                    // console.log(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}_${i}_${runtype}`);
+                    // console.log(`stdout: ${stdout}`);
+                  } catch (err) {
+                    // console.log('node file mv fail');
+                    console.log(err);
+                  }
+
+                  try {
+                    // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
+                    const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh /root/io_output/${opt.name} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${opt.runtype}_output`)
+
+                    // const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${opt.runtype}_output`)
+                    console.log(`ssh root@${i} ${IO_tracer_dir}/result.sh /root/io_output/${opt.name} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${opt.runtype}_output`);
+                    // console.log(`stdout: ${stdout3}`);
+                    stdout3.stdout.on('data', function(data) {
+                      console.log(data);
+                    })
+
+                  } catch (err) {
+                    console.log('server send fail');
+                    console.log(err);
+                  }
+                })
+              }, 10000);
+
             }
           }
 
-          console.log('--------------------------------------');
+          console.log('----------------------------------------------------------');
           console.log(chalk.green.bold('[INFO]'), 'complete benchmarking : ', chalk.blue.bold(opt.name));
-          console.log('--------------------------------------');
-
-
-                setTimeout(function() {
-
-                    ip.forEach((i) => {
-                    try {
-                      // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
-                      const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${opt.runtype}_output`)
-                      console.log(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${opt.runtype}_output`);
-                      console.log(`stdout: ${stdout3}`);
-                      stdout3.stdout.on('data', function(data){
-                        console.log(data);
-                      })
-                      // stdout3.stderr.on('data', function(data){
-                      //   console.log(data);
-                      // })
-                      // stdout3.stdin.on('data', function(data){
-                      //   console.log(data);
-                      // })
-
-                    } catch (err) {
-                      console.log('server send fail');
-                      console.log(err);
-                    }
-                    })
-                }, 10000);
+          console.log('----------------------------------------------------------');
 
         }
       } else if (opt.dbtype == 'arangodb') {
@@ -520,9 +543,9 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
           ip.forEach((i) => {
             try {
               exec(`ssh root@${i} ${node_arangodb_dir}/killArango.sh`)
-              console.log('--------------------------------------');
+              console.log('----------------------------------------------------------');
               console.log(chalk.green.bold('[INFO]'), 'kill arangodb : ', chalk.blue.bold(i));
-              console.log('--------------------------------------');
+              // console.log('----------------------------------------------------------');
             } catch (err) {
               console.log(err);
             }
@@ -532,46 +555,49 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
           if (opt.iotracer == true) { // 벤치마킹 종료 후 iotracer 결과를 저장함
             if ((opt.runtype == 'load') || (opt.runtype == 'run') || ((opt.runtype == 'loadrun') && (runtype == 'run'))) {
               get_IO_results(opt.name, ip, opt.runtype)
+
+              setTimeout(function() {
+                ip.forEach((i) => {
+                  try {
+                    // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
+                    // const stdout = exec(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`)
+                    const stdout2 = exec(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}`)
+                    // console.log(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`);
+                    // console.log(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}_${i}_${runtype}`);
+                    // console.log(`stdout: ${stdout}`);
+                  } catch (err) {
+                    // console.log('node file mv fail');
+                    console.log(err);
+                  }
+
+                  try {
+                    // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
+                    const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh /root/io_output/${opt.name} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${opt.runtype}_output`)
+
+                    // const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${opt.runtype}_output`)
+                    console.log(`ssh root@${i} ${IO_tracer_dir}/result.sh /root/io_output/${opt.name} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${opt.runtype}_output`);
+                    // console.log(`stdout: ${stdout3}`);
+                    stdout3.stdout.on('data', function(data) {
+                      console.log(data);
+                    })
+
+                  } catch (err) {
+                    console.log('server send fail');
+                    console.log(err);
+                  }
+                })
+              }, 10000);
+
             }
           }
 
-          console.log('--------------------------------------');
+          console.log('----------------------------------------------------------');
           console.log(chalk.green.bold('[INFO]'), 'complete benchmarking : ', chalk.blue.bold(opt.name));
-          console.log('--------------------------------------');
-
-
-                setTimeout(function() {
-
-                    ip.forEach((i) => {
-                    try {
-                      // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
-                      const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${runtype}_output`)
-                      console.log(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${i}_${runtype}_output`);
-                      console.log(`stdout: ${stdout3}`);
-                      stdout3.stdout.on('data', function(data){
-                        console.log(data);
-                      })
-                      // stdout3.stderr.on('data', function(data){
-                      //   console.log(data);
-                      // })
-                      // stdout3.stdin.on('data', function(data){
-                      //   console.log(data);
-                      // })
-
-                    } catch (err) {
-                      console.log('server send fail');
-                      console.log(err);
-                    }
-                    })
-                }, 10000);
-
+          console.log('----------------------------------------------------------');
         }
       }
-
       resolve(flag)
-
     })
-
 
   } catch (err) {
     console.log(err);
@@ -631,60 +657,14 @@ function get_IO_results(bmname, ip, runtype) {
       const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/killIO.sh`)
       // console.log(`ssh root@${i} ${IO_tracer_dir}/killIO.sh`);
       // console.log(`stdout: ${stdout}`);
-      console.log('--------------------------------------');
+      console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'kill iotracer : ', chalk.blue.bold(i));
-      console.log('--------------------------------------');
+      // console.log('----------------------------------------------------------');
       // console.log(stdout);
     } catch (err) {
       console.log('kill fail');
       console.log(err);
     }
-
-    // try {
-    //   // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
-    //   const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${bmname}/${i}_${runtype}_output`)
-    //   console.log(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${bmname}/${i}_${runtype}_output`);
-    //   console.log(`stdout: ${stdout3}`);
-    //   stdout3.stdout.on('data', function(data){
-    //     console.log(data);
-    //   })
-    //   // stdout3.stderr.on('data', function(data){
-    //   //   console.log(data);
-    //   // })
-    //   // stdout3.stdin.on('data', function(data){
-    //   //   console.log(data);
-    //   // })
-    //
-    // } catch (err) {
-    //   console.log('server send fail');
-    //   console.log(err);
-    // }
-
-    // // console.log('parse start');
-    // try { // 파싱해서 결과를 저장함
-    //   const stdout2 = exec(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser ${IO_tracer_dir}/output ${IO_output_dir}`)
-    //   // console.log(`stdout: ${stdout2}`);
-    //   console.log('parse end');
-    //   exec(`mv ${ycsb_exportfile_dir}/${bmname}/output ${ycsb_exportfile_dir}/${bmname}/${i}_${runtype}_output`)
-    //
-    //   exec(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${bmname}`)
-    //   exec(`mv ${ycsb_exportfile_dir}/${bmname}/output ${ycsb_exportfile_dir}/${bmname}/${i}_${runtype}_output`)
-    //   console.log('result end');
-    //   console.log(`stdout: ${std`out3}`);
-    // } catch (err) {
-    //   console.log('parcer fail');
-    //   console.log(err);
-    // }
-
-    // try{
-    // // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
-    // const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh ${IO_output_dir} ${server_IP} ${ycsb_exportfile_dir}/${bmname}/${i}_${runtype}_output`)
-    // console.log(`stdout: ${stdout3}`);
-    // }catch (err){
-    //   console.log('server send fail');
-    //   console.log(err);
-    // }
-
   })
 }
 
