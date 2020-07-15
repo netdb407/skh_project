@@ -1,0 +1,701 @@
+
+2020-07-13 04:26:33:918 INFO  Loading configuration from: /root/ssdStorage/orientdb193/config/orientdb-server-config.xml... [OServerConfigurationLoaderXml]
+2020-07-13 04:26:34:054 INFO  OrientDB Server v2.2.29 (build 9914189f972103907c24377a1567897e68642920) is starting up... [OServer]
+2020-07-13 04:26:34:057 INFO  Databases directory: /root/ssdStorage/orientdb193/databases [OServer]
+2020-07-13 04:26:34:084 INFO  OrientDB auto-config DISKCACHE=26,113MB (heap=3,925MB direct=1,048,576MB os=32,087MB) [OMemoryAndLocalPaginatedEnginesInitializer]
+2020-07-13 04:26:34:196 INFO  Listening binary connections on 0.0.0.0:2424 (protocol v.36, socket=default) [OServerNetworkListener]
+2020-07-13 04:26:34:198 INFO  Listening http connections on 0.0.0.0:2480 (protocol v.10, socket=default) [OServerNetworkListener]
+2020-07-13 04:26:34:204 INFO  Installing dynamic plugin 'orientdb-etl-2.2.29.jar'... [OServerPluginManager]
+2020-07-13 04:26:34:207 INFO  Installing dynamic plugin 'orientdb-studio-2.2.29.zip'... [OServerPluginManager]
+2020-07-13 04:26:34:208 INFO  ODefaultPasswordAuthenticator is active [ODefaultPasswordAuthenticator]
+2020-07-13 04:26:34:214 INFO  OServerConfigAuthenticator is active [OServerConfigAuthenticator]
+2020-07-13 04:26:34:215 INFO  OSystemUserAuthenticator is active [OSystemUserAuthenticator]
+2020-07-13 04:26:34:225 INFO  Installed GREMLIN language v.2.6.0 - graph.pool.max=50 [OGraphServerHandler]
+2020-07-13 04:26:34:575 INFO  Configuring Hazelcast from '/root/ssdStorage/orientdb193/config/hazelcast.xml'. [FileSystemXmlConfig]
+2020-07-13 04:26:34:600 WARNI Name of the hazelcast schema location incorrect using default [AbstractXmlConfigHelper]
+2020-07-13 04:26:34:820 INFO  [LOCAL] [project] [3.8.4] Interfaces is disabled, trying to pick one address from TCP-IP config addresses: [203.255.92.193, 203.255.92.195, 203.255.92.194] [DefaultAddressPicker]
+2020-07-13 04:26:34:820 INFO  [LOCAL] [project] [3.8.4] Prefer IPv4 stack is true. [DefaultAddressPicker]
+2020-07-13 04:26:34:823 INFO  [LOCAL] [project] [3.8.4] Picked [203.255.92.193]:2434, using socket ServerSocket[addr=/0:0:0:0:0:0:0:0,localport=2434], bind any local is true [DefaultAddressPicker]
+2020-07-13 04:26:34:827 INFO  [203.255.92.193]:2434 [project] [3.8.4] Hazelcast 3.8.4 (20170809 - 297a77e) starting at [203.255.92.193]:2434 [system]
+2020-07-13 04:26:34:828 INFO  [203.255.92.193]:2434 [project] [3.8.4] Copyright (c) 2008-2016, Hazelcast, Inc. All Rights Reserved. [system]
+2020-07-13 04:26:34:828 INFO  [203.255.92.193]:2434 [project] [3.8.4] Configured Hazelcast Serialization version : 1 [system]
+2020-07-13 04:26:34:910 INFO  [203.255.92.193]:2434 [project] [3.8.4] Backpressure is disabled [BackpressureRegulator]
+2020-07-13 04:26:35:167 INFO  [203.255.92.193]:2434 [project] [3.8.4] Creating TcpIpJoiner [Node]
+2020-07-13 04:26:35:235 INFO  [203.255.92.193]:2434 [project] [3.8.4] Starting 1 partition threads [OperationExecutorImpl]
+2020-07-13 04:26:35:235 INFO  [203.255.92.193]:2434 [project] [3.8.4] Starting 2 generic threads (1 dedicated for priority tasks) [OperationExecutorImpl]
+2020-07-13 04:26:35:239 INFO  [203.255.92.193]:2434 [project] [3.8.4] [203.255.92.193]:2434 is STARTING [LifecycleService]
+2020-07-13 04:26:35:251 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.194:2434, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:26:35:251 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.195:2435, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:26:35:252 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.193:2435, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:26:35:252 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.194:2435, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:26:35:252 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.193:2436, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:26:35:252 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.194:2436, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:26:35:252 INFO  [203.255.92.193]:2434 [project] [3.8.4] Could not connect to: /203.255.92.193:2435. Reason: SocketException[Connection refused to address /203.255.92.193:2435] [InitConnectionTask]
+2020-07-13 04:26:35:252 INFO  [203.255.92.193]:2434 [project] [3.8.4] [203.255.92.193]:2435 is added to the blacklist. [TcpIpJoiner]
+2020-07-13 04:26:35:252 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.195:2434, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.195:2436, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] Could not connect to: /203.255.92.194:2436. Reason: SocketException[Connection refused to address /203.255.92.194:2436] [InitConnectionTask]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] Could not connect to: /203.255.92.193:2436. Reason: SocketException[Connection refused to address /203.255.92.193:2436] [InitConnectionTask]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] Could not connect to: /203.255.92.194:2435. Reason: SocketException[Connection refused to address /203.255.92.194:2435] [InitConnectionTask]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] Could not connect to: /203.255.92.195:2436. Reason: SocketException[Connection refused to address /203.255.92.195:2436] [InitConnectionTask]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] [203.255.92.194]:2436 is added to the blacklist. [TcpIpJoiner]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] Could not connect to: /203.255.92.195:2435. Reason: SocketException[Connection refused to address /203.255.92.195:2435] [InitConnectionTask]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] [203.255.92.193]:2436 is added to the blacklist. [TcpIpJoiner]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] [203.255.92.194]:2435 is added to the blacklist. [TcpIpJoiner]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] [203.255.92.195]:2435 is added to the blacklist. [TcpIpJoiner]
+2020-07-13 04:26:35:253 INFO  [203.255.92.193]:2434 [project] [3.8.4] [203.255.92.195]:2436 is added to the blacklist. [TcpIpJoiner]
+2020-07-13 04:26:35:255 INFO  [203.255.92.193]:2434 [project] [3.8.4] Established socket connection between /203.255.92.193:48809 and /203.255.92.194:2434 [TcpIpConnectionManager]
+2020-07-13 04:26:35:256 INFO  [203.255.92.193]:2434 [project] [3.8.4] Established socket connection between /203.255.92.193:41349 and /203.255.92.195:2434 [TcpIpConnectionManager]
+2020-07-13 04:26:41:264 INFO  [203.255.92.193]:2434 [project] [3.8.4] Cluster version set to 3.8 [system]
+2020-07-13 04:26:41:265 INFO  [203.255.92.193]:2434 [project] [3.8.4] 
+
+Members [3] {
+	Member [203.255.92.194]:2434 - aa553934-7804-4f25-9785-aa921de16765
+	Member [203.255.92.195]:2434 - 36924999-9e58-4c02-8cb3-15d9f0ab5255
+	Member [203.255.92.193]:2434 - 9b07a32d-e1a5-4dec-b42a-a9e1ad727ecc this
+}
+ [ClusterService]
+2020-07-13 04:26:43:269 INFO  [203.255.92.193]:2434 [project] [3.8.4] [203.255.92.193]:2434 is STARTED [LifecycleService]
+2020-07-13 04:26:43:270 INFO  Starting distributed server 'orientdb193' (hzID=9b07a32d-e1a5-4dec-b42a-a9e1ad727ecc)... [OHazelcastPlugin]
+2020-07-13 04:26:43:272 INFO  Distributed cluster time=Mon Jul 13 04:26:43 EDT 2020 (delta from local node=2)... [OHazelcastPlugin]
+2020-07-13 04:26:43:302 INFO  [orientdb193] Registered local server with nodeId=0 [OHazelcastPlugin]
+2020-07-13 04:26:43:325 INFO  Distributed lockManager='orientdb194' [OHazelcastPlugin]
+2020-07-13 04:26:43:332 INFO  [orientdb193] Loaded configuration for database 'OSystem' from disk: /root/ssdStorage/orientdb193/config/default-distributed-db-config.json [ODistributedStorage]
+2020-07-13 04:26:43:338 INFO  [orientdb193] Servers in cluster: [orientdb193, orientdb194, orientdb195] [OHazelcastPlugin]
+2020-07-13 04:26:43:364 INFO  [orientdb193] Loaded configuration for database 'OSystem' from disk: /root/ssdStorage/orientdb193/config/default-distributed-db-config.json [ODistributedStorage]
+2020-07-13 04:26:43:368 SEVER [orientdb193] Error on installing database 'GratefulDeadConcerts' on local node (error=com.orientechnologies.orient.core.exception.OConfigurationException: The value '1' is not supported for readQuorum in distributed configuration) [OHazelcastPlugin]
+2020-07-13 04:26:43:386 INFO  [orientdb193] Downloaded configuration for database 'pokec' from the cluster [ODistributedStorage]
+2020-07-13 04:26:43:401 INFO  [orientdb193] Setting new distributed configuration for database: pokec (version=94)
+
+CLUSTER CONFIGURATION [wQuorum: false] (LEGEND: X = Owner, o = Copy)
++---------------+-----------+----------+-----------+-------------+-----------+-------------+
+|               |           |          |  MASTER   |   MASTER    |  MASTER   |   MASTER    |
+|               |           |          |  ONLINE   |NOT_AVAILABLE|  ONLINE   |NOT_AVAILABLE|
+|               |           |          |  static   |   static    |  static   |   static    |
++---------------+-----------+----------+-----------+-------------+-----------+-------------+
+|CLUSTER        |writeQuorum|readQuorum|orientdb194| orientdb193 |orientdb195|     193     |
++---------------+-----------+----------+-----------+-------------+-----------+-------------+
+|*              |     3     |    1     |     X     |      o      |     o     |      o      |
+|_studio_0      |     3     |    1     |     o     |      o      |     o     |      X      |
+|_studio_1      |     3     |    1     |     o     |      o      |     X     |      o      |
+|counter_4      |     3     |    1     |     o     |      o      |     o     |      X      |
+|counter_5      |     3     |    1     |     o     |      o      |     o     |      X      |
+|counter_6      |     3     |    1     |     o     |      o      |     X     |      o      |
+|counter_7      |     3     |    1     |     o     |      o      |     o     |      X      |
+|e_3            |     3     |    1     |     o     |      o      |     o     |      X      |
+|e_5            |     3     |    1     |     o     |      o      |     X     |      o      |
+|e_6            |     3     |    1     |     o     |      o      |     o     |      X      |
+|e_7            |     3     |    1     |     o     |      o      |     o     |      X      |
+|internal       |     3     |    1     |           |             |           |             |
+|ofunction      |     3     |    1     |     o     |      o      |     X     |      o      |
+|ofunction_0    |     3     |    1     |     o     |      o      |     o     |      X      |
+|orole          |     3     |    1     |     o     |      o      |     o     |      X      |
+|orole_1        |     3     |    1     |     o     |      o      |     X     |      o      |
+|oschedule      |     3     |    1     |     o     |      o      |     o     |      X      |
+|oschedule_1    |     3     |    1     |     o     |      o      |     X     |      o      |
+|osequence      |     3     |    1     |     o     |      o      |     X     |      o      |
+|osequence_0    |     3     |    1     |     o     |      o      |     o     |      X      |
+|ouser          |     3     |    1     |     o     |      o      |     X     |      o      |
+|ouser_0        |     3     |    1     |     o     |      o      |     o     |      X      |
+|profile        |     3     |    1     |     o     |      o      |     o     |      X      |
+|profile_2      |     3     |    1     |     o     |      o      |     o     |      X      |
+|profile_3      |     3     |    1     |     o     |      o      |     o     |      X      |
+|profile_4      |     3     |    1     |     o     |      o      |     X     |      o      |
+|profile_i      |     3     |    1     |     o     |      X      |     o     |      o      |
+|profile_i_2    |     3     |    1     |     o     |      o      |     X     |      o      |
+|profile_i_3    |     3     |    1     |     o     |      o      |     X     |      o      |
+|profile_i_4    |     3     |    1     |     o     |      X      |     o     |      o      |
+|profile_i_6    |     3     |    1     |     o     |      X      |     o     |      o      |
+|profile_i_7    |     3     |    1     |     o     |      X      |     o     |      o      |
+|profile_info   |     3     |    1     |     o     |      o      |     o     |      X      |
+|profile_info_3 |     3     |    1     |     o     |      o      |     o     |      X      |
+|profile_info_4 |     3     |    1     |     o     |      o      |     o     |      X      |
+|profile_info_5 |     3     |    1     |     o     |      o      |     X     |      o      |
+|profile_temp_1 |     3     |    1     |     o     |      o      |     X     |      o      |
+|profile_temp_3 |     3     |    1     |     o     |      o      |     o     |      X      |
+|profile_temp_4 |     3     |    1     |     o     |      o      |     o     |      X      |
+|profile_temp_7 |     3     |    1     |     o     |      o      |     o     |      X      |
+|profiles_temp_2|     3     |    1     |     o     |      X      |     o     |      o      |
+|profiles_temp_3|     3     |    1     |     o     |      X      |     o     |      o      |
+|profiles_temp_4|     3     |    1     |     o     |      X      |     o     |      o      |
+|profiles_temp_5|     3     |    1     |     o     |      X      |     o     |      o      |
+|profiles_temp_6|     3     |    1     |     o     |      o      |     X     |      o      |
+|profiles_temp_7|     3     |    1     |     o     |      o      |     X     |      o      |
+|profilet_1     |     3     |    1     |     o     |      o      |     o     |      X      |
+|profilet_2     |     3     |    1     |     o     |      o      |     o     |      X      |
+|profilet_3     |     3     |    1     |     o     |      o      |     X     |      o      |
+|profilet_5     |     3     |    1     |     o     |      o      |     o     |      X      |
+|relation       |     3     |    1     |     o     |      X      |     o     |      o      |
+|relation_2     |     3     |    1     |     o     |      X      |     o     |      o      |
+|relation_4     |     3     |    1     |     o     |      X      |     o     |      o      |
+|relation_6     |     3     |    1     |     o     |      X      |     o     |      o      |
+|relation_i_1   |     3     |    1     |     o     |      X      |     o     |      o      |
+|relation_i_5   |     3     |    1     |     o     |      X      |     o     |      o      |
+|relation_i_6   |     3     |    1     |     o     |      X      |     o     |      o      |
+|relation_i_7   |     3     |    1     |     o     |      X      |     o     |      o      |
+|relation_info_2|     3     |    1     |     o     |      o      |     o     |      X      |
+|relation_info_4|     3     |    1     |     o     |      o      |     X     |      o      |
+|relation_info_6|     3     |    1     |     o     |      o      |     o     |      X      |
+|relation_info_7|     3     |    1     |     o     |      o      |     o     |      X      |
+|relationt_2    |     3     |    1     |     o     |      o      |     o     |      X      |
+|relationt_4    |     3     |    1     |     o     |      o      |     X     |      o      |
+|relationt_5    |     3     |    1     |     o     |      o      |     o     |      X      |
+|relationt_6    |     3     |    1     |     o     |      o      |     o     |      X      |
+|v_1            |     3     |    1     |     o     |      o      |     o     |      X      |
+|v_3            |     3     |    1     |     o     |      o      |     X     |      o      |
+|v_5            |     3     |    1     |     o     |      o      |     o     |      X      |
+|v_7            |     3     |    1     |     o     |      o      |     o     |      X      |
++---------------+-----------+----------+-----------+-------------+-----------+-------------+
+
+ [ODistributedStorage]
+2020-07-13 04:26:43:415 INFO  [orientdb193] Current node is a MASTER for database 'pokec' [ODistributedAbstractPlugin$3]
+2020-07-13 04:26:43:417 WARNI [orientdb193]->[[orientdb194, orientdb195]] requesting delta database sync for 'pokec' on local server... [OHazelcastPlugin]
+2020-07-13 04:26:43:481 INFO  [203.255.92.193]:2434 [project] [3.8.4] Ignoring join check from [203.255.92.194]:2434, because this node is not master... [SplitBrainMergeValidationOperation]
+2020-07-13 04:26:50:551 INFO  Found 12 records changed in last 16 operations [OLocalPaginatedStorage]
+2020-07-13 04:26:50:551 INFO  [orientdb193] Executing the realignment of the last records modified before last close [#33:4814, #35:4222, #36:2913, #36:3662, #36:4584, #37:4061, #39:2942, #78:29281, #78:41264, #79:55577, #84:55503, #84:55504]... [OHazelcastPlugin]
+2020-07-13 04:26:50:576 INFO  [orientdb193] Realignment completed. [OHazelcastPlugin]
+2020-07-13 04:26:50:578 INFO  [orientdb193]->[orientdb194] Requesting database delta sync for 'pokec' LSN=LSN{segment=9782, position=108769156}... [OHazelcastPlugin]
+2020-07-13 04:26:50:589 SEVER [orientdb193]<-[orientdb194] Error on installing database delta com.orientechnologies.orient.server.distributed.ODistributedException: Skipped request id=0.5 task=deploy_delta_db on database 'pokec' because LSN{segment=9782, position=108769156} < current LSN{segment=9783, position=35145336} in pokec (/root/ssdStorage/orientdb193/databases/pokec) [OHazelcastPlugin]
+2020-07-13 04:26:50:609 INFO  [orientdb193] Requesting full sync for database 'pokec'... [OHazelcastPlugin]
+2020-07-13 04:26:50:610 INFO  [orientdb193]->[[orientdb194]] Requesting deploy of database 'pokec' on local server... [OHazelcastPlugin]
+2020-07-13 04:26:50:615 INFO  [orientdb193] Publishing ONLINE status for database orientdb193.pokec... [ODistributedDatabaseImpl]
+2020-07-13 04:26:50:615 INFO  [orientdb193]->[[orientdb194, orientdb195]] Current copy of database 'pokec' is newer than the copy present in the cluster. Use the local copy and force other nodes to download this [ODistributedAbstractPlugin$3]
+2020-07-13 04:26:50:620 INFO  [orientdb193] Updated node status to 'ONLINE' [OHazelcastPlugin]
+2020-07-13 04:26:50:624 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+----------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                   |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+----------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)       |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|722.61MB/3.99GB (17.67%)|
+|orientdb194(@)|ONLINE|pokec=NOT_AVAILABLE (MASTER)|6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|orientdb195   |ONLINE|pokec=NOT_AVAILABLE (MASTER)|6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|514.46MB/3.83GB (13.11%)|
++--------------+------+----------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:26:50:624 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+--------+----------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status  |Databases                   |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+--------+----------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|STARTING|                            |0    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|347.54MB/3.83GB (8.85%) |
+|orientdb194(@)|ONLINE  |pokec=NOT_AVAILABLE (MASTER)|6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|orientdb195   |ONLINE  |pokec=NOT_AVAILABLE (MASTER)|6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|514.46MB/3.83GB (13.11%)|
++--------------+--------+----------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:26:50:624 WARNI Authenticated clients can execute any kind of code into the server by using the following allowed languages: [javascript, sql] [OServerSideScriptInterpreter]
+2020-07-13 04:26:50:624 INFO  OrientDB Studio available at http://203.255.92.193:2480/studio/index.html [OServer]
+2020-07-13 04:26:50:624 INFO  OrientDB Server is active v2.2.29 (build 9914189f972103907c24377a1567897e68642920). [OServer]
+2020-07-13 04:26:53:293 INFO  {db=GratefulDeadConcerts} [orientdb193] Downloaded configuration for database 'GratefulDeadConcerts' from the cluster [ODistributedStorage]
+2020-07-13 04:26:53:297 INFO  {db=GratefulDeadConcerts} [orientdb193] Setting new distributed configuration for database: GratefulDeadConcerts (version=23)
+
+CLUSTER CONFIGURATION [wQuorum: false] (LEGEND: X = Owner, o = Copy)
++-------------+----+-----------+----------+-------------+-----------+-----------+-------------+
+|             |    |           |          |   MASTER    |  MASTER   |  MASTER   |   MASTER    |
+|             |    |           |          |NOT_AVAILABLE|  ONLINE   |  ONLINE   |NOT_AVAILABLE|
+|             |    |           |          |   static    |  static   |  static   |   static    |
++-------------+----+-----------+----------+-------------+-----------+-----------+-------------+
+|CLUSTER      |  id|writeQuorum|readQuorum| orientdb193 |orientdb194|orientdb195|     193     |
++-------------+----+-----------+----------+-------------+-----------+-----------+-------------+
+|*            |    |     3     |    1     |      X      |     o     |     o     |      o      |
+|_studio      |  49|     3     |    1     |      o      |     o     |     o     |      X      |
+|e_1          |  18|     3     |    1     |      o      |     o     |     X     |      o      |
+|e_2          |  19|     3     |    1     |      o      |     o     |     X     |      o      |
+|e_4          |  21|     3     |    1     |      o      |     o     |     o     |      X      |
+|e_5          |  22|     3     |    1     |      o      |     o     |     X     |      o      |
+|e_6          |  23|     3     |    1     |      o      |     X     |     o     |      o      |
+|e_7          |  24|     3     |    1     |      o      |     o     |     X     |      o      |
+|followed_by  |  25|     3     |    1     |      o      |     o     |     X     |      o      |
+|followed_by_1|  26|     3     |    1     |      o      |     o     |     o     |      X      |
+|followed_by_2|  27|     3     |    1     |      o      |     o     |     X     |      o      |
+|followed_by_3|  28|     3     |    1     |      o      |     X     |     o     |      o      |
+|followed_by_4|  29|     3     |    1     |      o      |     o     |     X     |      o      |
+|followed_by_7|  32|     3     |    1     |      o      |     o     |     X     |      o      |
+|internal     |   0|     3     |    1     |             |           |           |             |
+|ofunction    |   6|     3     |    1     |      o      |     o     |     o     |      X      |
+|orole        |   4|     3     |    1     |      o      |     o     |     o     |      X      |
+|oschedule    |   8|     3     |    1     |      o      |     o     |     o     |      X      |
+|osequence    |   7|     3     |    1     |      o      |     o     |     o     |      X      |
+|ouser        |   5|     3     |    1     |      o      |     o     |     o     |      X      |
+|sung_by      |  41|     3     |    1     |      o      |     o     |     X     |      o      |
+|sung_by_1    |  42|     3     |    1     |      o      |     o     |     o     |      X      |
+|sung_by_2    |  43|     3     |    1     |      o      |     X     |     o     |      o      |
+|sung_by_3    |  44|     3     |    1     |      o      |     o     |     X     |      o      |
+|sung_by_4    |  45|     3     |    1     |      o      |     o     |     X     |      o      |
+|sung_by_6    |  47|     3     |    1     |      o      |     o     |     X     |      o      |
+|v_2          |  11|     3     |    1     |      o      |     o     |     X     |      o      |
+|v_3          |  12|     3     |    1     |      o      |     o     |     X     |      o      |
+|v_4          |  13|     3     |    1     |      o      |     o     |     X     |      o      |
+|v_5          |  14|     3     |    1     |      o      |     o     |     X     |      o      |
+|v_6          |  15|     3     |    1     |      o      |     o     |     o     |      X      |
+|v_7          |  16|     3     |    1     |      o      |     X     |     o     |      o      |
+|written_by   |  33|     3     |    1     |      o      |     o     |     o     |      X      |
+|written_by_3 |  36|     3     |    1     |      o      |     X     |     o     |      o      |
+|written_by_4 |  37|     3     |    1     |      o      |     X     |     o     |      o      |
+|written_by_5 |  38|     3     |    1     |      o      |     X     |     o     |      o      |
+|written_by_6 |  39|     3     |    1     |      o      |     X     |     o     |      o      |
+|written_by_7 |  40|     3     |    1     |      o      |     o     |     X     |      o      |
++-------------+----+-----------+----------+-------------+-----------+-----------+-------------+
+
+ [ODistributedStorage]
+2020-07-13 04:26:57:966 INFO  [orientdb193] Received updated status orientdb195.pokec=SYNCHRONIZING [OHazelcastPlugin]
+2020-07-13 04:26:57:967 INFO  [orientdb193]->[orientdb195] Deploying database 'pokec' with delta of changes... [OSyncDatabaseDeltaTask]
+2020-07-13 04:26:57:967 INFO  [orientdb193]->[orientdb195] Creating delta backup of database 'pokec' (startLSN=LSN{segment=9783, position=34355141}) in directory: /tmp/orientdb/backup_orientdb195_pokec_server0.zip... [OSyncDatabaseDeltaTask]
+2020-07-13 04:26:57:967 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                                  |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)                      |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|722.61MB/3.99GB (17.67%)|
+|              |      |GratefulDeadConcerts=NOT_AVAILABLE (MASTER)|     |         |                   |                   |                        |
+|orientdb194(@)|ONLINE|pokec=NOT_AVAILABLE (MASTER)               |6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
+|orientdb195   |ONLINE|pokec=SYNCHRONIZING (MASTER)               |6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|514.46MB/3.83GB (13.11%)|
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:26:58:019 INFO  Exporting records after LSN=LSN{segment=9783, position=34355141}. Found 61 records [OLocalPaginatedStorage]
+2020-07-13 04:26:58:028 INFO  [orientdb193]->[orientdb195] Delta backup of database 'pokec' completed. range=LSN{segment=9783, position=34355141}-LSN{segment=9783, position=35145398} [OSyncDatabaseDeltaTask]
+2020-07-13 04:26:58:029 INFO  [orientdb193]->[orientdb195] Deploy delta database task completed [OSyncDatabaseDeltaTask]
+2020-07-13 04:26:58:030 INFO  [orientdb193]->[orientdb195] - transferring chunk #1 offset=0 size=26530... [OSyncDatabaseDeltaTask]
+2020-07-13 04:26:58:063 INFO  [orientdb193]<-[orientdb195] Received updated status orientdb195.pokec=ONLINE [OHazelcastPlugin]
+2020-07-13 04:26:58:081 INFO  [orientdb193] Setting new distributed configuration for database: pokec (version=123)
+
+CLUSTER CONFIGURATION [wQuorum: false] (LEGEND: X = Owner, o = Copy)
++---------------+----+-----------+----------+-------------+-----------+-----------+-------------+
+|               |    |           |          |   MASTER    |  MASTER   |  MASTER   |   MASTER    |
+|               |    |           |          |NOT_AVAILABLE|  ONLINE   |  ONLINE   |NOT_AVAILABLE|
+|               |    |           |          |   static    |  static   |  static   |   static    |
++---------------+----+-----------+----------+-------------+-----------+-----------+-------------+
+|CLUSTER        |  id|writeQuorum|readQuorum| orientdb194 |orientdb193|orientdb195|     193     |
++---------------+----+-----------+----------+-------------+-----------+-----------+-------------+
+|*              |    |     3     |    1     |      X      |     o     |     o     |      o      |
+|_studio        |  70|     3     |    1     |      o      |     o     |     o     |      X      |
+|_studio_0      |  74|     3     |    1     |      o      |     X     |     o     |      o      |
+|_studio_1      |  75|     3     |    1     |      o      |     o     |     X     |      o      |
+|counter_1      |  88|     3     |    1     |      o      |     X     |     o     |      o      |
+|counter_2      |  89|     3     |    1     |      o      |     o     |     o     |      X      |
+|counter_4      |  91|     3     |    1     |      o      |     o     |     o     |      X      |
+|counter_5      |  92|     3     |    1     |      o      |     o     |     o     |      X      |
+|counter_6      |  93|     3     |    1     |      o      |     o     |     X     |      o      |
+|counter_7      |  94|     3     |    1     |      o      |     o     |     o     |      X      |
+|e              |  17|     3     |    1     |      o      |     o     |     o     |      X      |
+|e_1            |  18|     3     |    1     |      o      |     X     |     o     |      o      |
+|e_3            |  20|     3     |    1     |      o      |     o     |     o     |      X      |
+|e_5            |  22|     3     |    1     |      o      |     o     |     X     |      o      |
+|e_6            |  23|     3     |    1     |      o      |     o     |     o     |      X      |
+|e_7            |  24|     3     |    1     |      o      |     o     |     o     |      X      |
+|internal       |   0|     3     |    1     |             |           |           |             |
+|ofunction      |   6|     3     |    1     |      o      |     o     |     X     |      o      |
+|ofunction_0    |  51|     3     |    1     |      o      |     X     |     o     |      o      |
+|ofunction_1    |  77|     3     |    1     |      o      |     o     |     o     |      X      |
+|orole          |   4|     3     |    1     |      o      |     o     |     o     |      X      |
+|orole_0        |  53|     3     |    1     |      o      |     X     |     o     |      o      |
+|orole_1        |  73|     3     |    1     |      o      |     o     |     X     |      o      |
+|oschedule      |   8|     3     |    1     |      o      |     X     |     o     |      o      |
+|oschedule_0    |  52|     3     |    1     |      o      |     o     |     o     |      X      |
+|oschedule_1    |  71|     3     |    1     |      o      |     o     |     X     |      o      |
+|osequence      |   7|     3     |    1     |      o      |     o     |     X     |      o      |
+|osequence_0    |  50|     3     |    1     |      o      |     X     |     o     |      o      |
+|osequence_1    |  72|     3     |    1     |      o      |     o     |     o     |      X      |
+|ouser          |   5|     3     |    1     |      o      |     o     |     X     |      o      |
+|ouser_0        |  49|     3     |    1     |      o      |     X     |     o     |      o      |
+|ouser_1        |  76|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile        |  25|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_2      |  27|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_3      |  28|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_4      |  29|     3     |    1     |      o      |     o     |     X     |      o      |
+|profile_6      |  31|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_7      |  32|     3     |    1     |      o      |     X     |     o     |      o      |
+|profile_i      |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|profile_i_2    |    |     3     |    1     |      o      |     o     |     X     |      o      |
+|profile_i_3    |    |     3     |    1     |      o      |     o     |     X     |      o      |
+|profile_i_4    |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|profile_i_6    |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|profile_i_7    |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|profile_info   |  33|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_info_1 |  34|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_info_2 |  35|     3     |    1     |      o      |     X     |     o     |      o      |
+|profile_info_3 |  36|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_info_4 |  37|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_info_5 |  38|     3     |    1     |      o      |     o     |     X     |      o      |
+|profile_temp_1 |  42|     3     |    1     |      o      |     o     |     X     |      o      |
+|profile_temp_3 |  44|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_temp_4 |  45|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_temp_5 |  46|     3     |    1     |      o      |     o     |     o     |      X      |
+|profile_temp_6 |  47|     3     |    1     |      o      |     X     |     o     |      o      |
+|profile_temp_7 |  48|     3     |    1     |      o      |     o     |     o     |      X      |
+|profiles_temp_2|    |     3     |    1     |      o      |     X     |     o     |      o      |
+|profiles_temp_3|    |     3     |    1     |      o      |     X     |     o     |      o      |
+|profiles_temp_4|    |     3     |    1     |      o      |     X     |     o     |      o      |
+|profiles_temp_5|    |     3     |    1     |      o      |     X     |     o     |      o      |
+|profiles_temp_6|    |     3     |    1     |      o      |     o     |     X     |      o      |
+|profiles_temp_7|    |     3     |    1     |      o      |     o     |     X     |      o      |
+|profilet_1     |  63|     3     |    1     |      o      |     o     |     o     |      X      |
+|profilet_2     |  64|     3     |    1     |      o      |     o     |     o     |      X      |
+|profilet_3     |  65|     3     |    1     |      o      |     o     |     X     |      o      |
+|profilet_5     |  67|     3     |    1     |      o      |     o     |     o     |      X      |
+|profilet_6     |  68|     3     |    1     |      o      |     X     |     o     |      o      |
+|profilet_7     |  69|     3     |    1     |      o      |     o     |     o     |      X      |
+|relation       |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|relation_2     |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|relation_4     |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|relation_6     |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|relation_i_1   |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|relation_i_5   |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|relation_i_6   |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|relation_i_7   |    |     3     |    1     |      o      |     X     |     o     |      o      |
+|relation_info  |  54|     3     |    1     |      o      |     o     |     o     |      X      |
+|relation_info_2|  56|     3     |    1     |      o      |     o     |     o     |      X      |
+|relation_info_3|  57|     3     |    1     |      o      |     X     |     o     |      o      |
+|relation_info_4|  58|     3     |    1     |      o      |     o     |     X     |      o      |
+|relation_info_6|  60|     3     |    1     |      o      |     o     |     o     |      X      |
+|relation_info_7|  61|     3     |    1     |      o      |     o     |     o     |      X      |
+|relationt      |  78|     3     |    1     |      o      |     X     |     o     |      o      |
+|relationt_2    |  80|     3     |    1     |      o      |     o     |     o     |      X      |
+|relationt_4    |  82|     3     |    1     |      o      |     o     |     X     |      o      |
+|relationt_5    |  83|     3     |    1     |      o      |     o     |     o     |      X      |
+|relationt_6    |  84|     3     |    1     |      o      |     o     |     o     |      X      |
+|relationt_7    |  85|     3     |    1     |      o      |     o     |     o     |      X      |
+|v              |   9|     3     |    1     |      o      |     o     |     o     |      X      |
+|v_1            |  10|     3     |    1     |      o      |     o     |     o     |      X      |
+|v_2            |  11|     3     |    1     |      o      |     X     |     o     |      o      |
+|v_3            |  12|     3     |    1     |      o      |     o     |     X     |      o      |
+|v_5            |  14|     3     |    1     |      o      |     o     |     o     |      X      |
+|v_7            |  16|     3     |    1     |      o      |     o     |     o     |      X      |
++---------------+----+-----------+----------+-------------+-----------+-----------+-------------+
+
+ [ODistributedStorage]
+2020-07-13 04:26:58:116 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                                  |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)                      |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|722.61MB/3.99GB (17.67%)|
+|              |      |GratefulDeadConcerts=NOT_AVAILABLE (MASTER)|     |         |                   |                   |                        |
+|orientdb194(@)|ONLINE|pokec=NOT_AVAILABLE (MASTER)               |6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
+|orientdb195   |ONLINE|pokec=ONLINE (MASTER)                      |6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|514.46MB/3.83GB (13.11%)|
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:27:00:623 INFO  [orientdb193] Trying to recover current server for database 'GratefulDeadConcerts'... [OClusterHealthChecker]
+2020-07-13 04:27:00:626 INFO  [orientdb193] Current node is a MASTER for database 'GratefulDeadConcerts' [ODistributedAbstractPlugin$3]
+2020-07-13 04:27:00:627 WARNI [orientdb193]->[[orientdb194, orientdb195]] requesting delta database sync for 'GratefulDeadConcerts' on local server... [OHazelcastPlugin]
+2020-07-13 04:27:00:834 INFO  Found 4 records changed in last 5 operations [OLocalPaginatedStorage]
+2020-07-13 04:27:00:835 INFO  [orientdb193] Executing the realignment of the last records modified before last close [#0:1, #49:0, #49:1, #49:2]... [OHazelcastPlugin]
+2020-07-13 04:27:00:849 INFO  [orientdb193] Realignment completed. [OHazelcastPlugin]
+2020-07-13 04:27:00:849 INFO  [orientdb193]->[orientdb194] Requesting database delta sync for 'GratefulDeadConcerts' LSN=LSN{segment=0, position=243573}... [OHazelcastPlugin]
+2020-07-13 04:27:00:851 SEVER [orientdb193]<-[orientdb194] Error on installing database delta com.orientechnologies.orient.server.distributed.ODistributedException: Skipped request id=0.12 task=deploy_delta_db on database 'GratefulDeadConcerts' because LSN{segment=0, position=243573} < current LSN{segment=0, position=301470} in GratefulDeadConcerts (/root/ssdStorage/orientdb193/databases/GratefulDeadConcerts) [OHazelcastPlugin]
+2020-07-13 04:27:00:861 INFO  [orientdb193] Requesting full sync for database 'GratefulDeadConcerts'... [OHazelcastPlugin]
+2020-07-13 04:27:00:862 INFO  [orientdb193]->[[orientdb194]] Requesting deploy of database 'GratefulDeadConcerts' on local server... [OHazelcastPlugin]
+2020-07-13 04:27:00:865 INFO  [orientdb193] Received updated status orientdb193.GratefulDeadConcerts=ONLINE [OHazelcastPlugin]
+2020-07-13 04:27:00:865 INFO  [orientdb193] Publishing ONLINE status for database orientdb193.GratefulDeadConcerts... [ODistributedDatabaseImpl]
+2020-07-13 04:27:00:866 INFO  [orientdb193]->[[orientdb194, orientdb195]] Current copy of database 'GratefulDeadConcerts' is newer than the copy present in the cluster. Use the local copy and force other nodes to download this [ODistributedAbstractPlugin$3]
+2020-07-13 04:27:00:866 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                           |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)               |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|722.61MB/3.99GB (17.67%)|
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)|     |         |                   |                   |                        |
+|orientdb194(@)|ONLINE|pokec=NOT_AVAILABLE (MASTER)        |6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)|     |         |                   |                   |                        |
+|orientdb195   |ONLINE|pokec=ONLINE (MASTER)               |6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|892.25MB/3.83GB (22.73%)|
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)|     |         |                   |                   |                        |
++--------------+------+------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:27:00:867 INFO  [orientdb193] Received updated status orientdb194.GratefulDeadConcerts=NOT_AVAILABLE [OHazelcastPlugin]
+2020-07-13 04:27:00:869 INFO  [orientdb193] Received updated status orientdb195.GratefulDeadConcerts=NOT_AVAILABLE [OHazelcastPlugin]
+2020-07-13 04:27:00:870 INFO  [orientdb193] Recover complete for database 'GratefulDeadConcerts' [OClusterHealthChecker]
+2020-07-13 04:27:00:870 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                                  |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)                      |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|722.61MB/3.99GB (17.67%)|
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
+|orientdb194(@)|ONLINE|pokec=NOT_AVAILABLE (MASTER)               |6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|              |      |GratefulDeadConcerts=NOT_AVAILABLE (MASTER)|     |         |                   |                   |                        |
+|orientdb195   |ONLINE|pokec=ONLINE (MASTER)                      |6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|892.25MB/3.83GB (22.73%)|
+|              |      |GratefulDeadConcerts=NOT_AVAILABLE (MASTER)|     |         |                   |                   |                        |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:27:07:430 INFO  [orientdb193] Received updated status orientdb194.pokec=SYNCHRONIZING [OHazelcastPlugin]
+2020-07-13 04:27:07:430 INFO  [orientdb193]->[orientdb194] Deploying database 'pokec' with delta of changes... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:07:430 INFO  [orientdb193]->[orientdb194] Creating delta backup of database 'pokec' (startLSN=LSN{segment=9783, position=7458156}) in directory: /tmp/orientdb/backup_orientdb194_pokec_server0.zip... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:07:431 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                                  |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)                      |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|1.34GB/3.99GB (33.53%)  |
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
+|orientdb194(@)|ONLINE|pokec=SYNCHRONIZING (MASTER)               |6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|              |      |GratefulDeadConcerts=NOT_AVAILABLE (MASTER)|     |         |                   |                   |                        |
+|orientdb195   |ONLINE|pokec=ONLINE (MASTER)                      |6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|892.25MB/3.83GB (22.73%)|
+|              |      |GratefulDeadConcerts=NOT_AVAILABLE (MASTER)|     |         |                   |                   |                        |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:27:07:889 INFO  [orientdb193] Received updated status orientdb195.GratefulDeadConcerts=SYNCHRONIZING [OHazelcastPlugin]
+2020-07-13 04:27:07:889 INFO  [orientdb193]->[orientdb195] Deploying database 'GratefulDeadConcerts' with delta of changes... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:07:889 INFO  [orientdb193]->[orientdb195] Creating delta backup of database 'GratefulDeadConcerts' (startLSN=LSN{segment=0, position=259108}) in directory: /tmp/orientdb/backup_orientdb195_GratefulDeadConcerts_server0.zip... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:07:891 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                                  |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)                      |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|1.34GB/3.99GB (33.53%)  |
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
+|orientdb194(@)|ONLINE|pokec=SYNCHRONIZING (MASTER)               |6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|              |      |GratefulDeadConcerts=NOT_AVAILABLE (MASTER)|     |         |                   |                   |                        |
+|orientdb195   |ONLINE|pokec=ONLINE (MASTER)                      |6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|892.25MB/3.83GB (22.73%)|
+|              |      |GratefulDeadConcerts=SYNCHRONIZING (MASTER)|     |         |                   |                   |                        |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:27:07:924 INFO  Exporting records after LSN=LSN{segment=0, position=259108}. Found 0 records [OLocalPaginatedStorage]
+2020-07-13 04:27:07:925 INFO  [orientdb193]->[orientdb195] Delta backup of database 'GratefulDeadConcerts' completed. range=LSN{segment=0, position=259108}-LSN{segment=0, position=301532} [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:07:925 INFO  [orientdb193]->[orientdb195] Deploy delta database task completed [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:07:925 INFO  [orientdb193]->[orientdb195] - transferring chunk #1 offset=0 size=8... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:07:938 INFO  [orientdb193]<-[orientdb195] Received updated status orientdb195.GratefulDeadConcerts=ONLINE [OHazelcastPlugin]
+2020-07-13 04:27:07:948 INFO  [orientdb193] Setting new distributed configuration for database: GratefulDeadConcerts (version=39)
+
+CLUSTER CONFIGURATION [wQuorum: false] (LEGEND: X = Owner, o = Copy)
++-------------+----+-----------+----------+-----------+-------------+-----------+-------------+
+|             |    |           |          |  MASTER   |   MASTER    |  MASTER   |   MASTER    |
+|             |    |           |          |  ONLINE   |NOT_AVAILABLE|  ONLINE   |NOT_AVAILABLE|
+|             |    |           |          |  static   |   static    |  static   |   static    |
++-------------+----+-----------+----------+-----------+-------------+-----------+-------------+
+|CLUSTER      |  id|writeQuorum|readQuorum|orientdb193| orientdb194 |orientdb195|     193     |
++-------------+----+-----------+----------+-----------+-------------+-----------+-------------+
+|*            |    |     3     |    1     |     X     |      o      |     o     |      o      |
+|e_1          |  18|     3     |    1     |     o     |      o      |     X     |      o      |
+|e_2          |  19|     3     |    1     |     o     |      o      |     X     |      o      |
+|e_5          |  22|     3     |    1     |     o     |      o      |     X     |      o      |
+|e_7          |  24|     3     |    1     |     o     |      o      |     X     |      o      |
+|followed_by  |  25|     3     |    1     |     o     |      o      |     X     |      o      |
+|followed_by_2|  27|     3     |    1     |     o     |      o      |     X     |      o      |
+|followed_by_4|  29|     3     |    1     |     o     |      o      |     X     |      o      |
+|followed_by_7|  32|     3     |    1     |     o     |      o      |     X     |      o      |
+|internal     |   0|     3     |    1     |           |             |           |             |
+|sung_by      |  41|     3     |    1     |     o     |      o      |     X     |      o      |
+|sung_by_3    |  44|     3     |    1     |     o     |      o      |     X     |      o      |
+|sung_by_4    |  45|     3     |    1     |     o     |      o      |     X     |      o      |
+|sung_by_6    |  47|     3     |    1     |     o     |      o      |     X     |      o      |
+|v_2          |  11|     3     |    1     |     o     |      o      |     X     |      o      |
+|v_3          |  12|     3     |    1     |     o     |      o      |     X     |      o      |
+|v_4          |  13|     3     |    1     |     o     |      o      |     X     |      o      |
+|v_5          |  14|     3     |    1     |     o     |      o      |     X     |      o      |
+|written_by   |  33|     3     |    1     |     o     |      o      |     o     |      X      |
+|written_by_4 |  37|     3     |    1     |     o     |      X      |     o     |      o      |
+|written_by_6 |  39|     3     |    1     |     o     |      X      |     o     |      o      |
+|written_by_7 |  40|     3     |    1     |     o     |      o      |     X     |      o      |
++-------------+----+-----------+----------+-----------+-------------+-----------+-------------+
+
+ [ODistributedStorage]
+2020-07-13 04:27:09:113 INFO  [orientdb193]->[orientdb194] - read 100000 records from WAL and collected 8336 records [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:10:767 INFO  [orientdb193]->[orientdb194] - read 200000 records from WAL and collected 16669 records [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:12:416 INFO  [orientdb193]->[orientdb194] - read 300000 records from WAL and collected 25002 records [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:13:003 INFO  Exporting records after LSN=LSN{segment=9783, position=7458156}. Found 27848 records [OLocalPaginatedStorage]
+2020-07-13 04:27:13:052 INFO  [orientdb193]->[orientdb194] - exporting record 4310/27848 [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:13:122 INFO  [orientdb193]->[orientdb194] - exporting record 14310/27848 [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:13:184 INFO  [orientdb193]->[orientdb194] - exporting record 24310/27848 [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:13:206 INFO  [orientdb193]->[orientdb194] Delta backup of database 'pokec' completed. range=LSN{segment=9783, position=7458156}-LSN{segment=9783, position=35145398} [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:206 INFO  [orientdb193]->[orientdb194] Deploy delta database task completed [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:207 INFO  [orientdb193]->[orientdb194] - transferring chunk #1 offset=0 size=390518... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:221 INFO  [orientdb193]->[orientdb194] Deploying database 'pokec' with delta of changes... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:221 INFO  [orientdb193]->[orientdb194] Creating delta backup of database 'pokec' (startLSN=LSN{segment=9783, position=7458156}) in directory: /tmp/orientdb/backup_orientdb194_pokec_server0.zip... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:376 INFO  [orientdb193]<-[orientdb194] Received updated status orientdb194.pokec=ONLINE [OHazelcastPlugin]
+2020-07-13 04:27:13:377 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                                  |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)                      |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|1.34GB/3.99GB (33.53%)  |
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
+|orientdb194(@)|ONLINE|pokec=SYNCHRONIZING (MASTER)               |6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|              |      |GratefulDeadConcerts=NOT_AVAILABLE (MASTER)|     |         |                   |                   |                        |
+|orientdb195   |ONLINE|pokec=ONLINE (MASTER)                      |6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|892.25MB/3.83GB (22.73%)|
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:27:13:445 INFO  [orientdb193] Received updated status orientdb194.GratefulDeadConcerts=SYNCHRONIZING [OHazelcastPlugin]
+2020-07-13 04:27:13:445 INFO  [orientdb193]->[orientdb194] Deploying database 'GratefulDeadConcerts' with delta of changes... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:445 INFO  [orientdb193]->[orientdb194] Creating delta backup of database 'GratefulDeadConcerts' (startLSN=LSN{segment=0, position=259108}) in directory: /tmp/orientdb/backup_orientdb194_GratefulDeadConcerts_server0.zip... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:446 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                                  |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)                      |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|1.34GB/3.99GB (33.53%)  |
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
+|orientdb194(@)|ONLINE|pokec=ONLINE (MASTER)                      |6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|              |      |GratefulDeadConcerts=SYNCHRONIZING (MASTER)|     |         |                   |                   |                        |
+|orientdb195   |ONLINE|pokec=ONLINE (MASTER)                      |6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|892.25MB/3.83GB (22.73%)|
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)       |     |         |                   |                   |                        |
++--------------+------+-------------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:27:13:484 INFO  Exporting records after LSN=LSN{segment=0, position=259108}. Found 0 records [OLocalPaginatedStorage]
+2020-07-13 04:27:13:484 INFO  [orientdb193]->[orientdb194] Delta backup of database 'GratefulDeadConcerts' completed. range=LSN{segment=0, position=259108}-LSN{segment=0, position=301532} [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:484 INFO  [orientdb193]->[orientdb194] Deploy delta database task completed [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:485 INFO  [orientdb193]->[orientdb194] - transferring chunk #1 offset=0 size=8... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:13:496 INFO  [orientdb193]<-[orientdb194] Received updated status orientdb194.GratefulDeadConcerts=ONLINE [OHazelcastPlugin]
+2020-07-13 04:27:13:504 INFO  [orientdb193] Setting new distributed configuration for database: GratefulDeadConcerts (version=48)
+
+CLUSTER CONFIGURATION [wQuorum: true] (LEGEND: X = Owner, o = Copy)
++-------------+----+-----------+----------+-----------+-----------+-----------+-------------+
+|             |    |           |          |  MASTER   |  MASTER   |  MASTER   |   MASTER    |
+|             |    |           |          |  ONLINE   |  ONLINE   |  ONLINE   |NOT_AVAILABLE|
+|             |    |           |          |  static   |  static   |  static   |   static    |
++-------------+----+-----------+----------+-----------+-----------+-----------+-------------+
+|CLUSTER      |  id|writeQuorum|readQuorum|orientdb193|orientdb194|orientdb195|     193     |
++-------------+----+-----------+----------+-----------+-----------+-----------+-------------+
+|*            |    |     3     |    1     |     X     |     o     |     o     |      o      |
+|e_1          |  18|     3     |    1     |     o     |     o     |     X     |      o      |
+|e_2          |  19|     3     |    1     |     o     |     o     |     X     |      o      |
+|e_5          |  22|     3     |    1     |     o     |     o     |     X     |      o      |
+|e_6          |  23|     3     |    1     |     o     |     o     |     o     |      X      |
+|e_7          |  24|     3     |    1     |     o     |     o     |     o     |      X      |
+|followed_by  |  25|     3     |    1     |     o     |     o     |     X     |      o      |
+|followed_by_2|  27|     3     |    1     |     o     |     o     |     X     |      o      |
+|followed_by_3|  28|     3     |    1     |     o     |     o     |     o     |      X      |
+|followed_by_4|  29|     3     |    1     |     o     |     o     |     o     |      X      |
+|followed_by_7|  32|     3     |    1     |     o     |     o     |     X     |      o      |
+|internal     |   0|     3     |    1     |           |           |           |             |
+|sung_by      |  41|     3     |    1     |     o     |     o     |     X     |      o      |
+|sung_by_2    |  43|     3     |    1     |     o     |     o     |     o     |      X      |
+|sung_by_3    |  44|     3     |    1     |     o     |     o     |     o     |      X      |
+|sung_by_4    |  45|     3     |    1     |     o     |     o     |     X     |      o      |
+|sung_by_6    |  47|     3     |    1     |     o     |     o     |     X     |      o      |
+|v_2          |  11|     3     |    1     |     o     |     o     |     X     |      o      |
+|v_3          |  12|     3     |    1     |     o     |     o     |     X     |      o      |
+|v_4          |  13|     3     |    1     |     o     |     o     |     X     |      o      |
+|v_5          |  14|     3     |    1     |     o     |     o     |     o     |      X      |
+|v_7          |  16|     3     |    1     |     o     |     o     |     o     |      X      |
+|written_by   |  33|     3     |    1     |     o     |     o     |     o     |      X      |
+|written_by_4 |  37|     3     |    1     |     o     |     X     |     o     |      o      |
+|written_by_5 |  38|     3     |    1     |     o     |     X     |     o     |      o      |
+|written_by_6 |  39|     3     |    1     |     o     |     X     |     o     |      o      |
+|written_by_7 |  40|     3     |    1     |     o     |     o     |     X     |      o      |
++-------------+----+-----------+----------+-----------+-----------+-----------+-------------+
+
+ [ODistributedStorage]
+2020-07-13 04:27:13:630 INFO  [orientdb193] Distributed servers status (*=current @=lockManager[orientdb194]):
+
++--------------+------+------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|Name          |Status|Databases                           |Conns|StartedOn|Binary             |HTTP               |UsedMemory              |
++--------------+------+------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+|orientdb193(*)|ONLINE|pokec=ONLINE (MASTER)               |6    |04:26:34 |203.255.92.193:2424|203.255.92.193:2480|1.34GB/3.99GB (33.53%)  |
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)|     |         |                   |                   |                        |
+|orientdb194(@)|ONLINE|pokec=ONLINE (MASTER)               |6    |03:49:57 |203.255.92.194:2424|203.255.92.194:2480|1.19GB/3.99GB (29.78%)  |
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)|     |         |                   |                   |                        |
+|orientdb195   |ONLINE|pokec=ONLINE (MASTER)               |6    |03:50:28 |203.255.92.195:2424|203.255.92.195:2480|892.25MB/3.83GB (22.73%)|
+|              |      |GratefulDeadConcerts=ONLINE (MASTER)|     |         |                   |                   |                        |
++--------------+------+------------------------------------+-----+---------+-------------------+-------------------+------------------------+
+ [OHazelcastPlugin]
+2020-07-13 04:27:14:924 INFO  [orientdb193]->[orientdb194] - read 100000 records from WAL and collected 8336 records [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:16:559 INFO  [orientdb193]->[orientdb194] - read 200000 records from WAL and collected 16669 records [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:18:196 INFO  [orientdb193]->[orientdb194] - read 300000 records from WAL and collected 25002 records [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:18:781 INFO  Exporting records after LSN=LSN{segment=9783, position=7458156}. Found 27848 records [OLocalPaginatedStorage]
+2020-07-13 04:27:18:812 INFO  [orientdb193]->[orientdb194] - exporting record 4310/27848 [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:18:881 INFO  [orientdb193]->[orientdb194] - exporting record 14310/27848 [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:18:937 INFO  [orientdb193]->[orientdb194] - exporting record 24310/27848 [OSyncDatabaseDeltaTask$1]
+2020-07-13 04:27:18:957 INFO  [orientdb193]->[orientdb194] Delta backup of database 'pokec' completed. range=LSN{segment=9783, position=7458156}-LSN{segment=9783, position=35145398} [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:18:957 INFO  [orientdb193]->[orientdb194] Deploy delta database task completed [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:18:958 INFO  [orientdb193]->[orientdb194] - transferring chunk #1 offset=0 size=390518... [OSyncDatabaseDeltaTask]
+2020-07-13 04:27:19:207 INFO  [orientdb193] Setting new distributed configuration for database: pokec (version=147)
+
+CLUSTER CONFIGURATION [wQuorum: true] (LEGEND: X = Owner, o = Copy)
++---------------+----+-----------+----------+-----------+-----------+-----------+-------------+
+|               |    |           |          |  MASTER   |  MASTER   |  MASTER   |   MASTER    |
+|               |    |           |          |  ONLINE   |  ONLINE   |  ONLINE   |NOT_AVAILABLE|
+|               |    |           |          |  static   |  static   |  static   |   static    |
++---------------+----+-----------+----------+-----------+-----------+-----------+-------------+
+|CLUSTER        |  id|writeQuorum|readQuorum|orientdb194|orientdb193|orientdb195|     193     |
++---------------+----+-----------+----------+-----------+-----------+-----------+-------------+
+|*              |    |     3     |    1     |     X     |     o     |     o     |      o      |
+|_studio_0      |  74|     3     |    1     |     o     |     X     |     o     |      o      |
+|_studio_1      |  75|     3     |    1     |     o     |     o     |     X     |      o      |
+|counter_1      |  88|     3     |    1     |     o     |     X     |     o     |      o      |
+|counter_4      |  91|     3     |    1     |     o     |     X     |     o     |      o      |
+|counter_5      |  92|     3     |    1     |     o     |     o     |     o     |      X      |
+|counter_6      |  93|     3     |    1     |     o     |     o     |     X     |      o      |
+|counter_7      |  94|     3     |    1     |     o     |     o     |     o     |      X      |
+|e_1            |  18|     3     |    1     |     o     |     X     |     o     |      o      |
+|e_3            |  20|     3     |    1     |     o     |     X     |     o     |      o      |
+|e_5            |  22|     3     |    1     |     o     |     o     |     X     |      o      |
+|e_6            |  23|     3     |    1     |     o     |     o     |     o     |      X      |
+|e_7            |  24|     3     |    1     |     o     |     o     |     o     |      X      |
+|internal       |   0|     3     |    1     |           |           |           |             |
+|ofunction      |   6|     3     |    1     |     o     |     o     |     X     |      o      |
+|ofunction_0    |  51|     3     |    1     |     o     |     X     |     o     |      o      |
+|orole_0        |  53|     3     |    1     |     o     |     X     |     o     |      o      |
+|orole_1        |  73|     3     |    1     |     o     |     o     |     X     |      o      |
+|oschedule      |   8|     3     |    1     |     o     |     X     |     o     |      o      |
+|oschedule_1    |  71|     3     |    1     |     o     |     o     |     X     |      o      |
+|osequence      |   7|     3     |    1     |     o     |     o     |     X     |      o      |
+|osequence_0    |  50|     3     |    1     |     o     |     X     |     o     |      o      |
+|ouser          |   5|     3     |    1     |     o     |     o     |     X     |      o      |
+|ouser_0        |  49|     3     |    1     |     o     |     X     |     o     |      o      |
+|profile        |  25|     3     |    1     |     o     |     X     |     o     |      o      |
+|profile_2      |  27|     3     |    1     |     o     |     o     |     o     |      X      |
+|profile_3      |  28|     3     |    1     |     o     |     o     |     o     |      X      |
+|profile_4      |  29|     3     |    1     |     o     |     o     |     X     |      o      |
+|profile_7      |  32|     3     |    1     |     o     |     X     |     o     |      o      |
+|profile_i      |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|profile_i_2    |    |     3     |    1     |     o     |     o     |     X     |      o      |
+|profile_i_3    |    |     3     |    1     |     o     |     o     |     X     |      o      |
+|profile_i_4    |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|profile_i_6    |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|profile_i_7    |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|profile_info   |  33|     3     |    1     |     o     |     X     |     o     |      o      |
+|profile_info_2 |  35|     3     |    1     |     o     |     X     |     o     |      o      |
+|profile_info_3 |  36|     3     |    1     |     o     |     o     |     o     |      X      |
+|profile_info_4 |  37|     3     |    1     |     o     |     o     |     o     |      X      |
+|profile_info_5 |  38|     3     |    1     |     o     |     o     |     X     |      o      |
+|profile_temp_1 |  42|     3     |    1     |     o     |     o     |     X     |      o      |
+|profile_temp_3 |  44|     3     |    1     |     o     |     o     |     o     |      X      |
+|profile_temp_4 |  45|     3     |    1     |     o     |     o     |     o     |      X      |
+|profile_temp_6 |  47|     3     |    1     |     o     |     X     |     o     |      o      |
+|profile_temp_7 |  48|     3     |    1     |     o     |     X     |     o     |      o      |
+|profiles_temp_2|    |     3     |    1     |     o     |     X     |     o     |      o      |
+|profiles_temp_3|    |     3     |    1     |     o     |     X     |     o     |      o      |
+|profiles_temp_4|    |     3     |    1     |     o     |     X     |     o     |      o      |
+|profiles_temp_5|    |     3     |    1     |     o     |     X     |     o     |      o      |
+|profiles_temp_6|    |     3     |    1     |     o     |     o     |     X     |      o      |
+|profiles_temp_7|    |     3     |    1     |     o     |     o     |     X     |      o      |
+|profilet_1     |  63|     3     |    1     |     o     |     o     |     o     |      X      |
+|profilet_2     |  64|     3     |    1     |     o     |     o     |     o     |      X      |
+|profilet_3     |  65|     3     |    1     |     o     |     o     |     X     |      o      |
+|profilet_5     |  67|     3     |    1     |     o     |     X     |     o     |      o      |
+|profilet_6     |  68|     3     |    1     |     o     |     X     |     o     |      o      |
+|relation       |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_2     |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_4     |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_6     |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_i_1   |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_i_5   |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_i_6   |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_i_7   |    |     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_info_2|  56|     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_info_3|  57|     3     |    1     |     o     |     X     |     o     |      o      |
+|relation_info_4|  58|     3     |    1     |     o     |     o     |     X     |      o      |
+|relation_info_6|  60|     3     |    1     |     o     |     o     |     o     |      X      |
+|relation_info_7|  61|     3     |    1     |     o     |     o     |     o     |      X      |
+|relationt      |  78|     3     |    1     |     o     |     X     |     o     |      o      |
+|relationt_2    |  80|     3     |    1     |     o     |     X     |     o     |      o      |
+|relationt_4    |  82|     3     |    1     |     o     |     o     |     X     |      o      |
+|relationt_5    |  83|     3     |    1     |     o     |     o     |     o     |      X      |
+|relationt_6    |  84|     3     |    1     |     o     |     o     |     o     |      X      |
+|v_1            |  10|     3     |    1     |     o     |     X     |     o     |      o      |
+|v_2            |  11|     3     |    1     |     o     |     X     |     o     |      o      |
+|v_3            |  12|     3     |    1     |     o     |     o     |     X     |      o      |
+|v_5            |  14|     3     |    1     |     o     |     o     |     o     |      X      |
+|v_7            |  16|     3     |    1     |     o     |     o     |     o     |      X      |
++---------------+----+-----------+----------+-----------+-----------+-----------+-------------+
+
+ [ODistributedStorage]
+2020-07-13 04:32:55:195 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connection[id=2, /203.255.92.193:41349->/203.255.92.195:2434, endpoint=[203.255.92.195]:2434, alive=false, type=MEMBER] closed. Reason: Connection closed by the other side [TcpIpConnection]
+2020-07-13 04:32:55:197 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.195:2434, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:32:55:197 INFO  [203.255.92.193]:2434 [project] [3.8.4] Could not connect to: /203.255.92.195:2434. Reason: SocketException[Connection refused to address /203.255.92.195:2434] [InitConnectionTask]
+2020-07-13 04:32:55:204 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connection[id=1, /203.255.92.193:48809->/203.255.92.194:2434, endpoint=[203.255.92.194]:2434, alive=false, type=MEMBER] closed. Reason: Connection closed by the other side [TcpIpConnection]
+2020-07-13 04:32:55:204 INFO  [203.255.92.193]:2434 [project] [3.8.4] Connecting to /203.255.92.194:2434, timeout: 0, bind-any: true [InitConnectionTask]
+2020-07-13 04:32:55:205 INFO  [203.255.92.193]:2434 [project] [3.8.4] Could not connect to: /203.255.92.194:2434. Reason: SocketException[Connection refused to address /203.255.92.194:2434] [InitConnectionTask]

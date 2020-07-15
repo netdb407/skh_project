@@ -20,45 +20,46 @@ let Promise = require('promise');
 
 
 
+//소민이꺼에서 입력되는 값의 크기(KB, MB, GB)에 따라 다르게 처리
+let somin_wl = '10G' //10K, 10M
+let wlsize = 10 //default?MB?
 
-ldbcRun()
+if(somin_wl.includes('K')){
+  wlsize = wlsize*1
+  console.log('WL size is KB');
+}
+if(somin_wl.includes('M')){
+  wlsize = wlsize*100
+  console.log('WL size is MB');
+}
+if(somin_wl.includes('G')){
+  wlsize = wlsize*1000
+  console.log('WL size is GB');
+}
+console.log('WL size : ', wlsize);
 
-function ldbcRun(){
+//내꺼도 module.exports 로 모듈화해서 소민이가 내 파일 import하고 함수로 쓸수있도록 하기 !
+module.exports.ldbcRun = () => {
+  //나중에 내용 넣기 !
+}
+
+
+ldbcRun(wlsize)
+
+
+
+
+function ldbcRun(wlsize){
   let hadoop_cmd1 = `export HADOOP_CLIENT_OPTS="-Xmx2G"`
-  let hadoop_cmd2 = `export HADOOP_HOME=/home/yh/ldbc_snb_datagen/hadoop-3.2.1`
-  let setHome_cmd = `export LDBC_SNB_DATAGEN_HOME=/home/yh/ldbc_snb_datagen`
+  let hadoop_cmd2 = `export HADOOP_HOME=/home/yh/skh_project/ldbc_snb_datagen/hadoop-3.2.1`
+  let setHome_cmd = `export LDBC_SNB_DATAGEN_HOME=/home/yh/skh_project/ldbc_snb_datagen`
   let hadoop_cmd3 = `export HADOOP_LOGLEVEL=WARN`
   let params_cmd = `cp /home/yh/skh_project/ldbc_snb_datagen/params.ini /home/yh/skh_project`
-  let run_cmd = `./ldbc_snb_datagen/tools/run.sh`
+  let run_cmd = `./ldbc_snb_datagen/run.sh`
+  //mvn 필요!!
 
-
-
-  //일단 params.ini 내용 바꾸는 부분만 다시 짜보자!
-
-  //소민이꺼에서 입력되는 값의 크기(KB, MB, GB)에 따라 다르게 처리
-  let somin_wl = '10GB' //10KB, 10MB
-  let size = 10 //default?MB?
-
-  if(somin_wl.includes('KB')){
-    size = size*1
-    console.log('WL size is KB');
-  }
-  if(somin_wl.includes('MB')){
-    size = size*100
-    console.log('WL size is MB');
-  }
-  if(somin_wl.includes('GB')){
-    size = size*1000
-    console.log('WL size is GB');
-  }
-  console.log('WL size : ', size);
-
-  //params.ini 파일의 scaleFactor가 계속 변하는데 이걸 어떻게 바꾼담
-  //쉘 스크립트 명령어에서 숫자에 접근하려면 머 써야하냐..
-  //그냥 한줄 날려버리고 다시 추가할까
-  //!!! 아니면 params.ini 파일을 덮어쓰기하고 다시 지우고? 다시 1로 셋팅할까?ㅋㅋㅋsize는 기억하니깐 그거로 다시 sed로 1로 바꾸는거지
-
-  let fixScaleFactor_cmd = `sed -i '1,2s|scaleFactor:1|scaleFactor:${size}|' /home/yh/skh_project/params.ini`
+  //scaleFactor : 0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000 (GB)
+  let fixScaleFactor_cmd = `sed -i '1,2s|scaleFactor:1|scaleFactor:${wlsize}|' /home/yh/skh_project/params.ini`
   // let fixScaleFactor_cmd = `sed -i '1,2s|generator|,|\n|s|scaleFactor:${size}|' /home/yh/skh_project/params.ini`
   exec(fixScaleFactor_cmd)
   console.log(chalk.green.bold('[INFO]'), 'fix params.ini');
@@ -85,11 +86,15 @@ function ldbcRun(){
 
   //결과파일 위치 윤아한테 주기? 접근하는 방법만 알면될거같구
 
-  //내꺼도 module.exports 로 모듈화해서 소민이가 내 파일 import하고 함수로 쓸수있도록 하기 ! 
 
-  let initScaleFactor_cmd = `sed -i '1,2s|scaleFactor:${size}|scaleFactor:1|' /home/yh/skh_project/params.ini`
+
+  let initScaleFactor_cmd = `sed -i '1,2s|scaleFactor:${wlsize}|scaleFactor:1|' /home/yh/skh_project/params.ini`
   exec(initScaleFactor_cmd)
   console.log(chalk.green.bold('[INFO]'), 'params.ini initialize')
+
+
+  //async await으로 기다렸다가 파일 다 만들어지면 로그 찍고 윤아한테 전달 !
+  return console.log('윤아한테 WL 파일 경로 주기');
 }
 
 

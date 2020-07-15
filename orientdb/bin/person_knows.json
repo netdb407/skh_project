@@ -1,0 +1,57 @@
+{
+  "config": {
+    "parallel": false
+  },
+  "source": { "file": { "path": "/root/ssdStorage/orientdb195/person/person_knows_person_0_0.csv" } },
+  "extractor": { "row": {} },
+  "transformers": [
+    { "csv": {"columns" : ["creationDate","Pid1","Pid2"],"nullValue": "NULL", "separator": "|", "stringCharacter": "", "unicode": false} },
+    {"field" :{
+        "fieldName" : "Pid1",
+        "expression" : "Pid1.prefix('P')"
+      }},
+    {"field" :{
+        "fieldName" : "Pid2",
+        "expression" : "Pid2.prefix('P')"
+    }},
+    { "merge": { "joinFieldName":"Pid1", "lookup":"Profile_Info.id", "unresolvedLinkAction": "ERROR" } },
+    { "vertex": { "class": "ProfileT" } },
+    { "edge" : {
+      "targetVertexFields" :
+        {
+          "Pid1" : "${input.Pid1}",
+          "Pid2" : "${input.Pid2}"
+        },
+	    "edgeFields" : 
+        {
+          "ID1" : "${input.Pid1}",
+          "ID2" : "${input.Pid2}"
+        },
+      "class": "RelationT",
+      "joinFieldName" : "Pid2",
+      "lookup" : "Profile_Info.id",
+      "unresolvedLinkAction": "CREATE"
+      }
+    }
+ ],
+  "loader": {
+    "orientdb": {
+       "dbURL": "plocal:/root/ssdStorage/orientdb195/databases/pokec",
+       "dbType": "graph",
+       "dbAutoCreate" : true,
+       "wal": false,
+       "batchCommit": 10000,
+       "tx": false,
+       "useLightweightEdges" : true,
+       "txUseLog": false,
+       "classes": [
+         {"name": "ProfileT", "extends": "V", "clusters": 1},
+         {"name": "RelationT", "extends": "E"}
+       ], "indexes": [
+         {"class":"Profile_Info", "fields":["id:string"],"type":"UNIQUE_HASH_INDEX"}
+       ],
+       "settings": {
+       }
+    }
+  }
+}

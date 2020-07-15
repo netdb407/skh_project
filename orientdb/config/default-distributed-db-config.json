@@ -1,0 +1,19 @@
+{
+  "replication": true,
+  "hotAlignment" : true,
+  "autoDeploy": true,
+  "readQuorum": "2",
+  "writeQuorum": "majority",
+  "executionMode": "undefined",
+  "readYourWrites": true,
+  "newNodeStrategy": "static",
+  "servers": {
+    "orientdb39": "master",
+    "orientdb40": "replica",
+    "orientdb41": "replica"
+  },
+  "clusters": {
+    "internal": {
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "source": { "file": { "path": "/root/ssdStorage/orientdb195/person/person_0_0_lhb.csv"  } },
+  "extractor": { "csv": {} },
+  "transformers": [
+    { "vertex": { "class": "LHB1" } }
+  ],
+  "loader": {
+    "orientdb": {
+       "dbURL": "plocal:pokec",
+       "dbType": "graph",
+       "classes": [
+         {"name": "LHB1", "extends": "V"}
+       ], "indexes": [
+         {"class":"LHB1", "fields":["id:integer"], "type":"UNIQUE" }
+       ]
+    }
+  }
+}

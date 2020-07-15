@@ -1,0 +1,36 @@
+{
+  "config": {
+    "parallel": true
+  },
+  "source": { "file": { "path": "/root/ssdStorage/orientdb195/person/person_0_0.csv" } },
+  "extractor": { "row": {} },
+  "transformers": [
+    { "csv": {"columns" : ["creationDate","id","firstName","lastName","gender","birthday","locationIP","browserUsed"],"separator": "|","columnsOnFirstLine":true, "nullValue": "NULL", "stringCharacter": "", "unicode": false} },
+    { "vertex": { "class": "Profile_Info"} },
+    {"field":
+      { "fieldName" : "id",
+        "expression" : "id.prefix('P')"
+      }
+    }
+  ],
+  "loader": {
+    "orientdb": {
+       "dbURL": "plocal:/root/ssdStorage/orientdb195/databases/pokec",
+       "dbType": "graph",
+       "dbAutoCreate" : true,
+       "wal": false,
+       "batchCommit": 10000,
+       "tx": false,
+       "useLightweightEdges" : true,
+       "dbAutoCreateProperties": true,
+       "classes": [
+         {"name": "Profile_Info", "extends": "V", "clusters": 3},
+         {"name": "Relation_Info", "extends": "E"}
+       ], "indexes": [
+         {"class":"Profile_Info", "fields":["id:string"], "type":"UNIQUE_HASH_INDEX" }
+       ],
+       "settings": {
+       }
+    }
+  }
+}

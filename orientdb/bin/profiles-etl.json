@@ -1,0 +1,30 @@
+{
+  "config": {
+    "parallel": true
+  },
+  "source": { "file": { "path": "/tmp/nosqlbenchmark/downloads/soc-pokec-profiles-orientdb.txt" } },
+  "extractor": { "row": {} },
+  "transformers": [
+    { "csv": { "separator": ",", "nullValue": "NULL", "stringCharacter": "", "unicode": false } },
+    { "vertex": { "class": "Profile_ID" } }
+  ],
+  "loader": {
+    "orientdb": {
+       "dbURL": "plocal:pokec",
+       "dbType": "graph",
+       "wal": false,
+       "batchCommit": 10000,
+       "tx": false,
+       "useLightweightEdges" : true,
+       "dbAutoCreateProperties": true,
+       "classes": [
+         {"name": "Profile_ID", "extends": "V", "clusters": 1},
+         {"name": "Relation_ID", "extends": "E"}
+       ], "indexes": [
+         {"class":"Profile_ID", "fields":["_key:string"], "type":"UNIQUE_HASH_INDEX" }
+       ],
+       "settings": {
+       }
+    }
+  }
+}
