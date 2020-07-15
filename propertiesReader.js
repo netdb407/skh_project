@@ -4,6 +4,10 @@ const properties = PropertiesReader('./InstallConfig');
 // const properties = PropertiesReader('./InstallConfig_homedir');
 
 module.exports = {
+  get_home_dir(){
+    return properties.get("home_dir");
+  },
+
   //user정보
   get_hostname(){
     return properties.get("server_hostname");
@@ -153,5 +157,13 @@ module.exports = {
 server_orientdb_dir(){
   return properties.get("server_orientdb_dir")
  },
+get_profile_dir(){
+  return properties.get("load_profile_dir")
+ },
+
+get_relation_dir(){
+  return properties.get("load_relation_dir")
+ },
+
 
 }
