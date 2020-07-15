@@ -481,9 +481,9 @@ function installDatabase(db, nodes, node_arr){
 
 
   function installTool(tool){
-    yuna.change_NoSQLconfig();
     console.log('----------------------------------------------------------');
     console.log(chalk.green.bold('[INFO]'), 'Installation', chalk.blue.bold(tool), 'into Server');
-    console.log(chalk.green.bold('[INFO]'), 'Change', chalk.blue.bold(tool), 'config Complete!');
+    yuna.change_NoSQLconfig();
+    // console.log(chalk.green.bold('[INFO]'), 'Change', chalk.blue.bold(tool), 'config Complete!');
     console.log('----------------------------------------------------------');
   }
