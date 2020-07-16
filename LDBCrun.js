@@ -31,8 +31,8 @@ async function main(){
       // console.log('ch:', ch);
       if(ch == 1){
         console.log(chalk.green.bold('[INFO]'), 'congratulation! success');
-
-        let run = ldbcrun();
+        let run = ldbcRun();
+        // console.log('run :', run);
         run.then((r)=>{
           sf = 1
           change_params_ini(sf);
@@ -126,15 +126,7 @@ function ldbcRun(){
     let run_cmd = `./ldbc_snb_datagen/run.sh`
     //mvn 필요!!
 
-    // let scale_1 = await change_params_ini(scaleFactor)
 
-    // //scaleFactor : 0.003, 0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000 (GB)
-    // let fixScaleFactor_cmd = `sed -i '1,2s|scaleFactor:1|scaleFactor:${scaleFactor}|' /home/skh/yh/skh_project_yh/ldbc_snb_datagen/params.ini`
-    // // let fixScaleFactor_cmd = `sed -i '1,2s|generator|,|\n|s|scaleFactor:${size}|' /home/yh/skh_project/params.ini`
-    // exec(fixScaleFactor_cmd)
-    // console.log(chalk.green.bold('[INFO]'), 'fix params.ini');
-
-    // run.sh 다 끝난 뒤 .. params.ini 파일 초기화!
     exec(hadoop_cmd1)
     exec(hadoop_cmd2)
     exec(setHome_cmd)
@@ -151,18 +143,12 @@ function ldbcRun(){
     })
 
 
-
-
-    // let initScaleFactor_cmd = `sed -i '1,2s|scaleFactor:${scaleFactor}|scaleFactor:1|' /home/skh/yh/skh_project_yh/ldbc_snb_datagen/params.ini`
-    // exec(initScaleFactor_cmd)
-    // console.log(chalk.green.bold('[INFO]'), 'params.ini initialize')
-
-
     //async await으로 기다렸다가 파일 다 만들어지면 로그 찍고 윤아한테 전달 !
     //다 만들어지면 그냥 로그?찍고
     //윤아가 fs.readFile 로 읽어들이는게 나을듯
     let ldbc_output = '/home/skh/yh/skh_project_yh/ldbc_snb_datagen/social_network/dynamic/person_knows_person_0_0.csv'
-    return resolve(ldbc_output)
+    // return resolve(ldbc_output)
+    return resolve(console.log('resolve!!! in ldcbrun()'))
   })
 }
 
