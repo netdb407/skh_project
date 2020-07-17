@@ -9,36 +9,64 @@ const fs = require('fs')
 const chalk = require('chalk')
 let Promise = require('promise');
 
+let somin_wl = '1G' //10K, 10M //1MB = 1000KB //
+let scaleFactor = 1
+let success = 0 //success:1, fail:0
+let initParam = 1
+
 //내꺼도 module.exports 로 모듈화해서 소민이가 내 파일 import하고 함수로 쓸수있도록 하기 !
 // module.exports.ldbcRun = () => {
 //   //나중에 내용 넣기 !
 // }
 
 
-let somin_wl = '100M' //10K, 10M //1MB = 1000KB //
-let scaleFactor = 1
-let success = 0 //success:1, fail:0
-
 
 main()
-
+//사용자가 입력한 값에 따라 /person_knows_person_0_0.csv 파일 크기 달라져야 함. 현재 3.5M
+//여전히 안바뀌네?
+//강제로 params.ini 파일 수정해보자!
+//scaleFactor를 바꿔줬는데 파일 크기가 똑같다.. 어떡하쥐?
 async function main(){
   try{
     let sf = await make_scalefactor(somin_wl, scaleFactor)
-    console.log('sf :', sf);
-    let change = change_params_ini(sf); //success 리턴
-    change.then((ch)=>{
-      // console.log('ch:', ch);
-      if(ch == 1){
-        console.log(chalk.green.bold('[INFO]'), 'congratulation! success');
-        let run = ldbcRun();
-        // console.log('run :', run);
-        run.then((r)=>{
-          sf = 1
-          change_params_ini(sf);
-        })
-      }
-    })
+    //사용자가 입력한 값에 따라 params.ini 파일 수정(scaleFactor)
+    // let change = change_params_ini(sf); //success 리턴
+    let change = await change_params_ini(sf); //success 리턴
+    if(change == 1){ //success 리턴
+      console.log(chalk.green.bold('[INFO]'), 'Starting run ldbcDatagen ...');
+      let run = await ldbcRun();
+      // if(run == 1){ //success 리턴
+          //다시 params.ini파일 원상복귀 : 1로
+        let init = await init_params_ini(run);
+        //나중에 값 바꿔가면서 change_params_ini()함수 재사용하게 인자 2개 주기 ! init param이랑 sf
+        console.log('init:', init);
+        // init.then((in)=>{
+        //   console.log(chalk.green.bold('[INFO]'), 'init params.ini');
+        // })
+
+        //!!!ldbcRun()함수 다 끝난뒤에 로그 찍고 싶은데..stdout?써야하나..
+
+      // }
+      // console.log('run :', run);
+      // run.then((r)=>{
+      //   //다시 params.ini파일 원상복귀 : 1로
+      //   init_params_ini(sf);
+      //   console.log(chalk.green.bold('[INFO]'), 'init params.ini');
+      // })
+    }
+    // change.then((ch)=>{
+    //   // console.log('ch:', ch);
+    //   if(ch == 1){
+    //     console.log(chalk.green.bold('[INFO]'), 'congratulation! success');
+    //     let run = ldbcRun();
+    //     // console.log('run :', run);
+    //     run.then((r)=>{
+    //       //다시 params.ini파일 원상복귀 : 1로
+    //       init_params_ini(sf);
+    //       console.log(chalk.green.bold('[INFO]'), 'init params.ini');
+    //     })
+    //   }
+    // })
   }catch(error){
     console.log(chalk.red.bold('[ERROR]'), 'error..');
   }
@@ -97,6 +125,7 @@ function make_scalefactor(somin_wl, scaleFactor){
     }
     console.log(chalk.green.bold('[INFO]'), 'WL size(MB) : ', graphWL_MB);
     console.log(chalk.green.bold('[INFO]'), 'scaleFactor :', scaleFactor);
+    console.log('----------------------------------------------------------');
     return resolve(scaleFactor);
   })
 }
@@ -110,10 +139,24 @@ function change_params_ini(sf){
     // let fixScaleFactor_cmd = `sed -i '1,2s|generator|,|\n|s|scaleFactor:${size}|' /home/yh/skh_project/params.ini`
     exec(fixScaleFactor_cmd)
     console.log(chalk.green.bold('[INFO]'), 'fix params.ini');
+    console.log('----------------------------------------------------------');
     success = 1
     return resolve(success);
   })
 }
+
+function init_params_ini(sf){
+  return new Promise(function(resolve, reject){
+    let fixScaleFactor_cmd = `sed -i '1,2s|scaleFactor:${sf}|scaleFactor:1|' /home/skh/yh/skh_project_yh/ldbc_snb_datagen/params.ini`
+    // let fixScaleFactor_cmd = `sed -i '1,2s|generator|,|\n|s|scaleFactor:${size}|' /home/yh/skh_project/params.ini`
+    exec(fixScaleFactor_cmd)
+    console.log(chalk.green.bold('[INFO]'), 'initialize params.ini');
+    console.log('----------------------------------------------------------');
+    success = 1
+    return resolve(success);
+  })
+}
+
 
 
 function ldbcRun(){
@@ -148,7 +191,7 @@ function ldbcRun(){
     //윤아가 fs.readFile 로 읽어들이는게 나을듯
     let ldbc_output = '/home/skh/yh/skh_project_yh/ldbc_snb_datagen/social_network/dynamic/person_knows_person_0_0.csv'
     // return resolve(ldbc_output)
-    return resolve(console.log('resolve!!! in ldcbrun()'))
+    return resolve(success)
   })
 }
 
