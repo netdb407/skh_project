@@ -72,3 +72,6 @@ load_relation_dir = /root/ssdStorage/orientdb195/person/person_knows_person_0_0.
 
 # [arangodb 관련 설정]
 node_arangodb_dir = /root/ssdStorage/arangodb3e-3.6.3-1
+
+# [ldbcDatagen 관련 설정]
+ldbc_homedir = '/home/skh/yh/skh_project_yh/ldbc_snb_datagen'

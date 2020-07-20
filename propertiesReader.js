@@ -161,5 +161,9 @@ get_relation_dir(){
   return properties.get("load_relation_dir")
  },
 
+//ldbcDatagen
+get_ldbc_homedir(){
+  return properties.get("ldbc_homedir")
+},
 
 }
