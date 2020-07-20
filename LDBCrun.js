@@ -18,6 +18,7 @@ let scaleFactor = 1
 let isSuccess = 0 //success:1, fail:0
 let initParam = 1
 let somin_wl = '80M' //이부분에 사용자가 입력한 값 들어가게 수정하기 !
+let graphWL_MB = 1
 
 //내꺼도 module.exports 로 모듈화해서 소민이가 내 파일 import하고 함수로 쓸수있도록 하기 !
 // module.exports.run_ldbcShell = () => {
@@ -30,10 +31,8 @@ runLDBC()
 
 async function runLDBC(){
   try{
-    let sf_tmp = await make_graphWL_MB(somin_wl, scaleFactor)
     let run = 0
-    // console.log('sf_tmp:', sf_tmp);
-    let sf = await make_scalefactor(sf_tmp)
+    let sf = await make_scalefactor(somin_wl, scaleFactor, graphWL_MB)
     // console.log('sf:',sf);
     let change = await change_params_ini(sf); //isSuccess 리턴
     // console.log('change : ', change);
@@ -50,26 +49,6 @@ async function runLDBC(){
   }
 }
 
-
-
-function make_graphWL_MB(somin_wl, scaleFactor){
-  return new Promise(function(resolve, reject){
-    console.log(chalk.green.bold('[INFO]'), 'Input somin_wl :', somin_wl);
-    let byte = somin_wl.slice(-1) //M
-    let wlnumber = somin_wl.slice(0, -1) //100
-    let graphWL_MB = 1
-
-    if(byte=='K'){
-      graphWL_MB = wlnumber*0.001
-    }else if(byte=='M'){
-      graphWL_MB = wlnumber
-    }else if(byte=='G'){
-      graphWL_MB = wlnumber*1000
-    }
-    return resolve(graphWL_MB);
-  })
-}
-
 // 0.1 = 100M
 // 0.3 = 300M
 // 1 = 1G = 1000M
@@ -80,9 +59,20 @@ function make_graphWL_MB(somin_wl, scaleFactor){
 // 300 = 300G = 300*1000M = 300000M
 // 1000 = 1000G = 1TB = 1000*1000M = 1000000M
 
-function make_scalefactor(graphWL_MB){
+function make_scalefactor(somin_wl, scaleFactor, graphWL_MB){
   return new Promise(function(resolve, reject){
-    graphWL_MB = parseFloat(graphWL_MB)
+    console.log(chalk.green.bold('[INFO]'), 'Input somin_wl :', somin_wl);
+    let byte = somin_wl.slice(-1) //M
+    let wlnumber = somin_wl.slice(0, -1) //100
+
+    if(byte=='K'){
+      graphWL_MB = wlnumber*0.001
+    }else if(byte=='M'){
+      graphWL_MB = wlnumber
+    }else if(byte=='G'){
+      graphWL_MB = wlnumber*1000
+    }
+    // graphWL_MB = parseFloat(graphWL_MB)
     console.log(chalk.green.bold('[INFO]'), 'graphWL_MB : ', graphWL_MB);
     if(graphWL_MB >= 300*1000){
       scaleFactor = 1000
@@ -127,6 +117,7 @@ function change_params_ini(sf){
 
 
 function init_params_ini(sf){
+  // console.log('sf :', `${sf}`);
   return new Promise(function(resolve, reject){
     let initScaleFactor_cmd = `sed -i '1,2s|scaleFactor:${sf}|scaleFactor:1|' ${ldbc_homedir}/params.ini`
     let initSFcmd = exec(initScaleFactor_cmd)
