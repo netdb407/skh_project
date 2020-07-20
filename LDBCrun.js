@@ -22,31 +22,32 @@ let initParam = 1
 
 
 main()
-//사용자가 입력한 값에 따라 /person_knows_person_0_0.csv 파일 크기 달라져야 함. 현재 3.5M
-//여전히 안바뀌네?
-//강제로 params.ini 파일 수정해보자!
-//scaleFactor를 바꿔줬는데 파일 크기가 똑같다.. 어떡하쥐?
+
 async function main(){
   try{
-    let sf = await make_scalefactor(somin_wl, scaleFactor)
+    let sf_tmp = await make_graphWL_MB(somin_wl, scaleFactor)
+    console.log('sf_tmp:', sf_tmp);
+    let sf = await make_scalefactor(sf_tmp)
+    console.log('sf:',sf);
     //사용자가 입력한 값에 따라 params.ini 파일 수정(scaleFactor)
     // let change = change_params_ini(sf); //success 리턴
     let change = await change_params_ini(sf); //success 리턴
     if(change == 1){ //success 리턴
       console.log(chalk.green.bold('[INFO]'), 'Starting run ldbcDatagen ...');
       let run = await ldbcRun();
-      // if(run == 1){ //success 리턴
+      // await이 안먹나?
+      if(run == 1){ //success 리턴
           //다시 params.ini파일 원상복귀 : 1로
-        let init = await init_params_ini(run);
+        init_params_ini(run);
         //나중에 값 바꿔가면서 change_params_ini()함수 재사용하게 인자 2개 주기 ! init param이랑 sf
-        console.log('init:', init);
+
         // init.then((in)=>{
-        //   console.log(chalk.green.bold('[INFO]'), 'init params.ini');
+          console.log(chalk.green.bold('[INFO]'), 'init params.ini');
         // })
 
         //!!!ldbcRun()함수 다 끝난뒤에 로그 찍고 싶은데..stdout?써야하나..
 
-      // }
+      }
       // console.log('run :', run);
       // run.then((r)=>{
       //   //다시 params.ini파일 원상복귀 : 1로
@@ -74,14 +75,15 @@ async function main(){
 
 
 
-function make_scalefactor(somin_wl, scaleFactor){
+function make_graphWL_MB(somin_wl, scaleFactor){
+  console.log('first sf :', scaleFactor);
   return new Promise(function(resolve, reject){
     console.log(chalk.green.bold('[INFO]'), 'Input somin_wl :', somin_wl);
     let byte = somin_wl.slice(-1) //M
     let wlnumber = somin_wl.slice(0, -1) //100
     let graphWL_MB = 1
 
-    // 0.003 = 3M
+
     // 0.1 = 100M
     // 0.3 = 300M
     // 1 = 1G = 1000M
@@ -102,36 +104,72 @@ function make_scalefactor(somin_wl, scaleFactor){
       console.log(chalk.green.bold('[INFO]'), 'WL size is GB');
     }
 
-    if(1 <= graphWL_MB <= 3){
-      scaleFactor = 0.003
-    }else if(3 < graphWL_MB <= 100){
-      scaleFactor = 0.1
-    }else if(100 < graphWL_MB <= 300){
-      scaleFactor = 0.3
-    }else if(300 <= graphWL_MB <= 1000){
-      scaleFactor = 1
-    }else if(1000 < graphWL_MB <= 3*1000){
-      scaleFactor = 3
-    }else if(30*1000 < graphWL_MB <= 10*1000){
-      scaleFactor = 10
-    }else if(100*1000 < graphWL_MB <= 30*1000){
-      scaleFactor = 30
-    }else if(300*1000 < graphWL_MB <= 100*1000){
-      scaleFactor = 100
-    }else if(100*1000 < graphWL_MB <= 300*1000){
-      scaleFactor = 300
-    }else if(300*1000 < graphWL_MB <= 1000*1000){
-      scaleFactor = 1000
-    }
-    console.log(chalk.green.bold('[INFO]'), 'WL size(MB) : ', graphWL_MB);
-    console.log(chalk.green.bold('[INFO]'), 'scaleFactor :', scaleFactor);
-    console.log('----------------------------------------------------------');
-    return resolve(scaleFactor);
+    return resolve(graphWL_MB);
   })
 }
 
 
+function make_scalefactor(graphWL_MB){
+  return new Promise(function(resolve, reject){
+    graphWL_MB = parseFloat(graphWL_MB)
+    console.log('second graphWL_MB :', graphWL_MB);
 
+
+    if(graphWL_MB >= 300*1000){
+      scaleFactor = 1000
+    }else if(graphWL_MB >= 100*1000){
+      scaleFactor = 300
+    }else if(graphWL_MB >= 30*1000){
+      scaleFactor = 100
+    }else if(graphWL_MB >= 10*1000){
+      scaleFactor = 30
+    }else if(graphWL_MB >= 3*1000){
+      scaleFactor = 10
+    }else if(graphWL_MB >= 1000){
+      scaleFactor = 3
+    }else if(graphWL_MB >= 300){
+      scaleFactor = 1
+    }else if(graphWL_MB >= 100){
+      scaleFactor = 0.3
+    }else if(graphWL_MB >= 3){
+      scaleFactor = 0.1
+    }
+
+
+    // if(3 < graphWL_MB <= 100){
+    //   scaleFactor = 0.1
+    // }else if(100 < graphWL_MB <= 300){
+    //   scaleFactor = 0.3
+    // }else if(300 <= graphWL_MB <= 1000){
+    //   scaleFactor = 1
+    // }
+    // if(1000 < graphWL_MB <= 3*1000){
+    //   scaleFactor = 3
+    // }
+    // if(3*1000 < graphWL_MB <= 10*1000){
+    //   scaleFactor = 10
+    // }
+    // if(10*1000 < graphWL_MB <= 30*1000){
+    //   scaleFactor = 30
+    // }
+    // if(30*1000 < graphWL_MB <= 100*1000){
+    //   scaleFactor = 100
+    // }
+    // if(100*1000 < graphWL_MB <= 300*1000){
+    //   scaleFactor = 300
+    // }
+    // if(300*1000 < graphWL_MB <= 1000*1000){
+    //   scaleFactor = 1000
+    // }
+    //
+
+
+    console.log(chalk.green.bold('[INFO]'), 'WL size(MB) : ', graphWL_MB);
+    console.log(chalk.green.bold('[INFO]'), 'second scaleFactor :', scaleFactor);
+    console.log('----------------------------------------------------------');
+    return resolve(scaleFactor);
+  })
+}
 
 function change_params_ini(sf){
   return new Promise(function(resolve, reject){
@@ -157,7 +195,7 @@ function init_params_ini(sf){
   })
 }
 
-
+//pom.xml을 복사해서 덮어씌우기..실행되는 디렉토리
 
 function ldbcRun(){
   return new Promise(function(resolve, reject){
@@ -166,7 +204,8 @@ function ldbcRun(){
     let setHome_cmd = `export LDBC_SNB_DATAGEN_HOME=/home/skh/yh/skh_project_yh/ldbc_snb_datagen`
     let hadoop_cmd3 = `export HADOOP_LOGLEVEL=WARN`
     // let params_cmd = `yes|cp -rf /home/skh/yh/skh_project_yh/ldbc_snb_datagen/params-csv-basic.ini /home/skh/yh/skh_project_yh/params.ini`
-    let run_cmd = `./ldbc_snb_datagen/run.sh`
+    // let run_cmd = `./ldbc_snb_datagen/run.sh`
+    let run_cmd = `./run.sh`
     //mvn 필요!!
 
 
@@ -181,7 +220,7 @@ function ldbcRun(){
     let result = ''
     run_exec.stdout.on('data', function(data){
       result += data
-      console.log(result);
+      // console.log(result);
       // console.log(chalk.green.bold('[INFO]'),'run.sh complete!');
     })
 
@@ -191,6 +230,7 @@ function ldbcRun(){
     //윤아가 fs.readFile 로 읽어들이는게 나을듯
     let ldbc_output = '/home/skh/yh/skh_project_yh/ldbc_snb_datagen/social_network/dynamic/person_knows_person_0_0.csv'
     // return resolve(ldbc_output)
+    // console.log('finishi ldbc run! return success', success);
     return resolve(success)
   })
 }
