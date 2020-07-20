@@ -3,8 +3,8 @@
 const program = require('commander')
 //const property = require('../propertiesReader.js')
 const childProcess = require("child_process");
-const exec =  require('child_process').exec
-const execSync =  require('child_process').execSync
+const exec =  require('child_process').exec //로그 출력 x
+const execSync =  require('child_process').execSync //로그 출력 o
 const fs = require('fs')
 const chalk = require('chalk')
 let Promise = require('promise');
@@ -13,40 +13,49 @@ let Promise = require('promise');
 let ldbc_homedir = '/home/skh/yh/skh_project_yh/ldbc_snb_datagen' //!!! InstallConfig에 추가
 // let ldbc_homedir = property.get_ldbc_homedir(); ///home/skh/yh/skh_project_yh/ldbc_snb_datagen
 
-
+let somin_wl = '150M' //이부분에 사용자가 입력한 값 들어가게 수정하기 !
 let scaleFactor = 1
-let isSuccess = 0 //success:1, fail:0
-let initParam = 1
-let somin_wl = '80M' //이부분에 사용자가 입력한 값 들어가게 수정하기 !
 let graphWL_MB = 1
+let isSuccess = 0 //success:1, fail:0
 
-//내꺼도 module.exports 로 모듈화해서 소민이가 내 파일 import하고 함수로 쓸수있도록 하기 !
-// module.exports.run_ldbcShell = () => {
-//   //나중에 내용 넣기 !
+
+// module.exports.runLDBC = () => {
+//
 // }
-
-
 
 runLDBC()
 
 async function runLDBC(){
   try{
-    let run = 0
+    let startTime = getTime();
+    console.log(chalk.green.bold('[INFO]'), '*** Start Time :', startTime, '***');
+    console.log('----------------------------------------------------------');
+
+    let isRun = 0
     let sf = await make_scalefactor(somin_wl, scaleFactor, graphWL_MB)
-    // console.log('sf:',sf);
-    let change = await change_params_ini(sf); //isSuccess 리턴
-    // console.log('change : ', change);
-    if(change == 1){ //isSuccess 리턴
+    let isChangeSF = await change_params_ini(sf); //isSuccess 리턴
+    if(isChangeSF == 1){ //isSuccess 리턴
       console.log(chalk.green.bold('[INFO]'), 'Starting run ldbcDatagen ...');
-      run = await run_ldbcShell(); //success : 1
-      // console.log('run : ', run);
+      isRun = await run_ldbcShell(); //isSuccess : 1
     }
-    if(run == 1){ //isSuccess 리턴
+    if(isRun == 1){ //isSuccess 리턴
       init_params_ini(sf);
+      let endTime = getTime();
+      console.log(chalk.green.bold('[INFO]'), '*** End Time :', endTime, '***');
+      console.log('----------------------------------------------------------');
+      // let totalTime = Number(endTime) - Number(startTime)
+      // console.log(chalk.blue.bold('[INFO]'), '*** Total Time :', totalTime, '***');
     }
   }catch(error){
     console.log(chalk.red.bold('[ERROR]'), 'error..');
   }
+}
+
+
+function getTime(){
+  let today = new Date();
+  let time = today.toLocaleTimeString();
+  return time
 }
 
 // 0.1 = 100M
@@ -61,39 +70,39 @@ async function runLDBC(){
 
 function make_scalefactor(somin_wl, scaleFactor, graphWL_MB){
   return new Promise(function(resolve, reject){
-    console.log(chalk.green.bold('[INFO]'), 'Input somin_wl :', somin_wl);
+    console.log(chalk.green.bold('[INFO]'), 'Input somin_wl :', chalk.blue.bold(somin_wl));
     let byte = somin_wl.slice(-1) //M
     let wlnumber = somin_wl.slice(0, -1) //100
 
-    if(byte=='K'){
-      graphWL_MB = wlnumber*0.001
-    }else if(byte=='M'){
+    if(byte=='M'){
       graphWL_MB = wlnumber
     }else if(byte=='G'){
       graphWL_MB = wlnumber*1000
+    }else if(byte=='T'){
+      graphWL_MB = wlnumber*1000*1000
     }
-    // graphWL_MB = parseFloat(graphWL_MB)
-    console.log(chalk.green.bold('[INFO]'), 'graphWL_MB : ', graphWL_MB);
-    if(graphWL_MB >= 300*1000){
+    console.log(chalk.green.bold('[INFO]'), 'Graph Workload size(MB) :', chalk.blue.bold(graphWL_MB));
+
+    if(graphWL_MB > 300*1000){
       scaleFactor = 1000
-    }else if(graphWL_MB >= 100*1000){
+    }else if(graphWL_MB > 100*1000){
       scaleFactor = 300
-    }else if(graphWL_MB >= 30*1000){
+    }else if(graphWL_MB > 30*1000){
       scaleFactor = 100
-    }else if(graphWL_MB >= 10*1000){
+    }else if(graphWL_MB > 10*1000){
       scaleFactor = 30
-    }else if(graphWL_MB >= 3*1000){
+    }else if(graphWL_MB > 3*1000){
       scaleFactor = 10
-    }else if(graphWL_MB >= 1000){
+    }else if(graphWL_MB > 1000){
       scaleFactor = 3
-    }else if(graphWL_MB >= 300){
+    }else if(graphWL_MB > 300){
       scaleFactor = 1
-    }else if(graphWL_MB >= 100){
+    }else if(graphWL_MB > 100){
       scaleFactor = 0.3
-    }else if(graphWL_MB >= 3){
+    }else if(graphWL_MB > 3){
       scaleFactor = 0.1
     }
-    console.log(chalk.green.bold('[INFO]'), 'scaleFactor :', scaleFactor);
+    console.log(chalk.green.bold('[INFO]'), 'scaleFactor :', chalk.blue.bold(scaleFactor));
     console.log('----------------------------------------------------------');
     return resolve(scaleFactor);
   })
@@ -131,20 +140,43 @@ function init_params_ini(sf){
   })
 }
 
-
+// ldbc_homedir = '/home/skh/yh/skh_project_yh/ldbc_snb_datagen'
 function run_ldbcShell(){
   return new Promise(function(resolve, reject){
+    let mkdir1 = `mkdir -p ${ldbc_homedir}/social_network`
+    let mkdir2 = `mkdir -p ${ldbc_homedir}/social_network/dynamic`
+
     let hadoop_cmd1 = `export HADOOP_CLIENT_OPTS="-Xmx2G"`
     let hadoop_cmd2 = `export HADOOP_HOME=${ldbc_homedir}/hadoop-3.2.1`
+    // let hadoop_cmd2 = `export HADOOP_HOME=/home/skh/yh/skh_project_yh/ldbc_snb_datagen/hadoop-3.2.1`
     let setHome_cmd = `export LDBC_SNB_DATAGEN_HOME=${ldbc_homedir}`
+    // let setHome_cmd = `export LDBC_SNB_DATAGEN_HOME=/home/skh/yh/skh_project_yh/ldbc_snb_datagen`
     let hadoop_cmd3 = `export HADOOP_LOGLEVEL=WARN`
     let run_cmd = `./run.sh`
     //mvn 필요!!
 
-    exec(hadoop_cmd1)
-    exec(hadoop_cmd2)
-    exec(setHome_cmd)
-    exec(hadoop_cmd3)
+    execSync(mkdir1)
+    execSync(mkdir2)
+
+    // try{
+    //   var res = exec(`ls ${ldbc_homedir}/social_network`).toString();
+    //   if(res.contain("File exists")){
+    //     console.log(chalk.green.bold('[INFO]'), 'directory exists');
+    //   } //디렉토리 있음
+    //   else{
+    //     exec(`mkdir -p ${ldbc_homedir}/social_network`)
+    //   } //없음
+    // }
+    // catch(e){
+    //   console.log(chalk.green.bold('[INFO]'), 'file or directory does not exist');
+    //   exec(`mkdir -p ${ldbc_homedir}/social_network`)
+    // }
+
+
+    execSync(hadoop_cmd1)
+    execSync(hadoop_cmd2)
+    execSync(setHome_cmd)
+    execSync(hadoop_cmd3)
     console.log(chalk.green.bold('[INFO]'),'export setting complete!');
 
     let run_exec = exec(run_cmd)
