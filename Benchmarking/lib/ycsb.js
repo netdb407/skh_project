@@ -2,6 +2,7 @@ const program = require('commander')
 const property = require('../../propertiesReader.js')
 const PropertiesReader = require('properties-reader')
 const exec = require('child_process').exec
+const execSync = require('child_process').execSync
 const fs = require('fs')
 const chalk = require('chalk')
 let Promise = require('promise')
@@ -184,7 +185,7 @@ function arango_status(status, nodeIPArr, nodetool_ip) {
 /* ################################################################################################################# */
 
 module.exports.ycsb = (opt) => {
-  exec(`mkdir YCSB_RESULT`)
+  exec(`mkdir /home/skh/YCSB_RESULT`)
 
   benchmark_name(opt)
   run_function(status)
@@ -334,7 +335,7 @@ const createData = () => new Promise(resolve => {
   try {
     const stdout = exec(createCmd);
     console.log('----------------------------------------------------------');
-    console.log(chalk.green.bold('[INFO]'), 'careate cassandra table : ', chalk.blue.bold(nodetool_ip));
+    console.log(chalk.green.bold('[INFO]'), 'create cassandra table : ', chalk.blue.bold(nodetool_ip));
     console.log('----------------------------------------------------------');
     // console.log(shadowContent);
   } catch (err) {
@@ -351,10 +352,10 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
       ip.forEach((i) => {
         try {
           // const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -d -p 1048576 ${IO_watch_dir}`)
-          const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -d -p 1048576 ${IO_watch_dir}`)
+          const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -d -D -o /root/io_output/${opt.name} -p 1048576 ${IO_watch_dir}`)
           // console.log(`stdout: ${stdout}`);
           console.log('----------------------------------------------------------');
-          console.log(chalk.green.bold('[INFO]'), 'iotracer run : ', chalk.blue.bold(i));
+          console.log(chalk.green.bold('[INFO]'), 'run iotracer : ', chalk.blue.bold(i));
           // console.log('----------------------------------------------------------');
           // exec(`ssh root@${i} ${IO_tracer_dir} -d ${IO_watch_dir}`)
         } catch (err) {
@@ -483,7 +484,7 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
         if (((opt.runtype == 'load') || (opt.runtype == 'run')) || ((opt.runtype == 'loadrun') && (runtype == 'run'))) {
           ip.forEach((i) => {
             try {
-              exec(`ssh root@${i} ${node_cassandra_dir}/killCass.sh`);
+              // exec(`ssh root@${i} ${node_cassandra_dir}/killCass.sh`);
               console.log('----------------------------------------------------------');
               console.log(chalk.green.bold('[INFO]'), 'kill cassandra : ', chalk.blue.bold(i));
               // console.log('----------------------------------------------------------');
@@ -497,18 +498,25 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
             if ((opt.runtype == 'load') || (opt.runtype == 'run') || ((opt.runtype == 'loadrun') && (runtype == 'run'))) {
               get_IO_results(opt.name, ip, opt.runtype)
 
-
               setTimeout(function() {
                 ip.forEach((i) => {
-                  try {
-                    // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
-                    // const stdout = exec(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`)
-                    const stdout2 = exec(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}`)
-                    // console.log(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`);
-                    // console.log(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}_${i}_${runtype}`);
-                    // console.log(`stdout: ${stdout}`);
-                  } catch (err) {
-                    // console.log('node file mv fail');
+                  // try {
+                  //   // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
+                  //   // const stdout = exec(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`)
+                  //   // const stdout2 = exec(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}`)
+                  //   // console.log(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`);
+                  //   console.log(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}_${i}_${runtype}`);
+                  //   // console.log(`stdout: ${stdout}`);
+                  // } catch (err) {
+                  //   // console.log('node file mv fail');
+                  //   console.log(err);
+                  // }
+                  try{
+                    console.log('ioparser');
+                    console.log(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser /root/io_output/${opt.name} /root/io_output/${opt.name}`);
+                    const stdout2 = exec(`ssh root@${i} ${IO_tracer_dir}/bin/ioparser /root/io_output/${opt.name} /root/io_output/${opt.name}`)
+                  }catch (err) {
+                    console.log('parser fail');
                     console.log(err);
                   }
 
@@ -561,7 +569,7 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
                   try {
                     // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
                     // const stdout = exec(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`)
-                    const stdout2 = exec(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}`)
+                    // const stdout2 = exec(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}`)
                     // console.log(`ssh root${i} mkdir /root/io_output/${i}_${opt.name}_${runtype}`);
                     // console.log(`ssh root@${i} mv ${IO_output_dir} /root/io_output/${opt.name}_${i}_${runtype}`);
                     // console.log(`stdout: ${stdout}`);
@@ -652,20 +660,84 @@ function check_iotracer(status, iotracer) {
 
 
 function get_IO_results(bmname, ip, runtype) {
-  ip.forEach((i) => { // iotracer 종료 후
-    try {
-      const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/killIO.sh`)
-      // console.log(`ssh root@${i} ${IO_tracer_dir}/killIO.sh`);
-      // console.log(`stdout: ${stdout}`);
-      console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'kill iotracer : ', chalk.blue.bold(i));
-      // console.log('----------------------------------------------------------');
-      // console.log(stdout);
-    } catch (err) {
-      console.log('kill fail');
-      console.log(err);
-    }
-  })
+  setTimeout(function() {
+    ip.forEach((i) => { // iotracer 종료 후
+      try {
+        const killiocmd = exec(`ssh root@${i} sh ${IO_tracer_dir}/killIO.sh`)
+        console.log(`ssh root@${i} sh ${IO_tracer_dir}/killIO.sh`);
+        // console.log(`stdout: ${stdout}`);
+        // killiocmd.stdout.on('data', function(data) {
+        //   console.log('stdout');
+        //   console.log(data);
+        // })
+        //
+        // killiocmd.stderr.on('data', function(data) {
+        //   console.log('stderr');
+        //   console.log(data);
+        // })
+        //
+        // killiocmd.stdin.on('data', function(data) {
+        //   console.log('stdin');
+        //   console.log(data);
+        // })
+        //
+        //
+        // killiocmd.on('exit', function(data) {
+        //   console.log('exit');
+        //   //console.log('results : \n', results);
+        //   console.log(data);
+        // })
+
+        console.log('----------------------------------------------------------');
+        console.log(chalk.green.bold('[INFO]'), 'kill iotracer : ', chalk.blue.bold(i));
+        // console.log('----------------------------------------------------------');
+        // console.log(stdout);
+      } catch (err) {
+        console.log('kill fail');
+        console.log(err);
+      }
+    })
+  }, 5000);
+
+  //
+  // ip.forEach((i) => { // iotracer 종료 후
+  //
+  //
+  //   try {
+  //     const killiocmd = exec(`ssh root@${i} sh ${IO_tracer_dir}/killIO.sh`)
+  //     console.log(`ssh root@${i} sh ${IO_tracer_dir}/killIO.sh`);
+  //     // console.log(`stdout: ${stdout}`);
+  //     // killiocmd.stdout.on('data', function(data) {
+  //     //   console.log('stdout');
+  //     //   console.log(data);
+  //     // })
+  //     //
+  //     // killiocmd.stderr.on('data', function(data) {
+  //     //   console.log('stderr');
+  //     //   console.log(data);
+  //     // })
+  //     //
+  //     // killiocmd.stdin.on('data', function(data) {
+  //     //   console.log('stdin');
+  //     //   console.log(data);
+  //     // })
+  //     //
+  //     //
+  //     // killiocmd.on('exit', function(data) {
+  //     //   console.log('exit');
+  //     //   //console.log('results : \n', results);
+  //     //   console.log(data);
+  //     // })
+  //
+  //     console.log('----------------------------------------------------------');
+  //     console.log(chalk.green.bold('[INFO]'), 'kill iotracer : ', chalk.blue.bold(i));
+  //     // console.log('----------------------------------------------------------');
+  //     // console.log(stdout);
+  //   } catch (err) {
+  //     console.log('kill fail');
+  //     console.log(err);
+  //   }
+  // })
 }
 
 
