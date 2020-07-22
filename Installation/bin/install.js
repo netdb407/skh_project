@@ -391,7 +391,7 @@ function installDatabase(db, nodes, node_arr){
                 let chmodCmd = `ssh -t root@${i} chmod 640 ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
                 let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[0]}|"' ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
                 let fixdatabases_cmd = `ssh root@${i} 'sed -i "93,94s|orientdb|${home_arr[0]}|"' ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
-                let pokec_cmd = `ssh ssh root@${i} 'cp ${homedir}/skh_project/${home_arr[0]}/pokec_data/* ${homedir}/skh_project/${home_arr[0]}/databases/pokec'`
+                let pokec_cmd = `ssh root@${i} 'cp ${homedir}/${home_arr[0]}/pokec_data/* ${homedir}/skh_project/${home_arr[0]}/databases/pokec'`
 
                 exec(mv_cmd)
                 exec(fixDir_cmd)
