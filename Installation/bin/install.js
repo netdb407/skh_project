@@ -19,6 +19,8 @@ let packageName;
 let stdout;
 let packageAll;
 let version;
+let startTime = 0
+let endTime = 0
 
 program
   .command('install')
@@ -96,6 +98,11 @@ program
  })
 program.parse(process.argv)
 
+function getTime(){
+  let today = new Date();
+  let time = today.toLocaleTimeString();
+  return time
+}
 
 function isInstalledPkg(i, package, installDir, ip){
   // ip.forEach((i) => {
@@ -363,20 +370,21 @@ function installDatabase(db, nodes, node_arr){
           let home_arr = ['orientdb39', 'orientdb40', 'orientdb41']   // 'orientdb193', 'orientdb194', 'orientdb195' 로 변경
           let etri_arr = ['203.255.92.39', '203.255.92.40', '203.255.92.41'] // '203.255.92.193', '203.255.92.194', '203.255.92.195' 로 변경
           etri_arr.forEach(i=>{
+            startTime = getTime();
             if(i==etri_arr[0]){ //203.255.92.39
               try{
                 let checkdir_cmd = `ssh root@${i} ls -l ${homedir}/${home_arr[0]}`
                 let dir1 = exec(checkdir_cmd);
                 //파일이 이미 존재 => 재실행임
-                console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
-                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+                console.log(chalk.yellow.bold('[WARNING]'), 'Already installed in', chalk.blue.bold(i));
               }catch(error){
                 //없으면 No such file or directory
                 //존재하지 않음 => 최초 실행
-                console.log(chalk.green.bold('[INFO]'), 'This is the first run');
+                console.log(chalk.green.bold('[INFO]'), 'This is the first installation');
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i) , '... It will take a few minutes');
 
-                exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
-                console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
+                exec(`scp -r ${homedir}/skh_project/orientdb root@${i}:${homedir}`)
+                console.log(chalk.green.bold('[INFO]'), 'Sending complete!');
 
                 let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[0]}`
                 exec(mv_cmd)
@@ -393,6 +401,8 @@ function installDatabase(db, nodes, node_arr){
                 let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[0]}|"' ${homedir}/${home_arr[0]}/config/orientdb-server-config.xml`
                 exec(fixNodeName_cmd)
                 console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+                endTime = getTime();
+                console.log(chalk.green.bold('[INFO]'), 'Installation Complete : *** Start Time :', startTime, '*** End Time :', endTime, '***');
               }
             }
 
@@ -402,15 +412,15 @@ function installDatabase(db, nodes, node_arr){
                 let checkdir_cmd = `ssh root@${i} ls -l ${homedir}/${home_arr[1]}`
                 let dir1 = exec(checkdir_cmd);
                 //파일이 이미 존재 => 재실행임
-                console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
-                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+                console.log(chalk.yellow.bold('[WARNING]'), 'Already installed in', chalk.blue.bold(i));
               }catch(error){
                 //없으면 No such file or directory
                 //존재하지 않음 => 최초 실행
-                console.log(chalk.green.bold('[INFO]'), 'This is the first run');
+                console.log(chalk.green.bold('[INFO]'), 'This is the first installation');
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i) , '... It will take a few minutes');
 
-                exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
-                console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
+                exec(`scp -r ${homedir}/skh_project/orientdb root@${i}:${homedir}`)
+                console.log(chalk.green.bold('[INFO]'), 'Sending complete!');
 
                 let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[1]}`
                 exec(mv_cmd)
@@ -427,6 +437,8 @@ function installDatabase(db, nodes, node_arr){
                 let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[1]}|"' ${homedir}/${home_arr[1]}/config/orientdb-server-config.xml`
                 exec(fixNodeName_cmd)
                 console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+                endTime = getTime();
+                console.log(chalk.green.bold('[INFO]'), 'Installation Complete : *** Start Time :', startTime, '*** End Time :', endTime, '***');
               }
             }
 
@@ -437,15 +449,15 @@ function installDatabase(db, nodes, node_arr){
                 let checkdir_cmd = `ssh root@${i} ls -l ${homedir}/${home_arr[2]}`
                 let dir1 = exec(checkdir_cmd);
                 //파일이 이미 존재 => 재실행임
-                console.log(chalk.yellow.bold('[WARNING]'), 'This is a re-run');
-                console.log(chalk.red.bold('[ERROR]'), 'Directory is exists ...');
+                console.log(chalk.yellow.bold('[WARNING]'), 'Already installed in', chalk.blue.bold(i));
               }catch(error){
                 //없으면 No such file or directory
                 //존재하지 않음 => 최초 실행
-                console.log(chalk.green.bold('[INFO]'), 'This is the first run');
+                console.log(chalk.green.bold('[INFO]'), 'This is the first installation');
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i) , '... It will take a few minutes');
 
-                exec(`scp -r /home/yh/orientdb root@${i}:${homedir}`)
-                console.log(chalk.green.bold('[INFO]'), 'Sending OrientDB to', chalk.blue.bold(i));
+                exec(`scp -r ${homedir}/skh_project/orientdb root@${i}:${homedir}`)
+                console.log(chalk.green.bold('[INFO]'), 'Sending complete!');
 
                 let mv_cmd = `ssh root@${i} mv ${homedir}/orientdb ${homedir}/${home_arr[2]}`
                 exec(mv_cmd)
@@ -462,6 +474,8 @@ function installDatabase(db, nodes, node_arr){
                 let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${home_arr[2]}|"' ${homedir}/${home_arr[2]}/config/orientdb-server-config.xml`
                 exec(fixNodeName_cmd)
                 console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml in', chalk.blue.bold(i));
+                endTime = getTime();
+                console.log(chalk.green.bold('[INFO]'), 'Installation Complete : *** Start Time :', startTime, '*** End Time :', endTime, '***');
               }
             }
           console.log('----------------------------------------------------------');
