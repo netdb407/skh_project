@@ -113,27 +113,19 @@ function find_UN_DN(results) {
 
 function runArangoExec(status, nodeIPArr, nodetool_ip) {
   return new Promise(function(resolve, reject) {
-    // nodeIPArr.forEach(function(ip) {
+    nodeIPArr.forEach(function(ip) {
       let firewallcmd = `ssh root@${ip} systemctl stop firewalld`
-      // let runcmd = `ssh root@${ip} ${node_arangodb_dir}/bin/arangodb --starter.mode=cluster --starter.data-dir=/root/ssdStorage/arango_cluster --all.cluster.min-replication-factor=3 --starter.join ${nodes_IP}`
-      let runcmd = `ssh root@203.255.92.193 arangodb --starter.mode=cluster --starter.data-dir=/root/ssdStorage/arango_cluster --all.cluster.min-replication-factor=3`
-      let runcmd2 = `ssh root@203.255.92.194 arangodb --starter.mode=cluster --starter.data-dir=/root/ssdStorage/arango_cluster --all.cluster.min-replication-factor=3 --starter.join 203.255.92.193`
-      let runcmd3 = `ssh root@203.255.92.195 arangodb --starter.mode=cluster --starter.data-dir=/root/ssdStorage/arango_cluster --all.cluster.min-replication-factor=3 --starter.join 203.255.92.193`
 
-
+      // let runcmd = `ssh root@${ip} arangodb --starter.mode=cluster --starter.data-dir=/root/ssdStorage/arango_cluster --all.cluster.min-replication-factor=3 --starter.join ${nodes_IP}`
+      let runcmd = `ssh root@${ip} arangodb --starter.mode=cluster --starter.data-dir=/root/ssdStorage/arango_cluster --starter.join ${nodes_IP}`
       console.log(runcmd);
-      console.log(runcmd2);
-      console.log(runcmd3);
       console.log('----------------------------------------------------------');
-      // console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(ip));
+      console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(ip));
       exec(firewallcmd)
-      // console.log(chalk.green.bold('[INFO]'), 'stop firewall in', `${ip}`);
+      console.log(chalk.green.bold('[INFO]'), 'stop firewall in', `${ip}`);
       exec(runcmd)
-      exec(runcmd2)
-      exec(runcmd3)
-      console.log(chalk.green.bold('[INFO]'), 'run arangodb');
-      // console.log(chalk.green.bold('[INFO]'), 'run arangodb in', `${ip}`);
-    // })
+      console.log(chalk.green.bold('[INFO]'), 'run arangodb in', `${ip}`);
+    })
     console.log('----------------------------------------------------------');
     return console.log(chalk.green.bold('[INFO]'), 'run exec complete!');
   });
