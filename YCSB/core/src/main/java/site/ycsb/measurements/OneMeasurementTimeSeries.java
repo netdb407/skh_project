@@ -23,19 +23,30 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Properties;
 import java.util.Vector;
+//
+import org.HdrHistogram.Histogram;
+import org.HdrHistogram.HistogramIterationValue;
+import org.HdrHistogram.HistogramLogWriter;
+import org.HdrHistogram.Recorder;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+
 
 class SeriesUnit {
   /**
    * @param time
    * @param average
-   * @param count
    */
   public SeriesUnit(long time, double average, double count) {
     this.time = time;
     this.average = average;
     this.count = count;
   }
-  
+
   protected final long time;
   protected final double average;
   protected final double count;
@@ -51,6 +62,25 @@ public class OneMeasurementTimeSeries extends OneMeasurement {
    */
   public static final String GRANULARITY = "timeseries.granularity";
   public static final String GRANULARITY_DEFAULT = "1000";
+
+  //latency
+  /**
+   * The name of the property for deciding what percentile values to output.
+   */
+  public static final String PERCENTILES_PROPERTY = "hdrhistogram.percentiles";
+
+  /**
+   * The default value for the hdrhistogram.percentiles property.
+   */
+  public static final String PERCENTILES_PROPERTY_DEFAULT = "95,99";
+  public static final String VERBOSE_PROPERTY = "measurement.histogram.verbose";
+
+  private final boolean verbose;
+  private final PrintStream log;
+  private final HistogramLogWriter histogramLogWriter;
+  private final Recorder histogram;
+  private Histogram totalHistogram;
+  private final List<Double> percentiles;
 
   private final int granularity;
   private final Vector<SeriesUnit> measurements;
@@ -73,6 +103,30 @@ public class OneMeasurementTimeSeries extends OneMeasurement {
     super(name);
     granularity = Integer.parseInt(props.getProperty(GRANULARITY, GRANULARITY_DEFAULT));
     measurements = new Vector<>();
+
+    //95,99 latency
+    percentiles = getPercentileValues(props.getProperty(PERCENTILES_PROPERTY, PERCENTILES_PROPERTY_DEFAULT));
+    verbose = Boolean.valueOf(props.getProperty(VERBOSE_PROPERTY, String.valueOf(false)));
+    boolean shouldLog = Boolean.parseBoolean(props.getProperty("hdrhistogram.fileoutput", "false"));
+    if (!shouldLog) {
+      log = null;
+      histogramLogWriter = null;
+    } else {
+      try {
+        final String hdrOutputFilename = props.getProperty("hdrhistogram.output.path", "") + name + ".hdr";
+        log = new PrintStream(new FileOutputStream(hdrOutputFilename), false);
+      } catch (FileNotFoundException e) {
+        throw new RuntimeException("Failed to open hdr histogram output file", e);
+      }
+      histogramLogWriter = new HistogramLogWriter(log);
+      histogramLogWriter.outputComment("[Logging for: " + name + "]");
+      histogramLogWriter.outputLogFormatVersion();
+      long now = System.currentTimeMillis();
+      histogramLogWriter.outputStartTime(now);
+      histogramLogWriter.setBaseTime(now);
+      histogramLogWriter.outputLegend();
+    }
+    histogram = new Recorder(3);
   }
 
   private synchronized void checkEndOfUnit(boolean forceend) {
@@ -99,7 +153,7 @@ public class OneMeasurementTimeSeries extends OneMeasurement {
   @Override
   public void measure(int latency) {
     checkEndOfUnit(false);
-
+    histogram.recordValue(latency);
     count++;
     sum += latency;
     totallatency += latency;
@@ -127,6 +181,33 @@ public class OneMeasurementTimeSeries extends OneMeasurement {
     exporter.write(getName(), "MaxLatency(us)", max);
 
     // TODO: 95th and 99th percentile latency
+    Histogram intervalHistogram = getIntervalHistogramAndAccumulate();
+    if (histogramLogWriter != null) {
+      histogramLogWriter.outputIntervalHistogram(intervalHistogram);
+      // we can close now
+      log.close();
+    }
+
+    for (Double percentile : percentiles) {
+      exporter.write(getName(), ordinal(percentile) + "PercentileLatency(us)",
+          totalHistogram.getValueAtPercentile(percentile));
+    }
+
+    //exportStatusCounts(exporter);
+
+    // also export totalHistogram
+    if (verbose) {
+      for (HistogramIterationValue v : totalHistogram.recordedValues()) {
+        int value;
+        if (v.getValueIteratedTo() > (long)Integer.MAX_VALUE) {
+          value = Integer.MAX_VALUE;
+        } else {
+          value = (int)v.getValueIteratedTo();
+        }
+
+        exporter.write(getName(), Integer.toString(value), (double)v.getCountAtValueIteratedTo());
+      }
+    }
 
     exportStatusCounts(exporter);
     for (SeriesUnit unit : measurements) {
@@ -144,6 +225,64 @@ public class OneMeasurementTimeSeries extends OneMeasurement {
     windowtotallatency = 0;
     windowoperations = 0;
     return "[" + getName() + " AverageLatency(us)=" + d.format(report) + "]";
+  }
+
+  private Histogram getIntervalHistogramAndAccumulate() {
+    Histogram intervalHistogram = histogram.getIntervalHistogram();
+      // add this to the total time histogram.
+    if (totalHistogram == null) {
+      totalHistogram = intervalHistogram;
+    } else {
+      totalHistogram.add(intervalHistogram);
+    }
+    return intervalHistogram;
+  }
+
+  /**
+   * Helper method to parse the given percentile value string.
+   *
+   * @param percentileString - comma delimited string of Integer values
+   * @return An Integer List of percentile values
+   */
+  private List<Double> getPercentileValues(String percentileString) {
+    List<Double> percentileValues = new ArrayList<>();
+
+    try {
+      for (String rawPercentile : percentileString.split(",")) {
+        percentileValues.add(Double.parseDouble(rawPercentile));
+      }
+    } catch (Exception e) {
+      // If the given hdrhistogram.percentiles value is unreadable for whatever reason,
+      // then calculate and return the default set.
+      System.err.println("[WARN] Couldn't read " + PERCENTILES_PROPERTY + " value: '" + percentileString +
+          "', the default of '" + PERCENTILES_PROPERTY_DEFAULT + "' will be used.");
+      e.printStackTrace();
+      return getPercentileValues(PERCENTILES_PROPERTY_DEFAULT);
+    }
+
+    return percentileValues;
+  }
+
+  /**
+   * Helper method to find the ordinal of any number. eg 1 -> 1st
+   * @param i number
+   * @return ordinal string
+   */
+  private String ordinal(Double i) {
+    String[] suffixes = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
+    Integer j = i.intValue();
+    if (i % 1 == 0) {
+      switch (j % 100) {
+      case 11:
+      case 12:
+      case 13:
+        return j + "th";
+      default:
+        return j + suffixes[j % 10];
+      }
+    } else {
+      return i.toString();
+    }
   }
 
 }
