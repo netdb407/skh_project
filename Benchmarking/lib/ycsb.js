@@ -186,7 +186,7 @@ function arango_status(status, nodeIPArr, nodetool_ip) {
 /* ################################################################################################################# */
 
 module.exports.ycsb = (opt) => {
-  exec(`mkdir /home/skh/YCSB_RESULT`)
+  exec(`mkdir ${ycsb_exportfile_dir}`)
 
   benchmark_name(opt)
   run_function(status)
