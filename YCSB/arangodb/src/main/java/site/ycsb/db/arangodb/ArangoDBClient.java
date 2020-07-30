@@ -45,6 +45,8 @@ import site.ycsb.DB;
 import site.ycsb.DBException;
 import site.ycsb.Status;
 import site.ycsb.StringByteIterator;
+import com.arangodb.entity.*;
+import com.arangodb.model.*;
 
 /**
  * ArangoDB binding for YCSB framework using the ArangoDB Inc. <a
@@ -52,14 +54,14 @@ import site.ycsb.StringByteIterator;
  * <p>
  * See the <code>README.md</code> for configuration information.
  * </p>
- * 
+ *
  * @see <a href="https://github.com/arangodb/arangodb-java-driver">ArangoDB Inc.
  *      driver</a>
  */
 public class ArangoDBClient extends DB {
 
   private static Logger logger = LoggerFactory.getLogger(ArangoDBClient.class);
-  
+
   /**
    * Count the number of times initialized to teardown on the last
    * {@link #cleanup()}.
@@ -77,7 +79,7 @@ public class ArangoDBClient extends DB {
   /**
    * Initialize any state for this DB. Called once per DB instance; there is
    * one DB instance per client thread.
-   * 
+   *
    * Actually, one client process will share one DB instance here.(Coincide to
    * mongoDB driver)
    */
@@ -100,19 +102,21 @@ public class ArangoDBClient extends DB {
       // If clear db before run
       String dropDBBeforeRunStr = props.getProperty("arangodb.dropDBBeforeRun", "false");
       dropDBBeforeRun = Boolean.parseBoolean(dropDBBeforeRunStr);
-      
+
       // Set the sync mode
       String waitForSyncStr = props.getProperty("arangodb.waitForSync", "false");
       waitForSync = Boolean.parseBoolean(waitForSyncStr);
-      
+
       // Set if transaction for update
       String transactionUpdateStr = props.getProperty("arangodb.transactionUpdate", "false");
       transactionUpdate = Boolean.parseBoolean(transactionUpdateStr);
-      
+
       // Init ArangoDB connection
       try {
         arangoDB = new ArangoDB.Builder()
          .host(ip).port(port).useProtocol(protocol).build();
+        // arangoDB = new ArangoDB.Builder().host("192.168.0.111", port)
+        //  .host("192.168.0.114", port).useProtocol(protocol).build();
       } catch (Exception e) {
         logger.error("Failed to initialize ArangoDB", e);
         System.exit(-1);
@@ -133,7 +137,7 @@ public class ArangoDBClient extends DB {
           arangoDB.createDatabase(new DBCreateOptions()
               .name(databaseName)
               .options(new DatabaseOptions()
-                  .replicationFactor(3)
+                  .replicationFactor(1)
               )
           );
           logger.info("Database created: " + databaseName);
@@ -159,7 +163,7 @@ public class ArangoDBClient extends DB {
   /**
    * Cleanup any state for this DB. Called once per DB instance; there is one
    * DB instance per client thread.
-   * 
+   *
    * Actually, one client process will share one DB instance here.(Coincide to
    * mongoDB driver)
    */
@@ -176,7 +180,7 @@ public class ArangoDBClient extends DB {
    * Insert a record in the database. Any field/value pairs in the specified
    * values HashMap will be written into the record with the specified record
    * key.
-   * 
+   *
    * @param table
    *      The name of the table
    * @param key
@@ -205,7 +209,7 @@ public class ArangoDBClient extends DB {
   /**
    * Read a record from the database. Each field/value pair from the result
    * will be stored in a HashMap.
-   * 
+   *
    * @param table
    *      The name of the table
    * @param key
@@ -234,7 +238,7 @@ public class ArangoDBClient extends DB {
    * Update a record in the database. Any field/value pairs in the specified
    * values HashMap will be written into the record with the specified record
    * key, overwriting any existing values with the same field name.
-   * 
+   *
    * @param table
    *      The name of the table
    * @param key
@@ -276,7 +280,7 @@ public class ArangoDBClient extends DB {
 
   /**
    * Delete a record from the database.
-   * 
+   *
    * @param table
    *      The name of the table
    * @param key
@@ -298,7 +302,7 @@ public class ArangoDBClient extends DB {
   /**
    * Perform a range scan for a set of records in the database. Each
    * field/value pair from the result will be stored in a HashMap.
-   * 
+   *
    * @param table
    *      The name of the table
    * @param startkey
@@ -358,7 +362,7 @@ public class ArangoDBClient extends DB {
     }
   }
 
-  
+
   private String constructReturnForAQL(Set<String> fields, String targetName) {
     // Construct the AQL query string.
     String resultDes = targetName;
@@ -374,14 +378,14 @@ public class ArangoDBClient extends DB {
     }
     return resultDes;
   }
-  
+
   private boolean fillMap(Map<String, ByteIterator> resultMap, VPackSlice document) {
     return fillMap(resultMap, document, null);
   }
-  
+
   /**
    * Fills the map with the properties from the BaseDocument.
-   * 
+   *
    * @param resultMap
    *      The map to fill/
    * @param document
@@ -417,7 +421,7 @@ public class ArangoDBClient extends DB {
     }
     return true;
   }
-  
+
   private String byteIteratorToString(ByteIterator byteIter) {
     return new String(byteIter.toArray());
   }
@@ -425,7 +429,7 @@ public class ArangoDBClient extends DB {
   private ByteIterator stringToByteIterator(String content) {
     return new StringByteIterator(content);
   }
-  
+
   private String mapToJson(Map<String, ByteIterator> values) {
     VPackBuilder builder = new VPackBuilder().add(ValueType.OBJECT);
     for (Map.Entry<String, ByteIterator> entry : values.entrySet()) {
@@ -434,5 +438,5 @@ public class ArangoDBClient extends DB {
     builder.close();
     return arangoDB.util().deserialize(builder.slice(), String.class);
   }
-  
+
 }
