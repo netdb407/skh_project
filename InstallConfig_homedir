@@ -1,10 +1,11 @@
 #수정!
-homedir = /root/ssdStorage/skh_project/
+homedir = /root/ssdStorage/skh_project
 
 # [cluster 정보 (,뒤에 띄어쓰기 안함)]
 server_IP = 203.255.92.192
 nodes_IP = 203.255.92.193,203.255.92.194,203.255.92.195
 nodetool_IP = 203.255.92.193
+orientMaster_IP = 203.255.92.195
 
 # ! 192 서버컴에 mkdir ssdStorage한 다음에 설치하기
 #수정!
@@ -18,6 +19,9 @@ server_ycsb_dir = ./YCSB
 server_wlfile_dir = workloads
 server_WLgenerate_dir = WorkloadGenerator/bin/
 server_file_dir = workloads/
+server_file1_dir = YCSB/workloads/
+server_file2_dir = Graph/workloads/
+server_file3_dir = Graph/result/
 
 # [node directory]
 #수정!
@@ -26,9 +30,15 @@ node_data_dir =
 
 
 # [ycsb(192 서버컴에만 있음) 관련 설정]
-ycsb_exporter = site.ycsb.measurements.exporter.TextMeasurementsExporter
-#수정!
-ycsb_exportfile_dir = YCSB_RESULT
+ycsb_exporter = site.ycsb.measurements.exporter.JSONArrayMeasurementsExporter
+ycsb_exportfile_dir = /home/skh/YCSB_RESULT
+
+# [PATH 관련 설정 home_exporter]
+java_exporter = export JAVA_HOME=/root/ssdStorage/skh_project/package/java
+maven_exporter = export MAVEN_HOME=/root/ssdStorage/skh_project/package/maven
+path_exporter = PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
+home_exporter = export JAVA_HOME=/root/ssdStorage/skh_project/package/java && export MAVEN_HOME=/root/ssdStorage/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
+
 
 # [IO Tracer 관련 설정]
 IO_output_dir = /root/ssdStorage/output
