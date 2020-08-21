@@ -249,7 +249,7 @@ var q2 =[
     type : 'input',
     name : 'fieldnameprefix',
     message : 'YCSB properties-fieldnameprefix',
-    default :''
+    default :'field'
   },{
     type : 'checkbox',
     name : 'hdrhistogram_percentiles',
@@ -449,8 +449,8 @@ async function main2(){
   if(answers.filetype === 'YCSB'){
     const answer = await inquirer.prompt(qu2);
       var fileproperties = PropertiesReader(dir1+answer.original_name);
-      q1[0].default = fileproperties.path().Recordcount;
-      q1[1].default = fileproperties._properties.Fieldcount;
+      q1[0].default = fileproperties.path().recordcount;
+      q1[1].default = fileproperties._properties.fieldcount;
       q1[2].default = fileproperties._properties.fieldlength;
       q1[3].default = fileproperties._properties.minfieldlength;
       q1[4].default = fileproperties._properties.readallfields;
@@ -499,8 +499,8 @@ async function main2(){
           inquirer.prompt(q2).then(answer2_1_1 => {
             if(answer2_1){
               var aa = ['type = '+answers.filetype+'\n'+
-              'Recordcount = '+answer2_1.Record_count+'\n'+
-              'Fieldcount = '+answer2_1.Field_count+'\n'+
+              'recordcount = '+answer2_1.Record_count+'\n'+
+              'fieldcount = '+answer2_1.Field_count+'\n'+
               'fieldlength = '+answer2_1.fieldlength+'\n'+
               'minfieldlength = '+answer2_1.minfieldlength+'\n'+
               'readallfields = '+answer2_1.readallfields+'\n'+
@@ -522,7 +522,8 @@ async function main2(){
               'hdrhistogram_percentiles = '+answer2_1_1.hdrhistogram_percentiles+'\n'+
               'hdrhistogram_fileoutput = '+answer2_1_1.hdrhistogram_fileoutput+'\n'+
               'histogram = '+answer2_1_1.histogram+'\n'+
-              'timeseries_granularity = '+answer2_1_1.timeseries+'\n'
+              'timeseries_granularity = '+answer2_1_1.timeseries+'\n'+
+              'workload=site.ycsb.workloads.CoreWorkload'
             ];
               fs.readFile(dir1+answer.original_name,'utf8',function(err,data){
                 if(err) throw err;

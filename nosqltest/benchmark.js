@@ -42,6 +42,14 @@ var argv = require('yargs')
     type : 'integer',
   })
   .requiresArg('t')
+  .option('m',{
+    alias : 'remove',
+    demand : false,
+    default : 1,
+    describe : 'remove',
+    type : 'integer',
+  })
+  .requiresArg('m')
   .boolean('d')
   .argv
 ;
@@ -53,6 +61,7 @@ var databases = argv._;
 var debug = argv.d;
 var filename = argv.n;
 var settime = argv.t;
+var remove = argv.m;
 var fileproperties = PropertiesReader(dir+filename);
 var ip = hosts.split(',');
 var orientdbdir = orientdir.split(',');
@@ -142,6 +151,18 @@ function start(){
         ++x;
     },settime);
     console.log('INFO start');
+    // async function test0(){
+    //   if(remove==1){
+    //     var name = 'profiles';
+    //     var start = Date.now();
+    //     finish2 = 0;
+    //     console.log('INFO executing remove for all document');
+    //     desc.dropCollection(db,name,function (noerr){
+    //       if (err) return reject(err);
+    //     })
+    //     finish2 = Date.now()-start;
+    //   }
+    // }
     async function test1(){
       var start = Date.now();
       finish2 = 0;

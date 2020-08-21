@@ -412,11 +412,12 @@ inquirer.prompt(question).then(answers => {
         console.log("hdrhistogram.fileoutput = %s",answers1_2.hdrhistogram_fileoutput);
         console.log("histogram = %s",answers1_2.histogram);
         console.log("timeseries.granularity = %s",answers1_2.timeseries);
+        console.log('workload=site.ycsb.workloads.CoreWorkload');
         console.log("********************************");
 
         var aa = ['type = '+answers.type+'\n'+
-        'Recordcount = '+answers1.Record_count+'\n'+
-        'Fieldcount = '+answers1.Field_count+'\n'+
+        'recordcount = '+answers1.Record_count+'\n'+
+        'fieldcount = '+answers1.Field_count+'\n'+
         'fieldlength = '+answers1.fieldlength+'\n'+
         'minfieldlength = '+answers1.minfieldlength+'\n'+
         'readallfields = '+answers1.readallfields+'\n'+
@@ -438,7 +439,8 @@ inquirer.prompt(question).then(answers => {
         'hdrhistogram_percentiles = '+answers1_2.hdrhistogram_percentiles+'\n'+
         'hdrhistogram_fileoutput = '+answers1_2.hdrhistogram_fileoutput+'\n'+
         'histogram = '+answers1_2.histogram+'\n'+
-        'timeseries_granularity = '+answers1_2.timeseries+'\n'
+        'timeseries_granularity = '+answers1_2.timeseries+'\n'+
+        'workload=site.ycsb.workloads.CoreWorkload'
       ];
           fs.readdir(dir1,function(err,filelist){
             for(i=0;i<filelist.length;i++){
