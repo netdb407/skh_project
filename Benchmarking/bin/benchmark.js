@@ -51,18 +51,28 @@ program
 
 program
   .command('orientdb')
+  .option('-r, --runtype <runtype>', `insert runtype, choose from 'load', 'run', 'loadrun'`)
+  .option('-b, --bmname <name>', `insert benchmark name`)
   .option('-n, --name <name>', `insert workload file name`)
-  .option('-t, --time <time>', `insert set time`)
-  .option('-s, --size <size>', `insert load size`)
+  .option('-t, --time <time>', `insert set time (default : 10000(ms))`)
+  .option('-s, --size <size>', `insert load size, choose from 'LDBC#'(#:number of 1~7), 'pokec', 'livejournal'`)
+  .option('-o, --output <output>', )
+  .option('-i, --iotracer',`run iotracing option (default : off)`)
   .action(function(opt){
     exec('chmod -R +x .')
 
-    if((typeof(opt.name)== 'string') && (typeof(opt.time)) =='string'){ // 필수 옵션이 있으면 실행 ,,
+    if((typeof(opt.runtype)== 'string') && (typeof(opt.name)== 'string') && (typeof(opt.size)) =='string'){ // 필수 옵션이 있으면 실행 ,,
       nosqlTests.graphbench(opt);
     }else{
       console.log('----------------------------------------------------------');
-      console.log(chalk.red.bold('[ERROR]'), 'insert necessary option :', chalk.blue.bold('-n'),',', chalk.blue.bold('-t'));
+      console.log(chalk.red.bold('[ERROR]'), 'insert necessary option :', chalk.blue.bold('-r'),',', chalk.blue.bold('-n'),',', chalk.blue.bold('-s'));
       console.log('----------------------------------------------------------');
+      let helpcmd = `Benchmarking/bin/benchmark.js orientdb -help`
+      // console.log(helpcmd);
+      const helpexec = exec(helpcmd)
+      helpexec.stdout.on('data', function(data){
+        console.log(data);
+      })
     }
 
 })

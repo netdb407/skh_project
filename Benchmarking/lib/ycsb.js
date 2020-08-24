@@ -352,7 +352,7 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
       // console.log('iotracer 시작');
       ip.forEach((i) => {
         try {
-          const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -m /home/DeviceDriver/drive-manager ${IO_watch_dir} -i ${timewindow_iotracer}-o /home/skh/IO_OUTPUT/${opt.name}`)
+          const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -m /home/DeviceDriver/drive-manager ${IO_watch_dir} -i ${timewindow_iotracer} -o /home/skh/IO_OUTPUT/${opt.name}`)
 	 console.log(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -m /home/DeviceDriver/drive-manager  ${IO_watch_dir} -i ${timewindow_iotracer} -o /home/skh/IO_OUTPUT/${opt.name}`);
 
          // const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -d ${IO_watch_dir} -o /home/skh/IO_OUTPUT/${opt.name}`)
