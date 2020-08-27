@@ -165,8 +165,8 @@ get_relation_dir(){
   return properties.get("load_relation_dir")
  },
 get_nosqltests_result_dir(){
- return properties.get("nosqltests_result_dir")
-},
+   return properties.get("nosqltests_result_dir")
+  },
 
 
 }

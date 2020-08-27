@@ -72,7 +72,7 @@ update_conf_path = /root/ssdStorage/skh_project/Update/
 server_orientdb_dir = orientdb193,orientdb194,orientdb195
 load_profile_dir = /root/ssdStorage/orientdb195/person/person_0_0.csv
 load_relation_dir = /root/ssdStorage/orientdb195/person/person_knows_person_0_0.csv
-nosqltests_output_dir = /home/skh/nosqltest_output
+nosqltests_result_dir = /home/skh/nosqltests_result
 
 # [arangodb 관련 설정]
 node_arangodb_dir = /root/ssdStorage/arangodb3e-3.6.3-1

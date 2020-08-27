@@ -23,11 +23,12 @@ let ip = hosts.split(',')
 module.exports.graphbench = (opt) => {
 
   benchmark_name(opt)
-  // dbstart()
+  dbstart()
   check_NosquTests(status)
   // console.log(opt);
   async function check_NosquTests(status) {
-    // let orientdb_status = await statusCheck()
+    let orientdb_status = await statusCheck()
+
     let iotracer_status = await checkStatus_iotracer(status, opt.iotracer)
     // console.log('IOTRACER_STATUS', iotracer_status)
     let runtype_status = await checkStatus_runtype(status, opt.runtype)
@@ -38,8 +39,7 @@ module.exports.graphbench = (opt) => {
     // console.log('TIME', time)
     let size_status = await checkStatus_size(status, opt.size)
 
-     if (iotracer_status == 1 && runtype_status == 1 && name_status == 1 && time_status == 1 && size_status == 1) { //
-      // if (orientdb_status == 1 && iotracer_status == 1 && runtype_status == 1 && name_status == 1 && time_status == 1 && size_status == 1) { //
+      if (orientdb_status == 1 && iotracer_status == 1 && runtype_status == 1 && name_status == 1 && time_status == 1 && size_status == 1) { //
         // run_NosquTests(opt, opt.runtype)
         if (opt.iotracer == true) { // IOracer 옵션이 있을 경우Otracer 를 실행함
           let timewindow_iotracer = opt.time/1000
@@ -96,46 +96,46 @@ module.exports.graphbench = (opt) => {
 
 
 
-  // async function dbstart(){
-  //   ip.forEach((i) => {
-  //     dirnum = i.split('.');
-  //     const std = exec(`ssh root@${i} ${ssdStorage_dir}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`);
-  //     // const std = exec(`ssh root@${i} ${Orientdb_dir2}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`);
-  //     console.log('--------------------------------------');
-  //     console.log('[info] orientdb run : ', i);
-  //     console.log('--------------------------------------');
-  //   });
-  //   setTimeout(statusCheck,1000*20);
-  // }
+  async function dbstart(){
+    ip.forEach((i) => {
+      dirnum = i.split('.');
+      const std = exec(`ssh root@${i} ${ssdStorage_dir}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`);
+      // const std = exec(`ssh root@${i} ${Orientdb_dir2}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`);
+      console.log('--------------------------------------');
+      console.log('[info] orientdb run : ', i);
+      console.log('--------------------------------------');
+    });
+    setTimeout(statusCheck,1000*20);
+  }
 
 
-  // async function statusCheck(){
-  //   return new Promise(function(resolve,reject){
-  //     const stdout = exec(`curl --user root:1234 --header "Accept: text/csv" -d "HA STATUS -servers -output=text" "http://203.255.92.193:2480/command/skh/sql"`);
-  //     stdout.stdout.on('data', function(data) {
-  //       console.log(data);
-  //       var a1 = data.toString().match(/ONLINE/gi);
-  //       if(a1!=null){
-  //         if(a1.length==6){
-  //           a = a1.length;
-  //            console.log('Status is complete! ONLINE:', a);
-  //            resolve(status * -1)
-  //            // start();
-  //         } else {
-  //             setTimeout(statusCheck,1000*10);
-  //         }
-  //       }else {
-  //         setTimeout(statusCheck,1000*10);
-  //       }
-  //     });
-  //     // stdout.on('exit', function(code){
-  //     //   console.log('----------------------------------------------------------');
-  //     //   console.log(chalk.green.bold('[INFO]'), `status check completed.`);
-  //     //   console.log('----------------------------------------------------------');
-  //     //   // resolve(status * -1)
-  //     // })
-  //   })
-  // }
+  async function statusCheck(){
+    return new Promise(function(resolve,reject){
+      const stdout = exec(`curl --user root:1234 --header "Accept: text/csv" -d "HA STATUS -servers -output=text" "http://203.255.92.193:2480/command/skh/sql"`);
+      stdout.stdout.on('data', function(data) {
+        console.log(data);
+        var a1 = data.toString().match(/ONLINE/gi);
+        if(a1!=null){
+          if(a1.length==6){
+            a = a1.length;
+             console.log('Status is complete! ONLINE:', a);
+             resolve(status * -1)
+             // start();
+          } else {
+              setTimeout(statusCheck,1000*10);
+          }
+        }else {
+          setTimeout(statusCheck,1000*10);
+        }
+      });
+      // stdout.on('exit', function(code){
+      //   console.log('----------------------------------------------------------');
+      //   console.log(chalk.green.bold('[INFO]'), `status check completed.`);
+      //   console.log('----------------------------------------------------------');
+      //   // resolve(status * -1)
+      // })
+    })
+  }
 
 function checkStatus_iotracer(status, iotracer) {
   return new Promise(function(resolve, reject) {
@@ -299,8 +299,7 @@ function load_vertex(status) {
 function load_edge(status, opt) {
   return new Promise(function(resolve, reject) {
     dirnum = orientMaster_IP.split('.')
-    let load_edge_cmd = `ssh root@${orientMaster_IP} ${ssdStorage_dir}/orientdb${dirnum[dirnum.length-1]}/bin/oetl.sh LDBCR.json`
-    //let load_edge_cmd = `/home/yuna/orientdb/bin/oetl.sh LDBCR.json`
+    let load_edge_cmd = `/home/yuna/orientdb/bin/oetl.sh LDBCR.json`
     console.log('LOAD_EDGE_CMD', load_edge_cmd)
     try{
       const load_edge_exec = exec(load_edge_cmd)
