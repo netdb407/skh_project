@@ -3,11 +3,11 @@
     "title": "Remote Sync"
   },
   "uploadOnSave": true,
-  "useAtomicWrites": false,
-  "deleteLocal": true,
-  "hostname": "203.255.92.38",
+  "useAtomicWrites": true,
+  "deleteLocal": false,
+  "hostname": "203.255.92.192",
   "port": "22",
-  "target": "/home/yh/skh_project",
+  "target": "/root/ssdStorage/skh_project",
   "ignore": [
     ".remote-sync.json",
     ".git/**"
