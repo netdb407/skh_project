@@ -117,7 +117,9 @@ function runArangoExec(status, nodeIPArr, nodetool_ip) {
       let firewallcmd = `ssh root@${ip} systemctl stop firewalld`
 
       // let runcmd = `ssh root@${ip} arangodb --starter.mode=cluster --starter.data-dir=/root/ssdStorage/arango_cluster --all.cluster.min-replication-factor=3 --starter.join ${nodes_IP}`
-      let runcmd = `ssh root@${ip} nohup arangodb start --starter.mode=cluster --starter.data-dir=/root/ssdStorage/arangodb_cluster --starter.join ${nodes_IP} &`
+      // let runcmd = `ssh root@${ip} nohup arangodb start --starter.mode=cluster --starter.data-dir=/root/ssdStorage/arangodb_cluster --starter.join ${nodes_IP} &`
+      let runcmd = `ssh root@${ip} nohup arangod --database.directory=/root/ssdStorage/arangodb_cluster &`
+
       console.log(runcmd);
       console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'IP address', chalk.blue.bold(ip));
