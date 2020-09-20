@@ -56,7 +56,6 @@ program
   .option('-n, --name <name>', `insert workload file name`)
   .option('-t, --time <time>', `insert set time (default : 10000(ms))`)
   .option('-s, --size <size>', `insert load size, choose from 'LDBC#'(#:number of 1~7), 'pokec', 'livejournal'`)
-  .option('-o, --output <output>', )
   .option('-i, --iotracer',`run iotracing option (default : off)`)
   .action(function(opt){
     exec('chmod -R +x .')
@@ -77,29 +76,4 @@ program
 
 })
 
-
 program.parse(process.argv);
-// program2.parse(process.argv);
-
-// function checkDBtype(opt){
-//   exec('chmod -R +x .')
-//   // workloadProperty(opt)
-//
-//   let dbtypeInfo = chalk.magenta('dbtype')
-//   switch(opt.dbtype){
-//     case 'cassandra' :
-//       ycsbAction.ycsb(opt);
-//       break;
-//     case 'arangodb' :
-//       ycsbAction.ycsb(opt);
-//       break;
-//     case 'orientdb' :
-//       // graphbenchAction.graphbench(opt)
-//       nosqlTests.graphbench(opt);
-//       break;
-//     default :
-//       let dbtypeLine = `${error} ${dbtypeInfo} : invalid choice ${opt.dbtype}, (choose from 'cassandra', 'arangodb', 'orientdb')`
-//       console.log(dbtypeLine)
-//       break;
-//     }
-// }

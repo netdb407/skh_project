@@ -81,7 +81,9 @@ module.exports = {
   get_node_arangodb_dir(){
     return properties.get("node_arangodb_dir")
   },
-
+  get_node_arangodb_data_dir(){
+    return properties.get("node_arangodb_data_dir")
+  },
 
 
 
@@ -91,21 +93,6 @@ module.exports = {
   },
   get_ycsb_exportfile_dir(){
     return properties.get("ycsb_exportfile_dir")
-  },
-
-
-  //home exporter
-  get_java_exporter(){
-    return properties.get("java_exporter");
-  },
-  get_maven_exporter(){
-    return properties.get("maven_exporter");
-  },
-  get_path_exporter(){
-    return properties.get("path_exporter");
-  },
-  get_home_exporter(){
-    return properties.get("home_exporter");
   },
 
 

@@ -13,8 +13,8 @@ rpm_dir_in_skhproject = /root/ssdStorage/skh_project/Installation/rpm/
 # [server directory]
 server_install_dir = /root/ssdStorage/skh_project/package/
 server_install_dir_WL = /root/ssdStorage/skh_project/
-server_ycsb_dir = ./YCSB
-server_wlfile_dir = workloads
+#server_ycsb_dir = ./YCSB
+#server_wlfile_dir = workloads
 server_WLgenerate_dir = WorkloadGenerator/bin/
 server_file1_dir = YCSB/workloads/
 server_file2_dir = Graph/workloads/
@@ -32,20 +32,14 @@ ycsb_exporter = site.ycsb.measurements.exporter.JSONArrayMeasurementsExporter
 #ycsb_exportfile_dir = /root/ssdStorage/skh_project/YCSB_RESULT
 ycsb_exportfile_dir = /home/skh/YCSB_RESULT
 
-# [PATH 관련 설정 home_exporter]
-java_exporter = export JAVA_HOME=/root/ssdStorage/skh_project/package/java
-maven_exporter = export MAVEN_HOME=/root/ssdStorage/skh_project/package/maven
-path_exporter = PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
-home_exporter = export JAVA_HOME=/root/ssdStorage/skh_project/package/java && export MAVEN_HOME=/root/ssdStorage/skh_project/package/maven && PATH=$PATH:$MAVEN_HOME/bin:$JAVA_HOME/bin
-
-
 # [IO Tracer 관련 설정]
 #IO_output_dir = /root/ssdStorage/output
-IO_output_dir = /root/output
-
-IO_driverManager_dir =
+#IO_output_dir = /root/output
+IO_output_dir = /home/skh/IO_OUTPUT
+IO_driverManager_dir = /home/DeviceDriver/drive-manager
 IO_tracer_dir = /root/iotracer
 IO_watch_dir = /root/ssdStorage
+
 
 # [패키지 version]
 java_version = 1.8.0
@@ -76,3 +70,4 @@ nosqltests_result_dir = /home/skh/nosqltests_result
 
 # [arangodb 관련 설정]
 node_arangodb_dir = /root/ssdStorage/arangodb3e-3.6.3-1
+node_arangodb_data_dir = /root/ssdStorage/arangodb_cluster

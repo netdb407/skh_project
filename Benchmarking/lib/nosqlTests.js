@@ -2,62 +2,70 @@ const PropertiesReader = require('properties-reader');
 const property = require('../../propertiesReader.js')
 const chalk = require('chalk')
 const exec = require('child_process').exec
+const spawn = require('child_process').spawn
 const fs = require('fs')
 const workload_dir = property.get_server_file2_dir() // Graph/workloads
 const result_dir = property.get_server_file3_dir() // Graph/result
-const ssdStorage_dir = property.get_IO_watch_dir()
+const server_homedir = property.get_server_homedir()
+const node_homedir = property.get_node_homedir()
 const IO_tracer_dir = property.get_IO_tracer_dir()
 const IO_watch_dir = property.get_IO_watch_dir()
 const IO_output_dir = property.get_IO_output_dir()
+const IO_driverManager_dir = property.get_IO_driverManager_dir()
 const orientMaster_IP = property.get_orientMaster_IP()
 const nosqltests_result_dir = property.get_nosqltests_result_dir()
 let status = -1 //켜져있을 때 1, 꺼져있을 때 -1, stderr일때 0
 let complete_vertex = -1
 let complete_edge = -1
-const orientdir = property.server_orientdb_dir()
-let orientdbdir = orientdir.split(',')
 const server_IP = property.get_server_IP()
-const hosts = property.get_nodes_IP()
-let ip = hosts.split(',')
+const nodes_IP = property.get_nodes_IP()
+let nodeIPArr = nodes_IP.split(',')
+let nodeIPcount = nodeIPArr.length
+let nodetool_ip = property.get_nodetool_IP()
+
 
 module.exports.graphbench = (opt) => {
+  exec(`mkdir ${nosqltests_result_dir}`)
 
   benchmark_name(opt)
-  // dbstart()
+  dbstart()
   check_NosquTests(status)
   // console.log(opt);
   async function check_NosquTests(status) {
-    // let orientdb_status = await statusCheck()
+    let orientdb_status = await statusCheck()
+    // console.log('ORIENTDB_STATUS', orientdb_status)
     let iotracer_status = await checkStatus_iotracer(status, opt.iotracer)
     // console.log('IOTRACER_STATUS', iotracer_status)
     let runtype_status = await checkStatus_runtype(status, opt.runtype)
     // console.log('RUNTYPE_STATUS', runtype_status)
     let name_status = await checkStatus_name(status, opt.name)
-    // console.log('NAME', name)
+    // console.log('NAME', name_status)
     let time_status = await checkStatus_time(status, opt.time)
-    // console.log('TIME', time)
+    // console.log('TIME', time_status)
     let size_status = await checkStatus_size(status, opt.size)
+    // console.log('SIZE', size_status)
 
-     if (iotracer_status == 1 && runtype_status == 1 && name_status == 1 && time_status == 1 && size_status == 1) { //
-      // if (orientdb_status == 1 && iotracer_status == 1 && runtype_status == 1 && name_status == 1 && time_status == 1 && size_status == 1) { //
-        // run_NosquTests(opt, opt.runtype)
+      if (orientdb_status == 1 && iotracer_status == 1 && runtype_status == 1 && name_status == 1 && time_status == 1 && size_status == 1) {
         if (opt.iotracer == true) { // IOracer 옵션이 있을 경우Otracer 를 실행함
           let timewindow_iotracer = opt.time/1000
-            ip.forEach((i) => {
-              try {
-                const stdout = exec(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -m /home/DeviceDriver/drive-manager ${IO_watch_dir} -i ${timewindow_iotracer} -o /home/skh/IO_OUTPUT/${opt.bmname}`)
-      	 console.log(`ssh root@${i} ${IO_tracer_dir}/bin/iotracer -m /home/DeviceDriver/drive-manager  ${IO_watch_dir} -i ${timewindow_iotracer} -o /home/skh/IO_OUTPUT/${opt.bmname}`);
+          nodeIPArr.forEach((ip) => {
+            try {
+              runcmd = `ssh root@${ip} ${IO_tracer_dir}/bin/iotracer -m ${IO_driverManager_dir} ${IO_watch_dir} -i ${timewindow_iotracer} -o ${IO_output_dir}/${opt.bmname}`
 
-                console.log('----------------------------------------------------------');
-                console.log(chalk.green.bold('[INFO]'), 'run iotracer : ', chalk.blue.bold(i));
-                // console.log('----------------------------------------------------------');
-                // exec(`ssh root@${i} ${IO_tracer_dir} -d ${IO_watch_dir}`)
-              } catch (err) {
-                console.log(err);
-              }
-            })
+              runcmdexec = spawn(runcmd, null, {
+                shell: true
+              });
+
+              console.log('----------------------------------------------------------');
+              console.log(chalk.green.bold('[INFO]'), 'run iotracer : ', chalk.blue.bold(ip));
+              // console.log('RUNCMD', runcmd)
+              console.log('----------------------------------------------------------');
+
+            } catch (err) {
+              console.log(err);
+            }
+          })
           }
-
           if(opt.runtype == 'load'){
             load_function(status, opt)
           }else if (opt.runtype == 'run'){
@@ -65,7 +73,6 @@ module.exports.graphbench = (opt) => {
           }else if (opt.runtype == 'loadrun'){
             loadrun_function(status, opt)
           }
-
       }else {
         console.log('----------------------------------------------------------');
         console.log(chalk.red.bold('[ERROR]'), 'There was an error and could not be executed.')
@@ -75,78 +82,92 @@ module.exports.graphbench = (opt) => {
 
   async function load_function(status, opt){
     let complete_vertex = await load_vertex(status, opt)
-    // console.log(complete_vertex);
+    // console.log('COMPLETE_VERTEX', complete_vertex)
     if(complete_vertex == 1){
       let complete_edge = await load_edge(status, opt)
+      // console.log('COMPLETE_EDGE', complete_edge)
     }
   }
 
     async function loadrun_function(status, opt){
       complete_vertex = await load_vertex(status, opt)
-      // console.log(complete_vertex);
+      // console.log('COMPLETE_VERTEX', complete_vertex)
       if(complete_vertex == 1){
         complete_edge = await load_edge(status, opt)
+        // console.log('COMPLETE_EDGE', complete_edge)
       }
       if(complete_vertex == 1 && complete_edge == 1){
         run_NosquTests(status, opt)
       }
     }
-
 }
 
+  async function dbstart(){
+    nodeIPArr.forEach((ip) => {
+      dirnum = ip.split('.');
+      let runcmd = `ssh root@${ip} ${node_homedir}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`
+      exec(runcmd)
+      console.log('--------------------------------------');
+      console.log('[info] orientdb run : ', ip);
+      console.log('RUNCMD', runcmd)
+      console.log('--------------------------------------');
+    });
+    setTimeout(statusCheck,1000*20);
+  }
 
-
-  // async function dbstart(){
-  //   ip.forEach((i) => {
-  //     dirnum = i.split('.');
-  //     const std = exec(`ssh root@${i} ${ssdStorage_dir}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`);
-  //     // const std = exec(`ssh root@${i} ${Orientdb_dir2}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`);
-  //     console.log('--------------------------------------');
-  //     console.log('[info] orientdb run : ', i);
-  //     console.log('--------------------------------------');
-  //   });
-  //   setTimeout(statusCheck,1000*20);
-  // }
-
-
-  // async function statusCheck(){
-  //   return new Promise(function(resolve,reject){
-  //     const stdout = exec(`curl --user root:1234 --header "Accept: text/csv" -d "HA STATUS -servers -output=text" "http://203.255.92.193:2480/command/skh/sql"`);
-  //     stdout.stdout.on('data', function(data) {
-  //       console.log(data);
-  //       var a1 = data.toString().match(/ONLINE/gi);
-  //       if(a1!=null){
-  //         if(a1.length==6){
-  //           a = a1.length;
-  //            console.log('Status is complete! ONLINE:', a);
-  //            resolve(status * -1)
-  //            // start();
-  //         } else {
-  //             setTimeout(statusCheck,1000*10);
-  //         }
-  //       }else {
-  //         setTimeout(statusCheck,1000*10);
-  //       }
-  //     });
-  //     // stdout.on('exit', function(code){
-  //     //   console.log('----------------------------------------------------------');
-  //     //   console.log(chalk.green.bold('[INFO]'), `status check completed.`);
-  //     //   console.log('----------------------------------------------------------');
-  //     //   // resolve(status * -1)
-  //     // })
-  //   })
-  // }
+  async function statusCheck(){
+    return new Promise(function(resolve,reject){
+      let checkcmd = `curl --user root:1234 --header "Accept: text/csv" -d "HA STATUS -servers -output=text" "http://${nodetool_ip}:2480/command/skh/sql"`
+      cmdexec = exec(checkcmd)
+      cmdexec.stderr.on('data', function(data) {
+        if(data.includes('Failed')){
+          setTimeout(statusCheck,1000*10);
+        }
+      });
+      let a1 = ''
+      cmdexec.stdout.on('data', function(data) {
+        a1 = data.toString().match(/ONLINE/gi);
+        if(a1!=null){
+          if(a1.length==nodeIPcount*2){
+            a = a1.length;
+             console.log('Status is complete! ONLINE:', a);
+             resolve(status * -1)
+             // start();
+          } else {
+            console.log('----------------------------------------------------------');
+            console.log(chalk.red.bold('[ERROR]'), 'check orientdb again .. waiting for 20 seconds');
+            console.log('----------------------------------------------------------');
+            setTimeout(statusCheck,1000*10);
+            resolve(status)
+          }
+        }else {
+          console.log('----------------------------------------------------------');
+          console.log(chalk.red.bold('[ERROR]'), 'check orientdb again .. waiting for 20 seconds');
+          console.log('----------------------------------------------------------');
+          setTimeout(statusCheck,1000*10);
+          resolve(status)
+        }
+      });
+      // stdout.on('exit', function(code){
+      //
+      //   // console.log('----------------------------------------------------------');
+      //   // console.log(chalk.green.bold('[INFO]'), `status check completed.`);
+      //   // console.log('----------------------------------------------------------');
+      //   resolve(status * -1)
+      // })
+    })
+  }
 
 function checkStatus_iotracer(status, iotracer) {
   return new Promise(function(resolve, reject) {
     if (iotracer == true) {
       iotracing = 'true'
-      // console.log('----------------------------------------------------------');
+      console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'iotracer :', chalk.blue.bold(iotracing));
       // console.log('----------------------------------------------------------');
     } else {
       iotracing = 'false'
-      // console.log('----------------------------------------------------------');
+      console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'iotracer :', chalk.blue.bold(iotracing));
       // console.log('----------------------------------------------------------');
     }
@@ -154,17 +175,16 @@ function checkStatus_iotracer(status, iotracer) {
   });
 }
 
-function get_IO_results(bmname, ip, runtype) {
-  ip.forEach((i) => { // iotracer 종료 후
-
+function get_IO_results(bmname, nodeIPArr, runtype) {
+  nodeIPArr.forEach((ip) => { // iotracer 종료 후
     try {
-      const killiocmd = exec(`ssh root@${i} sh ${IO_tracer_dir}/killIO.sh`)
-      // console.log(`ssh root@${i} sh ${IO_tracer_dir}/killIO.sh`);
+      let killcmd = `ssh root@${ip} sh ${node_homedir}/killShell/killIO.sh`
+      killexec = exec(`ssh root@${ip} ${node_homedir}/killShell/killIO.sh`)
 
       console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'kill iotracer : ', chalk.blue.bold(i));
+      console.log(chalk.green.bold('[INFO]'), 'kill iotracer : ', chalk.blue.bold(ip));
+      // console.log('KILLCMD', killcmd)
       // console.log('----------------------------------------------------------');
-      // console.log(stdout);
     } catch (err) {
       console.log('kill fail');
       console.log(err);
@@ -259,17 +279,15 @@ function checkStatus_size(status, size) {
   });
 }
 
-
 function load_vertex(status) {
   return new Promise(function(resolve, reject) {
     dirnum = orientMaster_IP.split('.')
-    let load_vertex_cmd = `ssh root@${orientMaster_IP} ${ssdStorage_dir}/orientdb${dirnum[dirnum.length-1]}/bin/oetl.sh LDBCP.json`
-    // let load_vertex_cmd = `/home/yuna/orientdb/bin/oetl.sh LDBCP.json`
-    console.log('LOAD_VERTEX_CMD', load_vertex_cmd)
+    let load_vertex_cmd = `${server_homedir}/orientdb/bin/oetl.sh LDBCP.json`
     try{
       const load_vertex_exec = exec(load_vertex_cmd)
       console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'load vertex : ', chalk.blue.bold('LDBCP.json'));
+      // console.log('LOAD_VERTEX_CMD', load_vertex_cmd)
       console.log('----------------------------------------------------------');
 
       load_vertex_exec.stdout.on('data', function(data){
@@ -299,13 +317,12 @@ function load_vertex(status) {
 function load_edge(status, opt) {
   return new Promise(function(resolve, reject) {
     dirnum = orientMaster_IP.split('.')
-    let load_edge_cmd = `ssh root@${orientMaster_IP} ${ssdStorage_dir}/orientdb${dirnum[dirnum.length-1]}/bin/oetl.sh LDBCR.json`
-    //let load_edge_cmd = `/home/yuna/orientdb/bin/oetl.sh LDBCR.json`
-    console.log('LOAD_EDGE_CMD', load_edge_cmd)
+    let load_edge_cmd = `${server_homedir}/orientdb/bin/oetl.sh LDBCR.json`
     try{
       const load_edge_exec = exec(load_edge_cmd)
       console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'load edge : ', chalk.blue.bold('LDBCR.json'));
+      // console.log('LOAD_EDGE_CMD', load_edge_cmd)
       console.log('----------------------------------------------------------');
 
       load_edge_exec.stdout.on('data', function(data){
@@ -321,12 +338,14 @@ function load_edge(status, opt) {
         resolve(status * -1)
 
         if(opt.runtype == 'load'){
-          ip.forEach((i) => {
+          nodeIPArr.forEach((ip) => {
             try {
-              dirnum = i.split('.');
-              const std = exec(`ssh root@${i} ${ssdStorage_dir}/orientdb${dirnum[dirnum.length-1]}/killOrient.sh`);
+              dirnum = ip.split('.');
+              let kill_cmd = `ssh root@${ip} ${node_homedir}/killShell/killOrient.sh`
+              let kill_exec = exec(kill_cmd)
               console.log('----------------------------------------------------------');
-              console.log(chalk.green.bold('[INFO]'), 'orientdb kill : ', chalk.blue.bold(i));
+              console.log(chalk.green.bold('[INFO]'), 'orientdb kill : ', chalk.blue.bold(ip));
+              console.log('KILL_CMD', kill_cmd)
               // console.log('----------------------------------------------------------');
             } catch (err) {
               console.log(err);
@@ -334,20 +353,25 @@ function load_edge(status, opt) {
           })
 
           if (opt.iotracer == true) { // 벤치마킹 종료 후 iotracer 결과를 저장함
-              get_IO_results(opt.bmname, ip, opt.runtype)
+              get_IO_results(opt.bmname, nodeIPArr, opt.runtype)
 
               setTimeout(function() {
-                ip.forEach((i) => {
-              try {
+                nodeIPArr.forEach((ip) => {
+                  let result_cmd = `ssh root@${ip} ${IO_tracer_dir}/result.sh ${IO_output_dir}/${opt.name} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${ip}_${opt.runtype}_output`
+                  try {
                     // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
-                    const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh /home/skh/IO_OUTPUT/${opt.bmname} ${server_IP} ${nosqltests_result_dir}/${opt.bmname}/${i}_${opt.runtype}_output`)
-                    console.log(`ssh root@${i} ${IO_tracer_dir}/result.sh /home/skh/IO_OUTPUT/${opt.bmname} ${server_IP} ${nosqltests_result_dir}/${opt.bmname}/${i}_${opt.runtype}_output`);
+                    let result_exec = exec(result_cmd)
+                    // result_exec.stdout.on('data', function(data) {
+                    //   console.log(data);
+                    // })
                   } catch (err) {
-                    console.log('server send fail');
+                    console.log('----------------------------------------------------------');
+                    console.log(chalk.red.bold('[ERROR]'), `Failed to send iotracer data node to server.`);
+                    console.log('----------------------------------------------------------');
                     console.log(err);
                   }
                 })
-              }, 10000);
+              }, 20000);
           }
           console.log('----------------------------------------------------------');
           console.log(chalk.green.bold('[INFO]'), 'complete benchmarking : ', chalk.blue.bold(opt.bmname));
@@ -365,10 +389,8 @@ function load_edge(status, opt) {
 function run_NosquTests(status, opt) {
   return new Promise(function(resolve, reject) {
     dirnum = orientMaster_IP.split('.')
-
     let run_cmd = `nosqltest orientdb -n ${opt.name} -t ${opt.time} -s ${opt.size}`
-    console.log(run_cmd);
-
+    console.log('RUN_CMD', run_cmd)
         try {
           runexec = exec(run_cmd)
           console.log('----------------------------------------------------------');
@@ -382,16 +404,34 @@ function run_NosquTests(status, opt) {
             console.log(data);
           })
 
+
+          runexec.stderr.on('data', function(data){
+            console.log(data);
+          })
+
           runexec.on('exit', function(data){
             console.log('----------------------------------------------------------');
             console.log(chalk.green.bold('[INFO]'), `nosqltests completed.`);
             console.log('----------------------------------------------------------');
-              ip.forEach((i) => {
+            try {
+              // /home/skh/nosqltests_result/
+              let mvCmd = `mv ${server_homedir}/Graph/result/ ${nosqltests_result_dir}/${opt.bmname}/`
+              exec(mvCmd)
+              exec(`mkdir ${server_homedir}/Graph/result`)
+              console.log(mvCmd);
+              console.log('----------------------------------------------------------');
+              console.log(chalk.green.bold('[INFO]'), `move result file completed.`);
+              console.log('----------------------------------------------------------');
+            } catch (err) {
+              console.log(err);
+            }
+
+              nodeIPArr.forEach((ip) => {
                 try {
-                  dirnum = i.split('.');
-                  const std = exec(`ssh root@${i} ${ssdStorage_dir}/orientdb${dirnum[dirnum.length-1]}/killOrient.sh`);
+                  dirnum = ip.split('.');
+                  const std = exec(`ssh root@${ip} ${node_homedir}/killShell/killOrient.sh`);
                   console.log('--------------------------------------');
-                  console.log(chalk.green.bold('[INFO]'), 'orientdb kill : ', chalk.blue.bold(i));
+                  console.log(chalk.green.bold('[INFO]'), 'orientdb kill : ', chalk.blue.bold(ip));
                   // console.log('--------------------------------------');
                 } catch (err) {
                   console.log(err);
@@ -399,20 +439,25 @@ function run_NosquTests(status, opt) {
               })
 
               if (opt.iotracer == true) { // 벤치마킹 종료 후 iotracer 결과를 저장함
-                  get_IO_results(opt.bmname, ip, opt.runtype)
+                  get_IO_results(opt.bmname, nodeIPArr, opt.runtype)
 
                   setTimeout(function() {
-                    ip.forEach((i) => {
-                  try {
+                    nodeIPArr.forEach((ip) => {
+                      let result_cmd = `ssh root@${ip} ${IO_tracer_dir}/result.sh ${IO_output_dir}/${opt.name} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${ip}_${opt.runtype}_output`
+                      try {
                         // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
-                        const stdout3 = exec(`ssh root@${i} ${IO_tracer_dir}/result.sh /home/skh/IO_OUTPUT/${opt.bmname} ${server_IP} ${nosqltests_result_dir}/${opt.bmname}/${i}_${opt.runtype}_output`)
-                        console.log(`ssh root@${i} ${IO_tracer_dir}/result.sh /home/skh/IO_OUTPUT/${opt.bmname} ${server_IP} ${nosqltests_result_dir}/${opt.bmname}/${i}_${opt.runtype}_output`);
+                        let result_exec = exec(result_cmd)
+                        // result_exec.stdout.on('data', function(data) {
+                        //   console.log(data);
+                        // })
                       } catch (err) {
-                        console.log('server send fail');
+                        console.log('----------------------------------------------------------');
+                        console.log(chalk.red.bold('[ERROR]'), `Failed to send iotracer data node to server.`);
+                        console.log('----------------------------------------------------------');
                         console.log(err);
                       }
                     })
-                  }, 10000);
+                  }, 20000);
               }
 
               console.log('----------------------------------------------------------');
@@ -451,10 +496,7 @@ function benchmark_name(opt) {
         opt.bmname = `nosqltests_result_${seqNum}`
       }
     } catch (err) {
-      if (err.code === 'ENOENT') {
-        // console.log(chalk.red.bold('[ERROR]'),'There was an error.')
-        // console.log(err);
-      }
+      // console.log(err);
     }
   } else { //n 값이 있으면 else if((typeof opt.name) == 'string')
     const path = `${nosqltests_result_dir}`
