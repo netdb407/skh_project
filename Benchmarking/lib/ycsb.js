@@ -404,6 +404,8 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
     try {
       cmd_exec = spawn(cmd, null, {shell: true});
       // console.log('CMD', cmd)
+
+
       console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), `YCSB ${runtype} started.`);
       console.log('----------------------------------------------------------');
@@ -482,7 +484,7 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
       try {
         // setTimeout(function() {
           fs.statSync(file);
-          exec(`${home_dir}/json2csv.sh ${file}`);
+          exec(`${server_homedir}/json2csv.sh ${file}`);
           console.log('----------------------------------------------------------');
           console.log(chalk.green.bold('[INFO]'), `converted YCSB RESULT from JSON to csv.`);
           console.log('----------------------------------------------------------');

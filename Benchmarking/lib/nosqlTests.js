@@ -29,21 +29,21 @@ module.exports.graphbench = (opt) => {
 
   benchmark_name(opt)
   dbstart()
-  check_NosquTests(status)
+  check_NosqlTests(status)
   // console.log(opt);
-  async function check_NosquTests(status) {
-    let orientdb_status = await statusCheck()
-    // console.log('ORIENTDB_STATUS', orientdb_status)
+  async function check_NosqlTests(status) {
+    let orientdb_status = await statusCheck(status, nodeIPArr, nodetool_ip) //1, -1
+    console.log('ORIENTDB_STATUS', orientdb_status)
     let iotracer_status = await checkStatus_iotracer(status, opt.iotracer)
-    // console.log('IOTRACER_STATUS', iotracer_status)
+    console.log('IOTRACER_STATUS', iotracer_status)
     let runtype_status = await checkStatus_runtype(status, opt.runtype)
-    // console.log('RUNTYPE_STATUS', runtype_status)
+    console.log('RUNTYPE_STATUS', runtype_status)
     let name_status = await checkStatus_name(status, opt.name)
-    // console.log('NAME', name_status)
+    console.log('NAME', name_status)
     let time_status = await checkStatus_time(status, opt.time)
-    // console.log('TIME', time_status)
+    console.log('TIME', time_status)
     let size_status = await checkStatus_size(status, opt.size)
-    // console.log('SIZE', size_status)
+    console.log('SIZE', size_status)
 
       if (orientdb_status == 1 && iotracer_status == 1 && runtype_status == 1 && name_status == 1 && time_status == 1 && size_status == 1) {
         if (opt.iotracer == true) { // IOracer 옵션이 있을 경우Otracer 를 실행함
@@ -69,7 +69,7 @@ module.exports.graphbench = (opt) => {
           if(opt.runtype == 'load'){
             load_function(status, opt)
           }else if (opt.runtype == 'run'){
-            run_NosquTests(status, opt)
+            run_NosqlTests(status, opt)
           }else if (opt.runtype == 'loadrun'){
             loadrun_function(status, opt)
           }
@@ -97,12 +97,13 @@ module.exports.graphbench = (opt) => {
         // console.log('COMPLETE_EDGE', complete_edge)
       }
       if(complete_vertex == 1 && complete_edge == 1){
-        run_NosquTests(status, opt)
+        run_NosqlTests(status, opt)
       }
     }
 }
 
-  async function dbstart(){
+  function dbstart(){
+    return new Promise(function(resolve, reject) {
     nodeIPArr.forEach((ip) => {
       dirnum = ip.split('.');
       let runcmd = `ssh root@${ip} ${node_homedir}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`
@@ -112,10 +113,11 @@ module.exports.graphbench = (opt) => {
       console.log('RUNCMD', runcmd)
       console.log('--------------------------------------');
     });
-    setTimeout(statusCheck,1000*20);
+   return console.log(chalk.green.bold('[INFO]'), 'dbstart!');
+   });
   }
 
-  async function statusCheck(){
+  async function statusCheck(status, nodeIPArr, nodetool_ip){
     return new Promise(function(resolve,reject){
       let checkcmd = `curl --user root:1234 --header "Accept: text/csv" -d "HA STATUS -servers -output=text" "http://${nodetool_ip}:2480/command/skh/sql"`
       cmdexec = exec(checkcmd)
@@ -128,6 +130,7 @@ module.exports.graphbench = (opt) => {
       cmdexec.stdout.on('data', function(data) {
         a1 = data.toString().match(/ONLINE/gi);
         if(a1!=null){
+          console.log(data);
           if(a1.length==nodeIPcount*2){
             a = a1.length;
              console.log('Status is complete! ONLINE:', a);
@@ -357,7 +360,7 @@ function load_edge(status, opt) {
 
               setTimeout(function() {
                 nodeIPArr.forEach((ip) => {
-                  let result_cmd = `ssh root@${ip} ${IO_tracer_dir}/result.sh ${IO_output_dir}/${opt.name} ${server_IP} ${ycsb_exportfile_dir}/${opt.name}/${ip}_${opt.runtype}_output`
+                  let result_cmd = `ssh root@${ip} ${IO_tracer_dir}/result.sh ${IO_output_dir}/${opt.bmname} ${server_IP} ${nosqltests_result_dir}/${opt.bmname}/${ip}_${opt.runtype}_output`
                   try {
                     // 파싱 결과를 서버의 benchmark name 디렉토리에 저장함
                     let result_exec = exec(result_cmd)
@@ -380,13 +383,13 @@ function load_edge(status, opt) {
       })
 
     } catch(err){
-      console.error(err);
+      console.log(err)
       resolve(status)
     }
   });
 }
 
-function run_NosquTests(status, opt) {
+function run_NosqlTests(status, opt) {
   return new Promise(function(resolve, reject) {
     dirnum = orientMaster_IP.split('.')
     let run_cmd = `nosqltest orientdb -n ${opt.name} -t ${opt.time} -s ${opt.size}`
