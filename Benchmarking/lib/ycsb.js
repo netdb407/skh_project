@@ -400,7 +400,7 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
       cmd = 'pwd'
       // console.log('CMD', cmd)
     }
-
+    // console.log(cmd);
     try {
       cmd_exec = spawn(cmd, null, {shell: true});
       // console.log('CMD', cmd)
