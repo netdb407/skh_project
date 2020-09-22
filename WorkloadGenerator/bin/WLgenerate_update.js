@@ -216,6 +216,7 @@ var q1 = [
     filter: Number,
     default :''
   }];
+
 var q2 =[
     {
     type : 'input',
@@ -229,6 +230,7 @@ var q2 =[
         return valid || 'Please enter a number';
       }
     },
+    filter: Number,
     default : 'Record_count value'
   },{
     type : 'input',
@@ -287,6 +289,7 @@ var q2 =[
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default :''
   },{
     type : 'input',
@@ -296,7 +299,18 @@ var q2 =[
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default :''
+  },{
+    type : 'input',
+    name : 'operationcount',
+    message : 'operationcount',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    filter: Number,
+    default : ''
   }
 ];
 // Graph benchmark 속성 입력
@@ -309,6 +323,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -319,6 +334,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -329,6 +345,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -339,6 +356,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -349,6 +367,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -359,6 +378,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -369,6 +389,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -379,6 +400,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -389,6 +411,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -399,6 +422,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 10
   },
   {
@@ -409,6 +433,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 10
   },
   {
@@ -419,6 +444,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 10
   },
   {
@@ -429,6 +455,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   },
   {
@@ -439,6 +466,7 @@ var q3 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : ''
   }
 ];
@@ -472,6 +500,7 @@ async function main2(){
       q2[5].default = fileproperties._properties.hdrhistogram_fileoutput;
       q2[6].default = fileproperties._properties.histogram;
       q2[7].default = fileproperties._properties.timeseries_granularity;
+      q2[8].default = fileproperties._properties.operationcount;
     if(answer.choice === 'FileName'){
       var fsExists = fs.existsSync(dir1+answer.original_name);
       if(fsExists){
@@ -519,10 +548,11 @@ async function main2(){
               'zeropadding = '+answer2_1_1.zeropadding+'\n'+
               'insertorder = '+answer2_1_1.insertorder+'\n'+
               'fieldnameprefix = '+answer2_1_1.fieldnameprefix+'\n'+
-              'hdrhistogram_percentiles = '+answer2_1_1.hdrhistogram_percentiles+'\n'+
-              'hdrhistogram_fileoutput = '+answer2_1_1.hdrhistogram_fileoutput+'\n'+
+              'hdrhistogram.percentiles = '+answer2_1_1.hdrhistogram_percentiles+'\n'+
+              'hdrhistogram.fileoutput = '+answer2_1_1.hdrhistogram_fileoutput+'\n'+
               'histogram = '+answer2_1_1.histogram+'\n'+
-              'timeseries_granularity = '+answer2_1_1.timeseries+'\n'+
+              'timeseries.granularity = '+answer2_1_1.timeseries+'\n'+
+              'operationcount = '+answer2_1_1.operationcount+'\n'+
               'workload=site.ycsb.workloads.CoreWorkload'
             ];
               fs.readFile(dir1+answer.original_name,'utf8',function(err,data){

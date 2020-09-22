@@ -253,6 +253,7 @@ var q1 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 1000
   },{
     type : 'input',
@@ -262,7 +263,18 @@ var q1 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 1000
+  },{
+    type : 'input',
+    name : 'operationcount',
+    message : 'operationcount',
+    validate: function(value) {
+      var valid = !isNaN(parseFloat(value));
+      return valid || 'Please enter a number';
+    },
+    filter: Number,
+    default : 1
   }
 ];
 //Graph benchmark 속성
@@ -275,6 +287,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 8.3
   },
   {
@@ -285,6 +298,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 23.8
   },
   {
@@ -295,6 +309,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 3.2
   },
   {
@@ -305,6 +320,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 29.0
   },
   {
@@ -315,6 +331,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 25.8
   },
   {
@@ -325,6 +342,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 9.6
   },
   {
@@ -335,6 +353,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 0
   },
   {
@@ -345,6 +364,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 0
   },
   {
@@ -355,6 +375,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 0
   },
   {
@@ -365,6 +386,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 0
   },
   {
@@ -375,6 +397,7 @@ var q2 = [
       var valid = !isNaN(parseFloat(value));
       return valid || 'Please enter a number';
     },
+    filter: Number,
     default : 1000000
   }
 ];
@@ -412,6 +435,7 @@ inquirer.prompt(question).then(answers => {
         console.log("hdrhistogram.fileoutput = %s",answers1_2.hdrhistogram_fileoutput);
         console.log("histogram = %s",answers1_2.histogram);
         console.log("timeseries.granularity = %s",answers1_2.timeseries);
+        console.log("operationcount = %s",answers1_2.operationcount);
         console.log('workload=site.ycsb.workloads.CoreWorkload');
         console.log("********************************");
 
@@ -440,6 +464,7 @@ inquirer.prompt(question).then(answers => {
         'hdrhistogram_fileoutput = '+answers1_2.hdrhistogram_fileoutput+'\n'+
         'histogram = '+answers1_2.histogram+'\n'+
         'timeseries_granularity = '+answers1_2.timeseries+'\n'+
+        'operationcount = '+answers1_2.operationcount+'\n'+
         'workload=site.ycsb.workloads.CoreWorkload'
       ];
           fs.readdir(dir1,function(err,filelist){
