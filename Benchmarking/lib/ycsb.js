@@ -7,7 +7,6 @@ const spawn = require('child_process').spawn
 const fs = require('fs')
 const chalk = require('chalk')
 let Promise = require('promise')
-const server_wlfile_dir = property.get_server_wlfile_dir()
 const server_IP = property.get_server_IP()
 const nodes_IP = property.get_nodes_IP()
 let nodeIPArr = nodes_IP.split(',')
@@ -329,12 +328,12 @@ const dropData = () => new Promise(resolve => {
 
 
 const createData = () => new Promise(resolve => {
-  createCmd = `ssh root@${nodetool_ip} ${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/createKeyspace.cql ${nodetool_ip}`
-  // console.log('CREATECMD', createCmd)
+  createCmd = `${node_cassandra_dir}/bin/cqlsh -f ${node_cassandra_dir}/createKeyspace.cql ${nodetool_ip}`
+  console.log('CREATECMD', createCmd)
   try {
     const stdout = exec(createCmd);
     console.log('----------------------------------------------------------');
-    console.log(chalk.green.bold('[INFO]'), 'create cassandra table : ', chalk.blue.bold(nodetool_ip));
+    console.log(chalk.green.bold('[INFO]'), 'create cassandra table : ', chalk.blue.bold(server_IP));
     console.log('----------------------------------------------------------');
     // console.log(shadowContent);
   } catch (err) {
@@ -349,7 +348,7 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
       nodeIPArr.forEach((ip) => {
         try {
           io_run_cmd = `ssh root@${ip} ${IO_tracer_dir}/bin/iotracer -m ${IO_driverManager_dir} ${IO_watch_dir} -i ${timewindow_iotracer} -o ${IO_output_dir}/${opt.name}`
-          // console.log('IORUNCMD', ioruncmd)
+           console.log('IORUNCMD', io_run_cmd)
 
           run_cmd_exec = spawn(io_run_cmd, null, {
             shell: true

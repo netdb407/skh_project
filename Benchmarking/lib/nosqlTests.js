@@ -95,10 +95,10 @@ module.exports.graphbench = (opt) => {
       dirnum = ip.split('.');
       let runcmd = `ssh root@${ip} ${node_homedir}/orientdb${dirnum[dirnum.length-1]}/bin/dserver.sh &`
       exec(runcmd)
-      console.log('--------------------------------------');
+      console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'run orientdb in', `${ip}`);
       // console.log('RUNCMD', runcmd)
-      console.log('--------------------------------------');
+      console.log('----------------------------------------------------------');
     });
    });
   }
@@ -251,13 +251,13 @@ function checkStatus_time(status, time) {
     if(time == null){
       time = 10000
       console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'settime :', chalk.blue.bold(time));
+      console.log(chalk.green.bold('[INFO]'), 'settime :', chalk.blue.bold(time),'(ms)');
       // console.log('----------------------------------------------------------');
       return resolve(status * -1) //success : 1
     }else{
       if (isNumber(time)) { // 입력이 숫자
         console.log('----------------------------------------------------------');
-        console.log(chalk.green.bold('[INFO]'), 'settime :', chalk.blue.bold(time));
+        console.log(chalk.green.bold('[INFO]'), 'settime :', chalk.blue.bold(time),'(ms)');
         // console.log('----------------------------------------------------------');
         return resolve(status * -1) //success : 1
       } else { // 입력이 숫자가 아님
@@ -274,7 +274,7 @@ function checkStatus_time(status, time) {
 
 function checkStatus_size(status, size) {
   return new Promise(function(resolve, reject) {
-    let list = ["LDBC", "LDBC1", "LDBC2", "LDBC3", "LDBC4", "LDBC5", "LDBC6", "LDBC7", "pockec", "livejournal"]
+    let list = ["LDBC1", "LDBC2", "LDBC3", "LDBC4", "LDBC5", "LDBC6", "LDBC7", "pokec", "livejournal"]
     if (list.includes(size)) { // size : LDBC, pocket, livejournal
       console.log('----------------------------------------------------------');
       console.log(chalk.green.bold('[INFO]'), 'size :', chalk.blue.bold(size));
@@ -289,14 +289,80 @@ function checkStatus_size(status, size) {
   });
 }
 
-function load_vertex(status2) {
+function load_vertex(status2, opt) {
   return new Promise(function(resolve, reject) {
+
+    let fileSize = "";
+
+    switch (opt.size) {
+      case "LDBC1":
+        fileSize = "sf0.1";
+        break;
+      case "LDBC2":
+        fileSize = "sf0.3";
+        break;
+      case "LDBC3":
+        fileSize = "sf1";
+        break;
+      case 'LDBC4':
+        fileSize = "sf3";
+        break;
+      case 'LDBC5':
+        fileSize = "sf10";
+        break;
+      case 'LDBC6':
+        fileSize = "sf30";
+        break;
+      case 'LDBC7':
+        fileSize = "sf100";
+        break;
+    }
+    let nodeIP = property.get_nodetool_IP();
+
+    if(opt.size == "pokec"){
+      let pokecP_cmd1 = `sed -i 7c'  "path": "${server_homedir}/orientdb/person/soc-pokec-profiles-orientdb.txt",' ${server_homedir}/orientdb/bin/pokecP.json`
+      let pokecP_cmd2 = `sed -i 19c'     "dbURL": "remote:${nodeIP}/skh",' ${server_homedir}/orientdb/bin/pokecP.json`
+      let pokecR_cmd1 = `sed -i 7c'  "path": "${server_homedir}/orientdb/person/soc-pokec-relationships-orientdb.txt",' ${server_homedir}/orientdb/bin/pokecR.json`
+      let pokecR_cmd2 = `sed -i 28c'      "dbURL": "remote:${nodeIP}/skh",' ${server_homedir}/orientdb/bin/pokecR.json`
+      exec(pokecP_cmd1)
+      exec(pokecP_cmd2)
+      exec(pokecR_cmd1)
+      exec(pokecR_cmd2)
+    }else if(opt.size == "livejournal"){
+      let journalP_cmd1 = `sed -i 7c' "path": "${server_homedir}/orientdb/person/journalP",' ${server_homedir}/orientdb/bin/journalP.json`
+      let journalP_cmd2 = `sed -i 19c'     "dbURL": "remote:${nodeIP}/skh",' ${server_homedir}/orientdb/bin/journalP.json`
+      let journalR_cmd1 = `sed -i 5c' "source": { "file": { "path": "${server_homedir}/orientdb/person/soc-LiveJournal1.txt" } },' ${server_homedir}/orientdb/bin/journalR.json`
+      let journalR_cmd2 = `sed -i 32c'      "dbURL": "remote:${nodeIP}/skh",' ${server_homedir}/orientdb/bin/journalR.json`
+      exec(journalP_cmd1)
+      exec(journalP_cmd2)
+      exec(journalR_cmd1)
+      exec(journalR_cmd2)
+    }else{
+      let LDBCP_cmd1 = `sed -i 5c' "source": { "file": { "path": "${server_homedir}/orientdb/person/${fileSize}/person_0_0.csv"  } },' ${server_homedir}/orientdb/bin/LDBCP.json`
+      let LDBCP_cmd2 = `sed -i 18c'      "dbURL": "remote:${nodeIP}/skh",' ${server_homedir}/orientdb/bin/LDBCP.json`
+      let LDBCR_cmd1 = `sed -i 5c' "source": { "file": { "path": "${server_homedir}/orientdb/person/${fileSize}/person_knows_person_0_0.csv" } },' ${server_homedir}/orientdb/bin/LDBCR.json`
+      let LDBCR_cmd2 = `sed -i 36c'      "dbURL": "remote:${nodeIP}/skh",' ${server_homedir}/orientdb/bin/LDBCR.json`
+      exec(LDBCP_cmd1)
+      exec(LDBCP_cmd2)
+      exec(LDBCR_cmd1)
+      exec(LDBCR_cmd2)
+    }
+
     dirnum = orientMaster_IP.split('.')
-    let load_vertex_cmd = `${server_homedir}/orientdb/bin/oetl.sh LDBCP.json`
+    let oetl_name = ''
+    if(opt.size == "pokec"){
+      oetl_name = 'pokecP.json'
+    }else if(opt.size == "livejournal"){
+      oetl_name = 'journalP.json'
+    }else{
+      oetl_name = 'LDBCP.json'
+    }
+
+    let load_vertex_cmd = `${server_homedir}/orientdb/bin/oetl.sh ${oetl_name}`
     try{
       const load_vertex_exec = exec(load_vertex_cmd)
       console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'load vertex : ', chalk.blue.bold('LDBCP.json'));
+      console.log(chalk.green.bold('[INFO]'), 'load vertex : ', chalk.blue.bold(oetl_name));
       // console.log('LOAD_VERTEX_CMD', load_vertex_cmd)
       console.log('----------------------------------------------------------');
 
@@ -318,7 +384,7 @@ function load_vertex(status2) {
       })
 
     } catch(err){
-      console.error(err);
+      console.log(err)
       resolve(status2)
     }
   });
@@ -327,11 +393,21 @@ function load_vertex(status2) {
 function load_edge(status2, opt) {
   return new Promise(function(resolve, reject) {
     dirnum = orientMaster_IP.split('.')
-    let load_edge_cmd = `${server_homedir}/orientdb/bin/oetl.sh LDBCR.json`
+
+    let oetl_name = ''
+    if(opt.size == "pokec"){
+      oetl_name = 'pokecR.json'
+    }else if(opt.size == "livejournal"){
+      oetl_name = 'journalR.json'
+    }else{
+      oetl_name = 'LDBCR.json'
+    }
+
+    let load_edge_cmd = `${server_homedir}/orientdb/bin/oetl.sh ${oetl_name}`
     try{
       const load_edge_exec = exec(load_edge_cmd)
       console.log('----------------------------------------------------------');
-      console.log(chalk.green.bold('[INFO]'), 'load edge : ', chalk.blue.bold('LDBCR.json'));
+      console.log(chalk.green.bold('[INFO]'), 'load edge : ', chalk.blue.bold(oetl_name));
       // console.log('LOAD_EDGE_CMD', load_edge_cmd)
       console.log('----------------------------------------------------------');
 
@@ -386,6 +462,15 @@ function load_edge(status2, opt) {
           console.log('----------------------------------------------------------');
           console.log(chalk.green.bold('[INFO]'), 'complete benchmarking : ', chalk.blue.bold(opt.bmname));
           console.log('----------------------------------------------------------');
+          let iotracer_status =  checkStatus_iotracer(status, opt.iotracer)
+          // console.log('IOTRACER_STATUS', iotracer_status)
+          let runtype_status =  checkStatus_runtype(status, opt.runtype)
+          // console.log('RUNTYPE_STATUS', runtype_status)
+          let name_status =  checkStatus_name(status, opt.name)
+          // console.log('NAME', name_status)
+          let time_status =  checkStatus_time(status, opt.time)
+          // console.log('TIME', time_status)
+          let size_status =  checkStatus_size(status, opt.size)
         }
       })
 
@@ -428,7 +513,7 @@ function run_NosqlTests(status2, opt) {
               let mvCmd = `mv ${server_homedir}/Graph/result/ ${nosqltests_result_dir}/${opt.bmname}/`
               exec(mvCmd)
               exec(`mkdir ${server_homedir}/Graph/result`)
-              console.log(mvCmd);
+              // console.log(mvCmd);
               console.log('----------------------------------------------------------');
               console.log(chalk.green.bold('[INFO]'), `move result file completed.`);
               console.log('----------------------------------------------------------');
@@ -440,9 +525,9 @@ function run_NosqlTests(status2, opt) {
                 try {
                   dirnum = ip.split('.');
                   const std = exec(`ssh root@${ip} ${node_homedir}/killShell/killOrient.sh`);
-                  console.log('--------------------------------------');
+                  console.log('----------------------------------------------------------');
                   console.log(chalk.green.bold('[INFO]'), 'orientdb kill : ', chalk.blue.bold(ip));
-                  // console.log('--------------------------------------');
+                  // console.log('----------------------------------------------------------');
                 } catch (err) {
                   console.log(err);
                 }
@@ -473,6 +558,15 @@ function run_NosqlTests(status2, opt) {
               console.log('----------------------------------------------------------');
               console.log(chalk.green.bold('[INFO]'), 'complete benchmarking : ', chalk.blue.bold(opt.bmname));
               console.log('----------------------------------------------------------');
+              let iotracer_status =  checkStatus_iotracer(status, opt.iotracer)
+              // console.log('IOTRACER_STATUS', iotracer_status)
+              let runtype_status =  checkStatus_runtype(status, opt.runtype)
+              // console.log('RUNTYPE_STATUS', runtype_status)
+              let name_status =  checkStatus_name(status, opt.name)
+              // console.log('NAME', name_status)
+              let time_status =  checkStatus_time(status, opt.time)
+              // console.log('TIME', time_status)
+              let size_status =  checkStatus_size(status, opt.size)
 
         resolve(status2 * -1)
       })
@@ -510,7 +604,7 @@ function benchmark_name(opt) {
     }
   } else { //n 값이 있으면 else if((typeof opt.name) == 'string')
     const path = `${nosqltests_result_dir}`
-    var file = opt.bmname
+    let file = opt.bmname
     // console.log(file);
     //console.log(file.split("_")[1])
     //split 하면 배열로 반환됨
@@ -518,7 +612,7 @@ function benchmark_name(opt) {
 
     while (1) {
       // console.log(file)
-      var array = file.split("_") //som, som, 1
+      let array = file.split("_") //som, som, 1
       try {
         if (!fs.existsSync(path + '/' + file)) {
           fs.mkdirSync(path + '/' + file)

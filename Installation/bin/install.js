@@ -13,7 +13,6 @@ const fs = require('fs');
 
 let ip;
 let installDir;
-let rpm_dir_in_skhproject     = property.get_rpm_dir_in_skhproject(); //프로젝트 폴더 rpm
 //let rpm_dir_in_ServerAndNode  = property.get_rpm_dir_in_ServerAndNode(); //root/
 let packageName;
 let stdout;
@@ -438,115 +437,45 @@ function installDatabase(db, nodes, node_arr){
               // console.log('homeNum :', homeNum);
 
               startTime = getTime();
-              if(i==ip[0]){
-                try{
-                  let checkdir_cmd = `ssh root@${i} ls -l ${node_homedir}/${homeNum}`
-                  let dir1 = exec(checkdir_cmd);
-                  //파일이 이미 존재 => 재실행임
-                  console.log(chalk.yellow.bold('[WARNING]'), 'Already installed in', chalk.blue.bold(i));
-                }catch(error){
-                  //없으면 No such file or directory
-                  //존재하지 않음 => 최초 실행
-                  console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i) , '... It will take a few minutes');
 
-                  exec(`scp -r ${server_homedir}/orientdb root@${i}:${node_homedir}`)
-                  console.log(chalk.green.bold('[INFO]'), 'Sending complete!');
+              try{
+                let checkdir_cmd = `ssh root@${i} ls -l ${node_homedir}/${homeNum}`
+                let dir1 = exec(checkdir_cmd);
+                //파일이 이미 존재 => 재실행임
+                console.log(chalk.yellow.bold('[WARNING]'), 'Already installed in', chalk.blue.bold(i));
+              }catch(error){
+                //없으면 No such file or directory
+                //존재하지 않음 => 최초 실행
+                console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i) , '... It will take a few minutes');
 
-                  let mv_cmd = `ssh root@${i} mv ${node_homedir}/orientdb ${node_homedir}/${homeNum}`
-                  let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${node_homedir}/orientdb"|"${node_homedir}/${homeNum}"|"' ${node_homedir}/${homeNum}/bin/orientdb.sh`
-                  let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${homeNum}"|"' ${node_homedir}/${homeNum}/bin/orientdb.sh`
-                  let chmodCmd = `ssh -t root@${i} chmod 640 ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
-                  let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${homeNum}|"' ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
-                  let fixdatabases_cmd = `ssh root@${i} 'sed -i "93,94s|orientdb|${homeNum}|"' ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
+                exec(`scp -r ${server_homedir}/orientdb root@${i}:${node_homedir}`)
+                console.log(chalk.green.bold('[INFO]'), 'Sending complete!');
 
-                  exec(mv_cmd)
-                  exec(fixDir_cmd)
-                  exec(fixUser_cmd)
-                  console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh complete!');
-                  exec(chmodCmd)
-                  console.log(chalk.green.bold('[INFO]'), 'exec chmod complete!');
-                  exec(fixNodeName_cmd)
-                  exec(fixdatabases_cmd)
-                  console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml complete!');
+                let mv_cmd = `ssh root@${i} mv ${node_homedir}/orientdb ${node_homedir}/${homeNum}`
+                let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${node_homedir}/orientdb"|"${node_homedir}/${homeNum}"|"' ${node_homedir}/${homeNum}/bin/orientdb.sh`
+                let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${homeNum}"|"' ${node_homedir}/${homeNum}/bin/orientdb.sh`
+                let chmodCmd = `ssh -t root@${i} chmod 640 ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
+                let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${homeNum}|"' ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
+                let fixdatabases_cmd = `ssh root@${i} 'sed -i "93,94s|orientdb|${homeNum}|"' ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
 
-                  endTime = getTime();
-                  console.log(chalk.green.bold('[INFO]'), 'Installation Complete! * Start Time:', startTime, '* End Time:', endTime, '*');
-                }
+                exec(mv_cmd)
+                exec(fixDir_cmd)
+                exec(fixUser_cmd)
+                console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh complete!');
+                exec(chmodCmd)
+                console.log(chalk.green.bold('[INFO]'), 'exec chmod complete!');
+                exec(fixNodeName_cmd)
+                exec(fixdatabases_cmd)
+                console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml complete!');
+
+                endTime = getTime();
+                console.log(chalk.green.bold('[INFO]'), 'Installation Complete! * Start Time:', startTime, '* End Time:', endTime, '*');
               }
 
 
-              if(i==ip[1]){
-                try{
-                  let checkdir_cmd = `ssh root@${i} ls -l ${node_homedir}/${homeNum}`
-                  let dir1 = exec(checkdir_cmd);
-                  //파일이 이미 존재 => 재실행임
-                  console.log(chalk.yellow.bold('[WARNING]'), 'Already installed in', chalk.blue.bold(i));
-                }catch(error){
-                  //없으면 No such file or directory
-                  //존재하지 않음 => 최초 실행
-                  console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i) , '... It will take a few minutes');
-
-                  exec(`scp -r ${server_homedir}/orientdb root@${i}:${node_homedir}`)
-                  console.log(chalk.green.bold('[INFO]'), 'Sending complete!');
-
-                  let mv_cmd = `ssh root@${i} mv ${node_homedir}/orientdb ${node_homedir}/${homeNum}`
-                  let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${node_homedir}/orientdb"|"${node_homedir}/${homeNum}"|"' ${node_homedir}/${homeNum}/bin/orientdb.sh`
-                  let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${homeNum}"|"' ${node_homedir}/${homeNum}/bin/orientdb.sh`
-                  let chmodCmd = `ssh -t root@${i} chmod 640 ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
-                  let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${homeNum}|"' ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
-                  let fixdatabases_cmd = `ssh root@${i} 'sed -i "93,94s|orientdb|${homeNum}|"' ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
-
-                  exec(mv_cmd)
-                  exec(fixDir_cmd)
-                  exec(fixUser_cmd)
-                  console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh complete!');
-                  exec(chmodCmd)
-                  console.log(chalk.green.bold('[INFO]'), 'exec chmod complete!');
-                  exec(fixNodeName_cmd)
-                  exec(fixdatabases_cmd)
-                  console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml complete!');
-
-                  endTime = getTime();
-                  console.log(chalk.green.bold('[INFO]'), 'Installation Complete! * Start Time:', startTime, '* End Time:', endTime, '*');
-                }
-              }
 
 
-              if(i==ip[2]){
-                try{
-                  let checkdir_cmd = `ssh root@${i} ls -l ${node_homedir}/${homeNum}`
-                  let dir1 = exec(checkdir_cmd);
-                  //파일이 이미 존재 => 재실행임
-                  console.log(chalk.yellow.bold('[WARNING]'), 'Already installed in', chalk.blue.bold(i));
-                }catch(error){
-                  //없으면 No such file or directory
-                  //존재하지 않음 => 최초 실행
-                  console.log(chalk.green.bold('[INFO]'), 'Waiting for send orientdb to', chalk.blue.bold(i) , '... It will take a few minutes');
 
-                  exec(`scp -r ${server_homedir}/orientdb root@${i}:${node_homedir}`)
-                  console.log(chalk.green.bold('[INFO]'), 'Sending complete!');
-
-                  let mv_cmd = `ssh root@${i} mv ${node_homedir}/orientdb ${node_homedir}/${homeNum}`
-                  let fixDir_cmd = `ssh root@${i} 'sed -i "10,11s|"${node_homedir}/orientdb"|"${node_homedir}/${homeNum}"|"' ${node_homedir}/${homeNum}/bin/orientdb.sh`
-                  let fixUser_cmd = `ssh root@${i} 'sed -i "12,13s|"orientdb"|"${homeNum}"|"' ${node_homedir}/${homeNum}/bin/orientdb.sh`
-                  let chmodCmd = `ssh -t root@${i} chmod 640 ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
-                  let fixNodeName_cmd = `ssh root@${i} 'sed -i "15,16s|orientdb|${homeNum}|"' ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
-                  let fixdatabases_cmd = `ssh root@${i} 'sed -i "93,94s|orientdb|${homeNum}|"' ${node_homedir}/${homeNum}/config/orientdb-server-config.xml`
-
-                  exec(mv_cmd)
-                  exec(fixDir_cmd)
-                  exec(fixUser_cmd)
-                  console.log(chalk.green.bold('[INFO]'), 'fix orientdb.sh complete!');
-                  exec(chmodCmd)
-                  console.log(chalk.green.bold('[INFO]'), 'exec chmod complete!');
-                  exec(fixNodeName_cmd)
-                  exec(fixdatabases_cmd)
-                  console.log(chalk.green.bold('[INFO]'), 'fix orientdb-server-config.xml complete!');
-
-                  endTime = getTime();
-                  console.log(chalk.green.bold('[INFO]'), 'Installation Complete! * Start Time:', startTime, '* End Time:', endTime, '*');
-                }
-              }
             console.log('----------------------------------------------------------');
             })
           break;
