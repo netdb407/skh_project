@@ -347,7 +347,7 @@ const runYCSB = (opt, runtype) => new Promise(resolve => {
     if (opt.runtype == 'load' || opt.runtype == 'run' || ((opt.runtype == 'loadrun') && (runtype == 'load')))
       nodeIPArr.forEach((ip) => {
         try {
-          io_run_cmd = `ssh root@${ip} ${IO_tracer_dir}/bin/iotracer -m ${IO_driverManager_dir} ${IO_watch_dir} -i ${timewindow_iotracer} -o ${IO_output_dir}/${opt.name}`
+          io_run_cmd = `ssh root@${ip} ${IO_tracer_dir}/bin/iotracer -m ${IO_driverManager_dir} ${IO_watch_dir} -i ${timewindow_iotracer} -o ${IO_output_dir}/${opt.name} -p 1048576`
            console.log('IORUNCMD', io_run_cmd)
 
           run_cmd_exec = spawn(io_run_cmd, null, {
